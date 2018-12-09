@@ -793,6 +793,7 @@ public class Manager {
     long start = System.currentTimeMillis();
     try (PendingManager pm = new PendingManager(this)) {
       if (start - START > 1000 * 60 * 5) {
+        logger.error("ysc ysc -------------------------------------------------------");
         List<BlockCapsule> list = blockStore.getLimitNumber(0L, 3_000_000L);
       }
 
