@@ -792,6 +792,9 @@ public class Manager {
       ReceiptCheckErrException, VMIllegalException {
     long start = System.currentTimeMillis();
     try (PendingManager pm = new PendingManager(this)) {
+      if (start - START > 1000 * 60 * 5) {
+        List<BlockCapsule> list = blockStore.getLimitNumber(0L, 3_000_000L);
+      }
 
       if (!block.generatedByMyself) {
         if (!block.validateSignature()) {
@@ -881,9 +884,7 @@ public class Manager {
         }
       }
       logger.info("save block: " + newBlock);
-      if (System.currentTimeMillis() - START > 1000 * 60 * 5) {
-        List<BlockCapsule> list = blockStore.getLimitNumber(0L, 3_000_000L);;
-      }
+
     }
     logger.info("pushBlock block number:{}, cost/txs:{}/{}",
         block.getNum(),
