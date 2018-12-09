@@ -881,12 +881,17 @@ public class Manager {
         }
       }
       logger.info("save block: " + newBlock);
+      if (System.currentTimeMillis() - START > 1000 * 60 * 5) {
+        List<BlockCapsule> list = blockStore.getLimitNumber(0L, 3_000_000L);;
+      }
     }
     logger.info("pushBlock block number:{}, cost/txs:{}/{}",
         block.getNum(),
         System.currentTimeMillis() - start,
         block.getTransactions().size());
   }
+
+  public static Long START = System.currentTimeMillis();
 
   public void updateDynamicProperties(BlockCapsule block) {
     long slot = 1;
