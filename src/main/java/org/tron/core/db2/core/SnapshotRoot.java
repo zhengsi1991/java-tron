@@ -2,7 +2,9 @@ package org.tron.core.db2.core;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
+import io.netty.util.CharsetUtil;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +44,7 @@ public class SnapshotRoot extends AbstractSnapshot<byte[], byte[]> {
       valLength = val.length;
     }
     PerformanceHelper.singleTxGetPutInfo.add(
-        this.dbName + "\1GET\1" + String.valueOf(keyLength) + "\1" + String.valueOf(valLength)
+        this.dbName + "\1GET\1" + (new String(key, CharsetUtil.UTF_8)) + "\1" + String.valueOf(keyLength) + "\1" + String.valueOf(valLength)
             + "\1"
             + String.valueOf(consume));
     return val;
