@@ -19,6 +19,10 @@ matrix:
       - linux
     dist: trusty
 
+  - os:
+      - linux
+    dist: precise
+
 
 addons:
   ssh_known_hosts:
