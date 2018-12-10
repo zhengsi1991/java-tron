@@ -176,7 +176,7 @@ public class WitnessService implements Service {
     }
 
     final int participation = this.controller.calculateParticipationRate();
-    if (participation < MIN_PARTICIPATION_RATE) {
+    if (false) {
       logger.warn(
           "Participation[" + participation + "] <  MIN_PARTICIPATION_RATE[" + MIN_PARTICIPATION_RATE
               + "]");
