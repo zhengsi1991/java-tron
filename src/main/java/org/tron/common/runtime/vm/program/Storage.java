@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
 import org.tron.common.crypto.Hash;
+import org.tron.common.runtime.utils.PerformanceHelper;
 import org.tron.common.runtime.vm.DataWord;
 import org.tron.core.capsule.StorageRowCapsule;
 import org.tron.core.db.StorageRowStore;
@@ -38,11 +39,14 @@ public class Storage {
     if (rowCache.containsKey(key)) {
       return rowCache.get(key).getValue();
     } else {
+      long preMs = System.nanoTime() / 1000;
       StorageRowCapsule row = store.get(compose(key.getData(), addrHash));
       if (row == null || row.getInstance() == null) {
+        PerformanceHelper.singleTxOpcodeInfo.add("SLOAD_NOT_CACHE\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
         return null;
       }
       rowCache.put(key, row);
+      PerformanceHelper.singleTxOpcodeInfo.add("SLOAD_NOT_CACHE\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
       return row.getValue();
     }
   }

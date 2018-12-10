@@ -125,10 +125,10 @@ public class VM {
 
           DataWord oldValue = program.storageLoad(stack.peek());
 
-          PerformanceHelper.singleTxOpcodeInfo
-              .add("SLOAD_IN_SSTORE\1" + program.getContractAddress().toHexString() + "\1" + stack
-                  .peek().toHexString() + "\1" + String
-                  .valueOf(System.nanoTime() / 1000 - preMs));
+          // PerformanceHelper.singleTxOpcodeInfo
+          //     .add("SLOAD_IN_SSTORE\1" + program.getContractAddress().toHexString() + "\1" + stack
+          //         .peek().toHexString() + "\1" + String
+          //         .valueOf(System.nanoTime() / 1000 - preMs));
 
           if (oldValue == null && !newValue.isZero()) {
             // set a new not-zero value
@@ -1062,10 +1062,10 @@ public class VM {
 
           DataWord val = program.storageLoad(key);
 
-          PerformanceHelper.singleTxOpcodeInfo
-              .add("SLOAD\1" + program.getContractAddress().toHexString() + "\1" + key.toHexString()
-                  + "\1" + String
-                  .valueOf(System.nanoTime() / 1000 - preMs));
+          // PerformanceHelper.singleTxOpcodeInfo
+          //     .add("SLOAD\1" + program.getContractAddress().toHexString() + "\1" + key.toHexString()
+          //         + "\1" + String
+          //         .valueOf(System.nanoTime() / 1000 - preMs));
 
           if (logger.isDebugEnabled()) {
             hint = "key: " + key + " value: " + val;
@@ -1097,10 +1097,10 @@ public class VM {
 
           program.storageSave(addr, value);
 
-          PerformanceHelper.singleTxOpcodeInfo
-              .add("SSTORE\1" + program.getContractAddress().toHexString() + "\1" + addr
-                  .toHexString() + "\1" + String
-                  .valueOf(System.nanoTime() / 1000 - preMs));
+          // PerformanceHelper.singleTxOpcodeInfo
+          //     .add("SSTORE\1" + program.getContractAddress().toHexString() + "\1" + addr
+          //         .toHexString() + "\1" + String
+          //         .valueOf(System.nanoTime() / 1000 - preMs));
 
           program.step();
         }
