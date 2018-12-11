@@ -32,21 +32,21 @@ public class SnapshotRoot extends AbstractSnapshot<byte[], byte[]> {
   @Override
   public byte[] get(byte[] key) {
 
-    long preMs = System.nanoTime() / 1000;
+    // long preMs = System.nanoTime() / 1000;
     byte[] val = db.get(key);
-    long consume = System.nanoTime() / 1000 - preMs;
-    long keyLength = 0;
-    long valLength = 0;
-    if (key != null) {
-      keyLength = key.length;
-    }
-    if (val != null) {
-      valLength = val.length;
-    }
-    PerformanceHelper.singleTxGetPutInfo.add(
-        this.dbName + "\1GET\1" + (new String(key, CharsetUtil.UTF_8)) + "\1" + String.valueOf(keyLength) + "\1" + String.valueOf(valLength)
-            + "\1"
-            + String.valueOf(consume));
+    // long consume = System.nanoTime() / 1000 - preMs;
+    // long keyLength = 0;
+    // long valLength = 0;
+    // if (key != null) {
+    //   keyLength = key.length;
+    // }
+    // if (val != null) {
+    // valLength = val.length;
+    // }
+    // PerformanceHelper.singleTxGetPutInfo.add(
+    //     this.dbName + "\1GET\1" + (new String(key, CharsetUtil.UTF_8)) + "\1" + String.valueOf(keyLength) + "\1" + String.valueOf(valLength)
+    //         + "\1"
+    //         + String.valueOf(consume));
     return val;
   }
 

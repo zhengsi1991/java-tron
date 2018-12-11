@@ -55,7 +55,7 @@ public class MUtil {
 
   public static byte[] convertToTronAddress(byte[] address) {
 
-    long preMs = System.nanoTime() / 1000;
+    // long preMs = System.nanoTime() / 1000;
     if (address.length == 20) {
       byte[] newAddress = new byte[21];
       byte[] temp = new byte[]{Wallet.getAddressPreFixByte()};
@@ -64,8 +64,8 @@ public class MUtil {
       address = newAddress;
     }
 
-    PerformanceHelper.singleTxOpcodeInfo
-        .add("convertToTronAddress\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
+    // PerformanceHelper.singleTxOpcodeInfo
+    //     .add("convertToTronAddress\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
     return address;
   }
 }

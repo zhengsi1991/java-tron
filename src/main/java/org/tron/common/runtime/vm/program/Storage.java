@@ -37,7 +37,10 @@ public class Storage {
 
   public DataWord getValue(DataWord key) {
     if (rowCache.containsKey(key)) {
-      return rowCache.get(key).getValue();
+      long preMs = System.nanoTime() / 1000;
+      DataWord value = rowCache.get(key).getValue();
+      PerformanceHelper.singleTxOpcodeInfo.add("SLOAD_IN_CACHE\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
+      return value;
     } else {
       long preMs = System.nanoTime() / 1000;
       StorageRowCapsule row = store.get(compose(key.getData(), addrHash));
