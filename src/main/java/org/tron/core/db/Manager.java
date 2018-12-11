@@ -1423,6 +1423,7 @@ public class Manager {
     }
 
     for (TransactionCapsule transactionCapsule : block.getTransactions()) {
+      transactionCapsule.setBlockNum(block.getNum());
       if (block.generatedByMyself) {
         transactionCapsule.setVerified(true);
       }
@@ -1795,6 +1796,10 @@ public class Manager {
     } catch (TooBigTransactionResultException e) {
       logger.debug("too big transaction result");
     }
+  }
+
+  public void setMode(boolean mode) {
+    revokingStore.setMode(mode);
   }
 
 }
