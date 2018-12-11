@@ -275,6 +275,15 @@ public class PublicMethed {
     return blockingStubFull.getAccount(request);
   }
 
+  public static Account queryAccount(byte[] address, WalletSolidityGrpc.WalletSolidityBlockingStub
+      blockingStubSoliInFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ByteString addressBs = ByteString.copyFrom(address);
+    Account request = Account.newBuilder().setAddress(addressBs).build();
+    return blockingStubSoliInFull.getAccount(request);
+  }
+
+
   public static Protocol.Account queryAccount(String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
