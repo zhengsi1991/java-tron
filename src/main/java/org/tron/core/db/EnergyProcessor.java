@@ -4,6 +4,7 @@ import static java.lang.Long.max;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.tron.common.runtime.utils.PerformanceHelper;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.exception.AccountResourceInsufficientException;
@@ -125,6 +126,8 @@ public class EnergyProcessor extends ResourceProcessor {
 
   public boolean useEnergy(AccountCapsule accountCapsule, long energy, long now) {
 
+    long preMs = System.nanoTime() / 1000;
+
     long energyUsage = accountCapsule.getEnergyUsage();
     long latestConsumeTime = accountCapsule.getAccountResource().getLatestConsumeTimeForEnergy();
     long energyLimit = calculateGlobalEnergyLimit(accountCapsule);
@@ -132,6 +135,8 @@ public class EnergyProcessor extends ResourceProcessor {
     long newEnergyUsage = increase(energyUsage, 0, latestConsumeTime, now);
 
     if (energy > (energyLimit - newEnergyUsage)) {
+      PerformanceHelper.singleTxBaseInfo
+          .add("useEnergy\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
       return false;
     }
 
@@ -147,6 +152,9 @@ public class EnergyProcessor extends ResourceProcessor {
     if (dbManager.getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 1) {
       updateTotalEnergyAverageUsage(now, energy);
     }
+
+    PerformanceHelper.singleTxBaseInfo
+        .add("useEnergy\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
 
     return true;
   }

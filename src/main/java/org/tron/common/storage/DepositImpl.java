@@ -760,7 +760,7 @@ public class DepositImpl implements Deposit {
       deposit = parent;
     }
 
-    long preMs = System.nanoTime() / 1000;
+    // long preMs = System.nanoTime() / 1000;
 
     commitAccountCache(deposit);
     commitTransactionCache(deposit);
@@ -773,9 +773,9 @@ public class DepositImpl implements Deposit {
     commitProposalCache(deposit);
     commitDynamicPropertiesCache(deposit);
 
-    if (deposit == null) {
-      PerformanceHelper.singleTxBaseInfo.add(String.valueOf(System.nanoTime() / 1000 - preMs));
-    }
+    // if (deposit == null) {
+    //   PerformanceHelper.singleTxBaseInfo.add(String.valueOf(System.nanoTime() / 1000 - preMs));
+    // }
 
   }
 

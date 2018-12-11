@@ -1054,32 +1054,32 @@ public class Manager {
       Contract.ContractType txType = trxCap.getInstance().getRawData().getContract(0).getType();
       PerformanceHelper.singleTxBaseInfo.add(String.valueOf(txType));
 
-      if (txType == ContractType.TriggerSmartContract) {
-        org.tron.protos.Contract.TriggerSmartContract contract = ContractCapsule
-            .getTriggerContractFromTransaction(trxCap.getInstance());
-        byte[] contractAddress = contract.getContractAddress().toByteArray();
-        PerformanceHelper.singleTxBaseInfo.add(Wallet.encode58Check(contractAddress));
-
-        SmartContract.ABI abi = contractStore.getABI(contractAddress);
-        byte[] selector = Wallet.getSelector(contract.getData().toByteArray());
-        PerformanceHelper.singleTxBaseInfo.add(Wallet.getCalledFunctionName(abi, selector));
-      } else {
-        PerformanceHelper.singleTxBaseInfo.add("NoContractAddress");
-        PerformanceHelper.singleTxBaseInfo.add("NoFunctionName");
-      }
-
-      PerformanceHelper.singleTxBaseInfo.add(Wallet.encode58Check(
-          TransactionCapsule.getOwner(trxCap.getInstance().getRawData().getContract(0))));
+      // if (txType == ContractType.TriggerSmartContract) {
+      //   org.tron.protos.Contract.TriggerSmartContract contract = ContractCapsule
+      //       .getTriggerContractFromTransaction(trxCap.getInstance());
+      //   byte[] contractAddress = contract.getContractAddress().toByteArray();
+      //   PerformanceHelper.singleTxBaseInfo.add(Wallet.encode58Check(contractAddress));
+      //
+      //   SmartContract.ABI abi = contractStore.getABI(contractAddress);
+      //   byte[] selector = Wallet.getSelector(contract.getData().toByteArray());
+      //   PerformanceHelper.singleTxBaseInfo.add(Wallet.getCalledFunctionName(abi, selector));
+      // } else {
+      //   PerformanceHelper.singleTxBaseInfo.add("NoContractAddress");
+      //   PerformanceHelper.singleTxBaseInfo.add("NoFunctionName");
+      // }
+      //
+      // PerformanceHelper.singleTxBaseInfo.add(Wallet.encode58Check(
+      //     TransactionCapsule.getOwner(trxCap.getInstance().getRawData().getContract(0))));
     }
 
-    long txStartMs = System.nanoTime() / 1000;
-    long preMs = txStartMs;
+    // long txStartMs = System.nanoTime() / 1000;
+    // long preMs = txStartMs;
 
     validateTapos(trxCap);
 
-    long now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // long now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     validateCommon(trxCap);
 
@@ -1088,46 +1088,46 @@ public class Manager {
           "act size should be exactly 1, this is extend feature");
     }
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     validateDup(trxCap);
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     if (!trxCap.validateSignature()) {
       throw new ValidateSignatureException("trans sig validate failed");
     }
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
 
     consumeBandwidth(trxCap, trace);
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     VMConfig.initVmHardFork();
     VMConfig.initAllowTvmTransferTrc10(dynamicPropertiesStore.getAllowTvmTransferTrc10());
     trace.init(blockCap);
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     trace.checkIsConstant();
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     trace.exec();
 
@@ -1148,9 +1148,9 @@ public class Manager {
       }
     }
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     trace.finalization();
     if (Objects.nonNull(blockCap)) {
@@ -1159,24 +1159,24 @@ public class Manager {
       }
     }
 
-    preMs = System.nanoTime() / 1000;
-    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    // preMs = now;
+    // preMs = System.nanoTime() / 1000;
+    // // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // // preMs = now;
 
     transactionStore.put(trxCap.getTransactionId().getBytes(), trxCap);
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     TransactionInfoCapsule transactionInfo = TransactionInfoCapsule
         .buildInstance(trxCap, blockCap, trace);
 
     transactionHistoryStore.put(trxCap.getTransactionId().getBytes(), transactionInfo);
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - txStartMs));
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - txStartMs));
 
     if (blockCap != null && !blockCap.getInstance().getBlockHeader().getWitnessSignature()
         .isEmpty()) {

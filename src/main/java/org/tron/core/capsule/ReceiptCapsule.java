@@ -2,6 +2,7 @@ package org.tron.core.capsule;
 
 import org.tron.common.runtime.RuntimeImpl;
 import org.tron.common.runtime.config.VMConfig;
+import org.tron.common.runtime.utils.PerformanceHelper;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
@@ -128,6 +129,9 @@ public class ReceiptCapsule {
       long usage,
       EnergyProcessor energyProcessor,
       long now) throws BalanceInsufficientException {
+
+    long preMs = System.nanoTime() / 1000;
+
     long accountEnergyLeft = energyProcessor.getAccountLeftEnergyFromFreeze(account);
     if (accountEnergyLeft >= usage) {
       energyProcessor.useEnergy(account, usage, now);
@@ -156,6 +160,10 @@ public class ReceiptCapsule {
     }
 
     manager.getAccountStore().put(account.getAddress().toByteArray(), account);
+
+    PerformanceHelper.singleTxBaseInfo
+        .add("payEnergyBill\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
+
   }
 
   public static ResourceReceipt copyReceipt(ReceiptCapsule origin) {

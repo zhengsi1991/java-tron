@@ -131,19 +131,19 @@ public class TransactionTrace {
       throws ContractExeException, ContractValidateException, VMIllegalException {
     /*  VM execute  */
 
-    long now = System.nanoTime() / 1000;
-    long preMs = now;
+    // long now = System.nanoTime() / 1000;
+    // long preMs = now;
 
     runtime.execute();
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
-    preMs = now;
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // preMs = now;
 
     runtime.go();
 
-    now = System.nanoTime() / 1000;
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
+    // now = System.nanoTime() / 1000;
+    // PerformanceHelper.singleTxBaseInfo.add(String.valueOf(now - preMs));
 
     if (TRX_PRECOMPILED_TYPE != runtime.getTrxType()) {
       if (contractResult.OUT_OF_TIME
@@ -163,17 +163,16 @@ public class TransactionTrace {
 
       pay();
 
-      PerformanceHelper.singleTxBaseInfo.add(String.valueOf(System.nanoTime() / 1000 - preMs));
+      PerformanceHelper.singleTxBaseInfo
+          .add("pay\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
+
+
 
     } catch (BalanceInsufficientException e) {
       throw new ContractExeException(e.getMessage());
     }
 
-    long preMs = System.nanoTime() / 1000;
-
     runtime.finalization();
-
-    PerformanceHelper.singleTxBaseInfo.add(String.valueOf(System.nanoTime() / 1000 - preMs));
 
   }
 
@@ -208,8 +207,11 @@ public class TransactionTrace {
     }
 
     // originAccount Percent = 30%
+    long preMs = System.nanoTime() / 1000;
     AccountCapsule origin = dbManager.getAccountStore().get(originAccount);
     AccountCapsule caller = dbManager.getAccountStore().get(callerAccount);
+    PerformanceHelper.singleTxBaseInfo
+        .add("getAccount\1" + String.valueOf(System.nanoTime() / 1000 - preMs));
     receipt.payEnergyBill(
         dbManager,
         origin,
