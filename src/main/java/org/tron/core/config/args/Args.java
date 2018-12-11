@@ -108,7 +108,8 @@ public class Args {
   @Parameter(names = {"--storage-db-version"}, description = "Storage db version.(1 or 2)")
   private String storageDbVersion = "";
 
-  @Parameter(names = {"--storage-db-synchronous"}, description = "Storage db is synchronous or not.(true or flase)")
+  @Parameter(names = {
+      "--storage-db-synchronous"}, description = "Storage db is synchronous or not.(true or flase)")
   private String storageDbSynchronous = "";
 
   @Parameter(names = {"--storage-index-directory"}, description = "Storage index directory")
@@ -117,7 +118,8 @@ public class Args {
   @Parameter(names = {"--storage-index-switch"}, description = "Storage index switch.(on or off)")
   private String storageIndexSwitch = "";
 
-  @Parameter(names = {"--storage-transactionHistory-switch"}, description = "Storage transaction history switch.(on or off)")
+  @Parameter(names = {
+      "--storage-transactionHistory-switch"}, description = "Storage transaction history switch.(on or off)")
   private String storageTransactionHistoreSwitch = "";
 
   @Getter
@@ -200,7 +202,7 @@ public class Args {
   @Setter
   private long nodeP2pPingInterval;
 
-//  @Getter
+  //  @Getter
 //  @Setter
 //  private long syncNodeCount;
   @Getter
@@ -466,10 +468,10 @@ public class Args {
     } else if (config.hasPath("localwitness")) {
       INSTANCE.localWitnesses = new LocalWitnesses();
       List<String> localwitness = config.getStringList("localwitness");
-      if (localwitness.size() > 1) {
-        logger.warn("localwitness size must be one, get the first one");
-        localwitness = localwitness.subList(0, 1);
-      }
+//      if (localwitness.size() > 1) {
+//        logger.warn("localwitness size must be one, get the first one");
+//        localwitness = localwitness.subList(0, 1);
+//      }
       INSTANCE.localWitnesses.setPrivateKeys(localwitness);
       logger.debug("Got privateKey from config.conf");
     } else if (config.hasPath("localwitnesskeystore")) {
@@ -536,9 +538,9 @@ public class Args {
         .orElse(Storage.getDbVersionFromConfig(config)));
 
     INSTANCE.storage.setDbSync(Optional.ofNullable(INSTANCE.storageDbSynchronous)
-      .filter(StringUtils::isNotEmpty)
-      .map(Boolean::valueOf)
-      .orElse(Storage.getDbVersionSyncFromConfig(config)));
+        .filter(StringUtils::isNotEmpty)
+        .map(Boolean::valueOf)
+        .orElse(Storage.getDbVersionSyncFromConfig(config)));
 
     INSTANCE.storage.setDbDirectory(Optional.ofNullable(INSTANCE.storageDbDirectory)
         .filter(StringUtils::isNotEmpty)
@@ -552,10 +554,10 @@ public class Args {
         .filter(StringUtils::isNotEmpty)
         .orElse(Storage.getIndexSwitchFromConfig(config)));
 
-    INSTANCE.storage.setTransactionHistoreSwitch(Optional.ofNullable(INSTANCE.storageTransactionHistoreSwitch)
-      .filter(StringUtils::isNotEmpty)
-      .orElse(Storage.getTransactionHistoreSwitchFromConfig(config)));
-
+    INSTANCE.storage
+        .setTransactionHistoreSwitch(Optional.ofNullable(INSTANCE.storageTransactionHistoreSwitch)
+            .filter(StringUtils::isNotEmpty)
+            .orElse(Storage.getTransactionHistoreSwitchFromConfig(config)));
 
     INSTANCE.storage.setPropertyMapFromConfig(config);
 
@@ -766,8 +768,6 @@ public class Args {
         config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
 
     initBackupProperty(config);
-
-
 
     logConfig();
   }
