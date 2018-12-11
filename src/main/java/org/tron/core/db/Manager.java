@@ -791,7 +791,6 @@ public class Manager {
       BadNumberBlockException, BadBlockException, NonCommonBlockException,
       ReceiptCheckErrException, VMIllegalException {
     long start = System.currentTimeMillis();
-    logger.info("begin to process block.{}", block);
     try (PendingManager pm = new PendingManager(this)) {
 
       if (!block.generatedByMyself) {
@@ -1021,7 +1020,14 @@ public class Manager {
           "act size should be exactly 1, this is extend feature");
     }
 
-    validateDup(trxCap);
+    try {
+      validateDup(trxCap);
+    } catch (Exception e) {
+      if (blockCap != null) {
+        logger.info("dup trans, block:{}, txs:{}", blockCap, blockCap.getTransactions());
+      }
+      throw e;
+    }
 
     if (!trxCap.validateSignature()) {
       throw new ValidateSignatureException("trans sig validate failed");
