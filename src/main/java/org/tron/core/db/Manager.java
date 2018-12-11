@@ -1136,7 +1136,12 @@ public class Manager {
           > ChainConstant.BLOCK_PRODUCED_INTERVAL * 0.5
           * Args.getInstance().getBlockProducedTimeOut()
           / 100) {
-        logger.warn("Processing transaction time exceeds the 50% producing time。");
+        logger.warn("###### Processing transaction time exceed, when: {}, current: {}, cost: {}, size: {}, left: {}",
+            when,
+            System.currentTimeMillis(),
+            System.currentTimeMillis() - when,
+            blockCapsule.getTransactions().size(),
+            pendingTransactions.size() + repushTransactions.size());
         break;
       }
       // check the block size

@@ -150,6 +150,7 @@ public class WitnessService implements Service {
    * Generate and broadcast blocks
    */
   private BlockProductionCondition tryProduceBlock() throws InterruptedException {
+    long btime = System.currentTimeMillis();
     logger.info("Try Produce Block");
     if (!backupManager.getStatus().equals(BackupStatusEnum.MASTER)) {
       return BlockProductionCondition.BACKUP_STATUS_IS_NOT_MASTER;
@@ -229,6 +230,7 @@ public class WitnessService implements Service {
 
     try {
       synchronized (tronApp.getDbManager()) {
+        logger.info("###### cost: {}", System.currentTimeMillis() - btime);
         long scheduledTime = controller.getSlotTime(slot);
 
         if (scheduledTime - now > PRODUCE_TIME_OUT) {
