@@ -597,7 +597,7 @@ public class Manager {
     if (getTransactionStore().getUnchecked(transactionCapsule.getTransactionId().getBytes())
         != null) {
       logger.debug(ByteArray.toHexString(transactionCapsule.getTransactionId().getBytes()));
-      throw new DupTransactionException("dup trans");
+      throw new DupTransactionException("dup trans. trx: " + transactionCapsule);
     }
   }
 
@@ -791,6 +791,7 @@ public class Manager {
       BadNumberBlockException, BadBlockException, NonCommonBlockException,
       ReceiptCheckErrException, VMIllegalException {
     long start = System.currentTimeMillis();
+    logger.info("begin to process block.{}", block);
     try (PendingManager pm = new PendingManager(this)) {
 
       if (!block.generatedByMyself) {
