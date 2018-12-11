@@ -679,7 +679,7 @@ public class Manager {
     processBlock(block);
     this.blockStore.put(block.getBlockId().getBytes(), block);
     this.blockIndexStore.put(block.getBlockId());
-    updateFork();
+    updateFork(block);
     if (System.currentTimeMillis() - block.getTimeStamp() >= 60_000) {
       revokingStore.setMaxFlushCount(SnapshotManager.DEFAULT_MAX_FLUSH_COUNT);
     } else {
@@ -1364,14 +1364,8 @@ public class Manager {
     logger.info("update solid block, num = {}", latestSolidifiedBlockNum);
   }
 
-  public void updateFork() {
-    try {
-      long latestSolidifiedBlockNum = dynamicPropertiesStore.getLatestSolidifiedBlockNum();
-      BlockCapsule solidifiedBlock = getBlockByNum(latestSolidifiedBlockNum);
-      forkController.update(solidifiedBlock);
-    } catch (ItemNotFoundException | BadItemException e) {
-      logger.error("solidified block not found");
-    }
+  public void updateFork(BlockCapsule block) {
+    forkController.update(block);
   }
 
   public long getSyncBeginNumber() {
