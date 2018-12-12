@@ -14,7 +14,6 @@ import org.tron.common.utils.StringUtil;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
-import org.tron.core.config.Parameter;
 import org.tron.core.config.Parameter.ChainParameters;
 import org.tron.core.config.Parameter.ForkBlockVersionConsts;
 import org.tron.core.config.args.Args;
@@ -207,9 +206,9 @@ public class ProposalCreateActuator extends AbstractActuator {
         break;
       }
       case (16): {
-        if (!dbManager.getForkController().pass(ForkBlockVersionConsts.ENERGY_LIMIT)) {
-          throw new ContractValidateException("Bad chain parameter id");
-        }
+//        if (!dbManager.getForkController().pass(ForkBlockVersionConsts.ENERGY_LIMIT)) {
+//          throw new ContractValidateException("Bad chain parameter id");
+//        }
         if (entry.getValue() != 1) {
           throw new ContractValidateException(
               "This value[ALLOW_DELEGATE_RESOURCE] is only allowed to be 1");

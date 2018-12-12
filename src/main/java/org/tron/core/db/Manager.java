@@ -416,6 +416,38 @@ public class Manager {
   /**
    * init genesis block.
    */
+//  public void initGenesis() {
+//    this.genesisBlock = BlockUtil.newGenesisBlockCapsule();
+//    if (this.containBlock(this.genesisBlock.getBlockId())) {
+//      Args.getInstance().setChainId(this.genesisBlock.getBlockId().toString());
+//    } else {
+//      if (this.hasBlocks()) {
+//        logger.error(
+//            "genesis block modify, please delete database directory({}) and restart",
+//            Args.getInstance().getOutputDirectory());
+//        System.exit(1);
+//      } else {
+//        logger.info("create genesis block");
+//        Args.getInstance().setChainId(this.genesisBlock.getBlockId().toString());
+//
+//        blockStore.put(this.genesisBlock.getBlockId().getBytes(), this.genesisBlock);
+//        this.blockIndexStore.put(this.genesisBlock.getBlockId());
+//
+//        logger.info("save block: " + this.genesisBlock);
+//        // init DynamicPropertiesStore
+//        this.dynamicPropertiesStore.saveLatestBlockHeaderNumber(0);
+//        this.dynamicPropertiesStore.saveLatestBlockHeaderHash(
+//            this.genesisBlock.getBlockId().getByteString());
+//        this.dynamicPropertiesStore.saveLatestBlockHeaderTimestamp(
+//            this.genesisBlock.getTimeStamp());
+//        this.initAccount();
+//        this.initWitness();
+//        this.witnessController.initWits();
+//        this.khaosDb.start(genesisBlock);
+//        this.updateRecentBlock(genesisBlock);
+//      }
+//    }
+//  }
   public void initGenesis() {
     this.genesisBlock = BlockUtil.newGenesisBlockCapsule();
     if (this.containBlock(this.genesisBlock.getBlockId())) {
@@ -425,7 +457,15 @@ public class Manager {
         logger.error(
             "genesis block modify, please delete database directory({}) and restart",
             Args.getInstance().getOutputDirectory());
-        System.exit(1);
+        this.initAccount();
+        this.witnessStore.getAllWitnesses().forEach(witnessCapsule -> {
+          this.witnessStore.delete(witnessCapsule.getAddress().toByteArray());
+          logger.info("### delete witness {}", witnessCapsule.getAddress().toByteArray());
+        });
+        this.initWitness();
+        logger.info("### size {}", this.witnessStore.getAllWitnesses().size());
+        this.witnessController.initWits();
+//System.exit(1);
       } else {
         logger.info("create genesis block");
         Args.getInstance().setChainId(this.genesisBlock.getBlockId().toString());
@@ -434,7 +474,7 @@ public class Manager {
         this.blockIndexStore.put(this.genesisBlock.getBlockId());
 
         logger.info("save block: " + this.genesisBlock);
-        // init DynamicPropertiesStore
+// init DynamicPropertiesStore
         this.dynamicPropertiesStore.saveLatestBlockHeaderNumber(0);
         this.dynamicPropertiesStore.saveLatestBlockHeaderHash(
             this.genesisBlock.getBlockId().getByteString());
@@ -448,6 +488,7 @@ public class Manager {
       }
     }
   }
+
 
   /**
    * save account into database.
@@ -893,18 +934,18 @@ public class Manager {
     if (block.getNum() != 1) {
       slot = witnessController.getSlotAtTime(block.getTimeStamp());
     }
-    for (int i = 1; i < slot; ++i) {
-      if (!witnessController.getScheduledWitness(i).equals(block.getWitnessAddress())) {
-        WitnessCapsule w =
-            this.witnessStore
-                .getUnchecked(StringUtil.createDbKey(witnessController.getScheduledWitness(i)));
-        w.setTotalMissed(w.getTotalMissed() + 1);
-        this.witnessStore.put(w.createDbKey(), w);
-        logger.info(
-            "{} miss a block. totalMissed = {}", w.createReadableString(), w.getTotalMissed());
-      }
-      this.dynamicPropertiesStore.applyBlock(false);
-    }
+//    for (int i = 1; i < slot; ++i) {
+//      if (!witnessController.getScheduledWitness(i).equals(block.getWitnessAddress())) {
+//        WitnessCapsule w =
+//            this.witnessStore
+//                .getUnchecked(StringUtil.createDbKey(witnessController.getScheduledWitness(i)));
+//        w.setTotalMissed(w.getTotalMissed() + 1);
+//        this.witnessStore.put(w.createDbKey(), w);
+//        logger.info(
+//            "{} miss a block. totalMissed = {}", w.createReadableString(), w.getTotalMissed());
+//      }
+//      this.dynamicPropertiesStore.applyBlock(false);
+//    }
     this.dynamicPropertiesStore.applyBlock(true);
 
     if (slot <= 0) {

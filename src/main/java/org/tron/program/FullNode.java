@@ -11,6 +11,7 @@ import org.tron.common.application.TronApplicationContext;
 import org.tron.core.Constant;
 import org.tron.core.config.DefaultConfig;
 import org.tron.core.config.args.Args;
+import org.tron.core.db.Manager;
 import org.tron.core.services.RpcApiService;
 import org.tron.core.services.WitnessService;
 import org.tron.core.services.http.FullNodeHttpApiService;
@@ -28,7 +29,8 @@ public class FullNode {
     Args.setParam(args, Constant.TESTNET_CONF);
     Args cfgArgs = Args.getInstance();
 
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
+        .getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.toLevel(cfgArgs.getLogLevel()));
 
     if (cfgArgs.isHelp()) {
@@ -50,6 +52,10 @@ public class FullNode {
 
     context.refresh();
     Application appT = ApplicationFactory.create(context);
+
+    Manager manager = context.getBean(Manager.class);
+    manager.getDynamicPropertiesStore().saveMaintenanceTimeInterval(300000);
+
     shutdown(appT);
 
     // grpc api server
