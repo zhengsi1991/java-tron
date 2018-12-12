@@ -21,6 +21,7 @@ import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
@@ -222,6 +223,7 @@ public class WalletTestAccount014 {
     Assert.assertTrue(acquiredForBandwidthInSoliInFull == 1000000
         && delegatedBandwidthInSoliInFull == 1000000 && acquiredForEnergyInSoliInFull == 1000000
         && delegatedForEnergyInSoliInFull == 1000000);
+
   }
 
 
