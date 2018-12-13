@@ -42,15 +42,15 @@ public class SolidityNode {
 
   private Map<Long, Block> blockMap = Maps.newConcurrentMap();
 
-  private LinkedBlockingDeque<Block> blockQueue = new LinkedBlockingDeque(10000);
+  private LinkedBlockingDeque<Block> blockQueue = new LinkedBlockingDeque(100);
 
-  private LinkedBlockingDeque<Block> blockBakQueue = new LinkedBlockingDeque(10000);
+  private LinkedBlockingDeque<Block> blockBakQueue = new LinkedBlockingDeque(100);
 
   private AtomicLong remoteLastSolidityBlockNum = new AtomicLong();
 
   private AtomicLong lastSolidityBlockNum = new AtomicLong();
 
-  private int maxBlockCacheSize = 10_000;
+  private int maxBlockCacheSize = 100;
 
   private volatile boolean syncFlag = true;
 
@@ -152,14 +152,25 @@ public class SolidityNode {
     }
   }
 
-  private Block getBlockByNum(long blockNum) throws Exception {
-    Block block = databaseGrpcClient.getBlock(blockNum);
-    if (block.getBlockHeader().getRawData().getNumber() != blockNum) {
-      logger.warn("Get adv block id not the same , {}, {}.", blockNum,
-          block.getBlockHeader().getRawData().getNumber());
-      throw new Exception();
+  private Block getBlockByNum(long blockNum) {
+    while (true) {
+      try {
+        Block block = databaseGrpcClient.getBlock(blockNum);
+        if (block.getBlockHeader().getRawData().getNumber() != blockNum) {
+          logger.warn("Get adv block id not the same , {}, {}.", blockNum,
+              block.getBlockHeader().getRawData().getNumber());
+          sleep(1000);
+          continue;
+        }
+        return block;
+      } catch (Exception e) {
+        logger.error("Failed to get blockNum: {}, reason: {}",
+            remoteLastSolidityBlockNum.get(), e.getMessage());
+        databaseGrpcClient.shutdown();
+        databaseGrpcClient = new DatabaseGrpcClient(cfgArgs.getTrustNodeAddr());
+        sleep(1000);
+      }
     }
-    return block;
   }
 
   private long getLastSolidityBlockNum() {
@@ -172,6 +183,8 @@ public class SolidityNode {
       } catch (Exception e) {
         logger.error("Failed to get last solid blockNum: {}, reason: {}",
             remoteLastSolidityBlockNum.get(), e.getMessage());
+        databaseGrpcClient.shutdown();
+        databaseGrpcClient = new DatabaseGrpcClient(cfgArgs.getTrustNodeAddr());
         sleep(1000);
       }
     }
@@ -252,7 +265,8 @@ public class SolidityNode {
           try {
             ret = dbManager.getTransactionHistoryStore().get(trx.getTransactionId().getBytes());
           } catch (Exception ex) {
-            logger.warn("Failed to get trx: {}, reason: {}", trx.getTransactionId(), ex.getMessage());
+            logger
+                .warn("Failed to get trx: {}, reason: {}", trx.getTransactionId(), ex.getMessage());
             continue;
           }
           if (ret == null) {
@@ -286,7 +300,7 @@ public class SolidityNode {
 
     logger.info("index switch is {}",
         BooleanUtils.toStringOnOff(BooleanUtils.toBoolean(cfgArgs.getStorage().getIndexSwitch())));
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
         .getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.toLevel(cfgArgs.getLogLevel()));
 
