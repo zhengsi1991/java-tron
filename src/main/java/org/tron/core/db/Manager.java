@@ -892,18 +892,20 @@ public class Manager {
     if (block.getNum() != 1) {
       slot = witnessController.getSlotAtTime(block.getTimeStamp());
     }
-    for (int i = 1; i < slot; ++i) {
+
+    /*for (int i = 1; i < slot; ++i) {
       if (!witnessController.getScheduledWitness(i).equals(block.getWitnessAddress())) {
         WitnessCapsule w =
             this.witnessStore
                 .getUnchecked(StringUtil.createDbKey(witnessController.getScheduledWitness(i)));
         w.setTotalMissed(w.getTotalMissed() + 1);
         this.witnessStore.put(w.createDbKey(), w);
-        logger.info(
-            "{} miss a block. totalMissed = {}", w.createReadableString(), w.getTotalMissed());
+        //logger.info("{} miss a block. totalMissed = {}", w.createReadableString(), w.getTotalMissed());
       }
       this.dynamicPropertiesStore.applyBlock(false);
-    }
+    }*/
+
+
     this.dynamicPropertiesStore.applyBlock(true);
 
     if (slot <= 0) {
