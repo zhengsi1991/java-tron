@@ -262,7 +262,7 @@ public class WitnessService implements Service {
           return BlockProductionCondition.TIME_OUT;
         }
       }
-      logger.info("success shy" + block.getTransactions().size());
+      logger.info("shy trx size: " + block.getTransactions().size());
 
       logger.info(
           "Produce block successfully, blockNumber:{}, abSlot[{}], blockId:{}, transactionSize:{}, blockTime:{}, parentBlockId:{}",
@@ -270,9 +270,7 @@ public class WitnessService implements Service {
           block.getTransactions().size(),
           new DateTime(block.getTimeStamp()),
           block.getParentHash());
-      if(block.getTransactions().size() > 0){
-        logger.info("success");
-      }
+
       broadcastBlock(block);
 
       return BlockProductionCondition.PRODUCED;

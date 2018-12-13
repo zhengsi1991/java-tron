@@ -1068,7 +1068,6 @@ public class Manager {
 
     transactionHistoryStore.put(trxCap.getTransactionId().getBytes(), transactionInfo);
 
-    logger.info("shy processTransaction success");
     return true;
   }
 
@@ -1153,7 +1152,6 @@ public class Manager {
         tmpSeesion.merge();
         // push into block
         blockCapsule.addTransaction(trx);
-        logger.info("shy:" + trx.getTransactionId());
         if (fromPending) {
           iterator.remove();
         }
