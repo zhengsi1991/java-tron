@@ -584,13 +584,13 @@ public class Manager {
           "too big transaction, the size is " + transactionCapsule.getData().length + " bytes");
     }
     long transactionExpiration = transactionCapsule.getExpiration();
-    long headBlockTime = getHeadBlockTimeStamp();
+    /*long headBlockTime = getHeadBlockTimeStamp();
     if (transactionExpiration <= headBlockTime ||
         transactionExpiration > headBlockTime + Constant.MAXIMUM_TIME_UNTIL_EXPIRATION) {
       throw new TransactionExpirationException(
           "transaction expiration, transaction expiration time is " + transactionExpiration
               + ", but headBlockTime is " + headBlockTime);
-    }
+    }*/
   }
 
   void validateDup(TransactionCapsule transactionCapsule) throws DupTransactionException {
@@ -1013,7 +1013,7 @@ public class Manager {
       return false;
     }
 
-    validateTapos(trxCap);
+    //validateTapos(trxCap);
     validateCommon(trxCap);
 
     if (trxCap.getInstance().getRawData().getContractList().size() != 1) {
@@ -1068,6 +1068,7 @@ public class Manager {
 
     transactionHistoryStore.put(trxCap.getTransactionId().getBytes(), transactionInfo);
 
+    logger.info("shy processTransaction success");
     return true;
   }
 
@@ -1152,6 +1153,7 @@ public class Manager {
         tmpSeesion.merge();
         // push into block
         blockCapsule.addTransaction(trx);
+        logger.info("shy:" + trx.getTransactionId());
         if (fromPending) {
           iterator.remove();
         }

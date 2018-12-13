@@ -406,7 +406,7 @@ public class Wallet {
     Message message = new TransactionMessage(signaturedTransaction);
 
     try{
-      if (minEffectiveConnection != 0) {
+      /*if (minEffectiveConnection != 0) {
         if (p2pNode.getActivePeer().isEmpty()) {
           logger.warn("Broadcast transaction {} failed, no connection.", trx.getTransactionId());
           return builder.setResult(false).setCode(response_code.NO_CONNECTION)
@@ -425,7 +425,7 @@ public class Wallet {
               .setMessage(ByteString.copyFromUtf8(info))
               .build();
         }
-      }
+      }*/
 
       if (dbManager.isTooManyPending()) {
         logger.warn("Broadcast transaction {} failed, too many pending.", trx.getTransactionId());

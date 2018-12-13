@@ -827,11 +827,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public long getTotalEnergyLimit() {
-    return Optional.ofNullable(getUnchecked(DynamicResourceProperties.TOTAL_ENERGY_LIMIT))
+    return 250000000000L;
+    /*return Optional.ofNullable(getUnchecked(DynamicResourceProperties.TOTAL_ENERGY_LIMIT))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found TOTAL_ENERGY_LIMIT"));
+            () -> new IllegalArgumentException("not found TOTAL_ENERGY_LIMIT"));*/
   }
 
   public void saveTotalEnergyCurrentLimit(long totalEnergyCurrentLimit) {
@@ -840,11 +841,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public long getTotalEnergyCurrentLimit() {
-    return Optional.ofNullable(getUnchecked(DynamicResourceProperties.TOTAL_ENERGY_CURRENT_LIMIT))
+    return 250000000000L;
+    /*return Optional.ofNullable(getUnchecked(DynamicResourceProperties.TOTAL_ENERGY_CURRENT_LIMIT))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found TOTAL_ENERGY_CURRENT_LIMIT"));
+            () -> new IllegalArgumentException("not found TOTAL_ENERGY_CURRENT_LIMIT"));*/
   }
 
   public void saveTotalEnergyTargetLimit(long targetTotalEnergyLimit) {
@@ -853,11 +855,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public long getTotalEnergyTargetLimit() {
-    return Optional.ofNullable(getUnchecked(DynamicResourceProperties.TOTAL_ENERGY_TARGET_LIMIT))
+    return 250000000000L / 14400;
+    /*return Optional.ofNullable(getUnchecked(DynamicResourceProperties.TOTAL_ENERGY_TARGET_LIMIT))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found TOTAL_ENERGY_TARGET_LIMIT"));
+            () -> new IllegalArgumentException("not found TOTAL_ENERGY_TARGET_LIMIT"));*/
   }
 
   public void saveTotalEnergyAverageUsage(long totalEnergyAverageUsage) {
