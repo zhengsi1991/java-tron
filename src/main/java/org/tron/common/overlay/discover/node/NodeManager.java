@@ -319,21 +319,30 @@ public class NodeManager implements EventHandler {
   }
 
   public synchronized String dumpAllStatistics() {
-    List<NodeHandler> l = new ArrayList<>(nodeHandlerMap.values());
-    l.sort(Comparator.comparingInt((NodeHandler o) -> o.getNodeStatistics().getReputation())
-        .reversed());
+    try {
+      List<NodeHandler> l = new ArrayList<>(nodeHandlerMap.values());
+      l.sort(Comparator.comparingInt((NodeHandler o) -> {
+        if (o == null || o.getNodeStatistics() == null) {
+          return 0;
+        }
+        return o.getNodeStatistics().getReputation();
+      }).reversed());
 
-    StringBuilder sb = new StringBuilder();
-    int zeroReputCount = 0;
-    for (NodeHandler nodeHandler : l) {
-      if (nodeHandler.getNodeStatistics().getReputation() > 0) {
-        sb.append(nodeHandler).append("\t").append(nodeHandler.getNodeStatistics()).append("\n");
-      } else {
-        zeroReputCount++;
+      StringBuilder sb = new StringBuilder();
+      int zeroReputCount = 0;
+      for (NodeHandler nodeHandler : l) {
+        if (nodeHandler.getNodeStatistics().getReputation() > 0) {
+          sb.append(nodeHandler).append("\t").append(nodeHandler.getNodeStatistics()).append("\n");
+        } else {
+          zeroReputCount++;
+        }
       }
+      sb.append("0 reputation: ").append(zeroReputCount).append(" nodes.\n");
+      return sb.toString();
+    } catch (Exception e) {
+      logger.error("", e);
     }
-    sb.append("0 reputation: ").append(zeroReputCount).append(" nodes.\n");
-    return sb.toString();
+    return null;
   }
 
   public Node getPublicHomeNode() {
