@@ -28,6 +28,7 @@ public class ForkController {
   private static final byte HARD_FORK_EFFECTIVE = (byte) 2;
   private static final byte[] check;
   private static final byte[] check2;
+
   static {
     check = new byte[1024];
     Arrays.fill(check, VERSION_UPGRADE);
@@ -77,7 +78,7 @@ public class ForkController {
     }
 
     long blockNum = manager.getDynamicPropertiesStore().getLatestBlockHeaderNumber();
-    return blockNum >= 4727890L;
+    return blockNum >= 4680000L;
   }
 
   private boolean check(byte[] stats) {
@@ -129,8 +130,11 @@ public class ForkController {
     logger.info(
         "*******update hard fork:{}, witness size:{}, solt:{}, witness:{}, version:{}",
         Streams.zip(witnesses.stream(), Stream.of(ArrayUtils.toObject(stats)), Maps::immutableEntry)
-            .map(e -> Maps.immutableEntry(Wallet.encode58Check(e.getKey().toByteArray()), e.getValue()))
-            .map(e -> Maps.immutableEntry(StringUtils.substring(e.getKey(), e.getKey().length() - 4), e.getValue()))
+            .map(e -> Maps
+                .immutableEntry(Wallet.encode58Check(e.getKey().toByteArray()), e.getValue()))
+            .map(e -> Maps
+                .immutableEntry(StringUtils.substring(e.getKey(), e.getKey().length() - 4),
+                    e.getValue()))
             .collect(Collectors.toList()),
         witnesses.size(),
         slot,

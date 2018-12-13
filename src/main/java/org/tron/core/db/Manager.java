@@ -507,9 +507,11 @@ public class Manager {
                       ByteString.copyFrom(account.getAddress()),
                       account.getAccountType(),
                       account.getBalance());
-              this.accountStore.put(account.getAddress(), accountCapsule);
-              this.accountIdIndexStore.put(accountCapsule);
-              this.accountIndexStore.put(accountCapsule);
+              if (this.accountStore.get(accountCapsule.getAddress().toByteArray()) == null) {
+                this.accountStore.put(account.getAddress(), accountCapsule);
+                this.accountIdIndexStore.put(accountCapsule);
+                this.accountIndexStore.put(accountCapsule);
+              }
             });
   }
 
@@ -1300,9 +1302,9 @@ public class Manager {
     }
 
     // checkWitness
-    if (!witnessController.validateWitnessSchedule(block)) {
-      throw new ValidateScheduleException("validateWitnessSchedule error");
-    }
+//    if (!witnessController.validateWitnessSchedule(block)) {
+//      throw new ValidateScheduleException("validateWitnessSchedule error");
+//    }
 
     for (TransactionCapsule transactionCapsule : block.getTransactions()) {
       transactionCapsule.setBlockNum(block.getNum());
