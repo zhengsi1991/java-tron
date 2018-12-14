@@ -91,7 +91,7 @@ public class AssetIssueActuator extends AbstractActuator {
 
       while (iterator.hasNext()) {
         FrozenSupply next = iterator.next();
-        long expireTime = startTime + next.getFrozenDays() * 86_400_000;
+        long expireTime = startTime + next.getFrozenDays() * 1000;
         Frozen newFrozen = Frozen.newBuilder()
             .setFrozenBalance(next.getFrozenAmount())
             .setExpireTime(expireTime)

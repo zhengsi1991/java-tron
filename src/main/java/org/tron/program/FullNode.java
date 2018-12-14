@@ -54,7 +54,14 @@ public class FullNode {
     Application appT = ApplicationFactory.create(context);
 
     Manager manager = context.getBean(Manager.class);
-    manager.getDynamicPropertiesStore().saveMaintenanceTimeInterval(300000);
+    long start = 1544704800000L;
+    int interval = 300000;
+    long next = start;
+    while (next < System.currentTimeMillis()) {
+      next += interval;
+    }
+    manager.getDynamicPropertiesStore().saveMaintenanceTimeInterval(interval);
+    manager.getDynamicPropertiesStore().saveNextMaintenanceTime(next);
 
     shutdown(appT);
 
