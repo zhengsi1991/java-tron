@@ -59,6 +59,7 @@ import org.tron.common.utils.ForkController;
 import org.tron.common.utils.SessionOptional;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
+import org.tron.common.runtime.utils.MUtil;
 import org.tron.core.Constant;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
@@ -1114,22 +1115,35 @@ public class Manager {
       return;
     }
     try {
-      Protocol.SmartContract.ABI abi = abiCache.getIfPresent(contractAddress);
-      if (abi == null) {
-        abi = getContractStore().getABI(contractAddress);
-        if (abi == null) {
-          return;
-        }
-        abiCache.put(contractAddress, abi);
-      }
-      Protocol.SmartContract.ABI finalAbi = abi;
+//      Protocol.SmartContract.ABI abi = abiCache.getIfPresent(contractAddress);
+//      if (abi == null) {
+//        abi = getContractStore().getABI(contractAddress);
+//        if (abi == null) {
+//          return;
+//        }
+//        abiCache.put(contractAddress, abi);
+//      }
+//      Protocol.SmartContract.ABI finalAbi = abi;
 
       IntStream.range(0,logList.size()).forEach(idx -> {
         org.tron.protos.Protocol.TransactionInfo.Log log = logList.get(idx);
-        finalAbi.getEntrysList().forEach(abiEntry -> {
+        byte[] logContractAddress = MUtil.convertToTronAddress(log.getAddress().toByteArray());
+//        logger.error(Hex.toHexString(log.getTopicsList().get(0).toByteArray()));
+        Protocol.SmartContract.ABI abi = abiCache.getIfPresent(logContractAddress);
+        if (abi == null) {
+          abi = getContractStore().getABI(logContractAddress);
+          if (abi == null) {
+            return;
+          }
+          abiCache.put(logContractAddress, abi);
+        }
+
+        abi.getEntrysList().forEach(abiEntry -> {
           if (abiEntry.getType() != Protocol.SmartContract.ABI.Entry.EntryType.Event) {
             return;
           }
+
+
           //parse abi
           String entryName = abiEntry.getName();
           List<TypeReference<?>> typeList = new ArrayList<>();
@@ -1197,16 +1211,19 @@ public class Manager {
 
           rawJsonObject.put("topics", rawTopicsJsonArray);
           rawJsonObject.put("data", rawLogData);
+          rawJsonObject.put("contract", Hex.toHexString(logContractAddress));
 
           long blockNumber = block.getBlockHeader().getRawData().getNumber();
           long blockTimestamp = block.getBlockHeader().getRawData().getTimestamp();
 
           EventLogEntity eventLogEntity = new EventLogEntity(blockNumber, blockTimestamp,
-                  Wallet.encode58Check(contractAddress), entryName, resultJsonObject,rawJsonObject,
+                  Wallet.encode58Check(logContractAddress), entryName, resultJsonObject,rawJsonObject,
                   Hex.toHexString(transactionInfoCapsule.getId()), resultParamType, this.resource.toString(), idx);
+
           // 事件日志写入MongoDB
           // depreciate in future release
-          eventLogService.insertEventLogCollection(eventLogEntity,Wallet.encode58Check(contractAddress));
+
+          eventLogService.insertEventLogCollection(eventLogEntity,Wallet.encode58Check(logContractAddress));
           eventLogService.insertEventLog(eventLogEntity);
 
           // send event log to event server
