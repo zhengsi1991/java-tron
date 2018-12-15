@@ -1641,7 +1641,7 @@ public class Manager {
     revokingStore.setMode(mode);
   }
 
-  public void insertWitness(byte[] keyAddress, int idx) {
+  public void insertWitness(byte[] keyAddress, long voteCount, int idx) {
     ByteString address = ByteString.copyFrom(keyAddress);
 
     final AccountCapsule accountCapsule;
@@ -1655,7 +1655,7 @@ public class Manager {
     this.accountStore.put(keyAddress, accountCapsule);
 
     final WitnessCapsule witnessCapsule =
-            new WitnessCapsule(address, 1000000000, "mock_witness_" + idx);
+            new WitnessCapsule(address, voteCount, "mock_witness_" + idx);
     witnessCapsule.setIsJobs(true);
     this.witnessStore.put(keyAddress, witnessCapsule);
   }
