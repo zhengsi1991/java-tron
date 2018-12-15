@@ -45,6 +45,7 @@ public class NodeInfoServiceTest extends BaseNetTest {
     Assert.assertEquals(nodeInfo.getConfigNodeInfo().getCodeVersion(), Version.getVersion());
     Assert.assertEquals(nodeInfo.getCheatWitnessInfoMap().size(), 1);
     logger.info("{}", JSON.toJSONString(nodeInfo));
+
   }
 
   private String fullnode = Configuration.getByPath("testng.conf").getStringList("fullnode.ip.list")

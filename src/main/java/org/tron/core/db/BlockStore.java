@@ -38,7 +38,10 @@ public class BlockStore extends TronStoreWithRevoking<BlockCapsule> {
   }
 
   public List<BlockCapsule> getLimitNumber(long startNumber, long limit) {
+
     BlockId startBlockId = new BlockId(Sha256Hash.ZERO_HASH, startNumber);
+
+
     return revokingDB.getValuesNext(startBlockId.getBytes(), limit).stream()
         .map(bytes -> {
           try {
@@ -53,7 +56,6 @@ public class BlockStore extends TronStoreWithRevoking<BlockCapsule> {
   }
 
   public List<BlockCapsule> getBlockByLatestNum(long getNum) {
-
     return revokingDB.getlatestValues(getNum).stream()
         .map(bytes -> {
           try {

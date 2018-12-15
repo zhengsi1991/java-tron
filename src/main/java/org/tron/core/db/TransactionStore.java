@@ -3,6 +3,7 @@ package org.tron.core.db;
 import java.util.List;
 import java.util.Objects;
 
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.core.capsule.BlockCapsule;
+import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.db.KhaosDatabase.KhaosBlock;
 import org.tron.core.exception.BadItemException;
@@ -45,14 +47,9 @@ public class TransactionStore extends TronStoreWithRevoking<TransactionCapsule> 
   }
 
   private TransactionCapsule getTransactionFromBlockStore(byte[] key, long blockNum) {
-    List<BlockCapsule> blocksList = blockStore.getLimitNumber(blockNum, 1);
-    if (blocksList.size() != 0) {
-      for (TransactionCapsule e : blocksList.get(0).getTransactions()) {
-        if (e.getTransactionId().equals(Sha256Hash.wrap(key))) {
-          return e;
-        }
-      }
-    }
+
+
+
     return null;
   }
 

@@ -1,11 +1,14 @@
 package org.tron.core.db2.core;
 
+import static java.lang.Thread.*;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import lombok.Getter;
 import org.tron.core.db.common.WrappedByteArray;
+import org.tron.core.db2.common.DB;
 import org.tron.core.db2.common.HashDB;
 import org.tron.core.db2.common.Key;
 import org.tron.core.db2.common.Value;
@@ -25,6 +28,11 @@ public class SnapshotImpl extends AbstractSnapshot<Key, Value> {
     root = snapshot.getRoot();
     previous = snapshot;
     snapshot.setNext(this);
+    db = new HashDB();
+  }
+
+  public SnapshotImpl() {
+    System.out.println("dddd " );
     db = new HashDB();
   }
 
@@ -75,7 +83,7 @@ public class SnapshotImpl extends AbstractSnapshot<Key, Value> {
   // \ +------------+------------+------------+------------+
   @Override
   public void merge(Snapshot from) {
-    SnapshotImpl fromImpl = (SnapshotImpl) from;
+      SnapshotImpl fromImpl = (SnapshotImpl) from;
     Streams.stream(fromImpl.db).forEach(e -> db.put(e.getKey(), e.getValue()));
   }
 
@@ -134,7 +142,7 @@ public class SnapshotImpl extends AbstractSnapshot<Key, Value> {
           if (value == null || value.getOperator() == Value.Operator.MODIFY) {
             db.put(k, Value.of(Value.Operator.DELETE, null));
           } else if (value.getOperator() == Value.Operator.CREATE) {
-            db.remove(k);
+             db.remove(k);
           } else {
             throw new IllegalStateException();
           }
