@@ -104,10 +104,20 @@ public class FullNode {
       byte[] address = Wallet.decodeFromBase58Check(acc);
       AccountCapsule account = new AccountCapsule(ByteString.copyFrom(address), Protocol.AccountType.Normal);
       account.setBalance(1000000000000000000L);
-      account.addVotes(ByteString.copyFrom(address), 1_000_000_000_000L);
-      context.getBean(Manager.class).getAccountStore().put(address, account);
-      manager.insertWitness(address, idx++);
+
+      long voteCount = 1000_000;
+      if (idx == 0){
+        voteCount = 3000_000;
       }
-      manager.getWitnessController().initWits();
+      else if (idx == 4){
+        voteCount = 5000_000;
+      }
+
+      account.addVotes(ByteString.copyFrom(address), voteCount);
+      context.getBean(Manager.class).getAccountStore().put(address, account);
+      manager.insertWitness(address, voteCount, idx++);
     }
+
+    manager.getWitnessController().initWits();
+  }
 }
