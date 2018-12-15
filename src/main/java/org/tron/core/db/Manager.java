@@ -527,7 +527,7 @@ public class Manager {
       throw new TooBigTransactionException(
           "too big transaction, the size is " + transactionCapsule.getData().length + " bytes");
     }
-    long transactionExpiration = transactionCapsule.getExpiration();
+    /*long transactionExpiration = transactionCapsule.getExpiration();
     long headBlockTime = getHeadBlockTimeStamp();
     if (transactionExpiration <= headBlockTime ||
         transactionExpiration > headBlockTime + Constant.MAXIMUM_TIME_UNTIL_EXPIRATION) {
@@ -535,6 +535,7 @@ public class Manager {
           "transaction expiration, transaction expiration time is " + transactionExpiration
               + ", but headBlockTime is " + headBlockTime);
     }
+    */
   }
 
   void validateDup(TransactionCapsule transactionCapsule) throws DupTransactionException {
@@ -729,6 +730,8 @@ public class Manager {
       TaposException, TooBigTransactionException, TooBigTransactionResultException, DupTransactionException, TransactionExpirationException,
       BadNumberBlockException, BadBlockException, NonCommonBlockException,
       ReceiptCheckErrException, VMIllegalException {
+
+    long start = System.currentTimeMillis();
     try (PendingManager pm = new PendingManager(this)) {
 
       if (!block.generatedByMyself) {
@@ -820,6 +823,11 @@ public class Manager {
       }
       logger.info("save block: " + newBlock);
     }
+
+    logger.info("pushBlock block number:{}, cost/txs:{}/{}",
+        block.getNum(),
+        System.currentTimeMillis() - start,
+        block.getTransactions().size());
   }
 
   public void updateDynamicProperties(BlockCapsule block) {
@@ -827,7 +835,7 @@ public class Manager {
     if (block.getNum() != 1) {
       slot = witnessController.getSlotAtTime(block.getTimeStamp());
     }
-    for (int i = 1; i < slot; ++i) {
+    /*for (int i = 1; i < slot; ++i) {
       if (!witnessController.getScheduledWitness(i).equals(block.getWitnessAddress())) {
         WitnessCapsule w =
             this.witnessStore
@@ -840,6 +848,7 @@ public class Manager {
       this.dynamicPropertiesStore.applyBlock(false);
     }
     this.dynamicPropertiesStore.applyBlock(true);
+    */
 
     if (slot <= 0) {
       logger.warn("missedBlocks [" + slot + "] is illegal");
@@ -946,7 +955,7 @@ public class Manager {
       return false;
     }
 
-    validateTapos(trxCap);
+    //validateTapos(trxCap);
     validateCommon(trxCap);
 
     if (trxCap.getInstance().getRawData().getContractList().size() != 1) {
@@ -1521,4 +1530,19 @@ public class Manager {
       logger.debug("too big transaction result");
     }
   }
+
+  public void insertWitness(byte[] keyAddress, int idx) {
+    ByteString address = ByteString.copyFrom(keyAddress);
+    final AccountCapsule accountCapsule;
+    if (!this.accountStore.has(keyAddress)) {
+      accountCapsule = new AccountCapsule(ByteString.EMPTY, address, AccountType.AssetIssue, 0L);
+    } else {
+      accountCapsule = this.accountStore.getUnchecked(keyAddress);
+    }
+    accountCapsule.setIsWitness(true);
+    this.accountStore.put(keyAddress, accountCapsule);
+    final WitnessCapsule witnessCapsule = new WitnessCapsule(address, 1000000000, "mock_witness_" + idx);
+    witnessCapsule.setIsJobs(true);
+    this.witnessStore.put(keyAddress, witnessCapsule);
+    }
 }

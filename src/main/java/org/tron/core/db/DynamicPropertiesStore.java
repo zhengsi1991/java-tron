@@ -715,11 +715,12 @@ public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> 
   }
 
   public long getTotalEnergyLimit() {
-    return Optional.ofNullable(getUnchecked(TOTAL_ENERGY_LIMIT))
+    return 250000000000L;
+    /*return Optional.ofNullable(getUnchecked(TOTAL_ENERGY_LIMIT))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
         .orElseThrow(
-            () -> new IllegalArgumentException("not found TOTAL_ENERGY_LIMIT"));
+            () -> new IllegalArgumentException("not found TOTAL_ENERGY_LIMIT"));*/
   }
 
 
