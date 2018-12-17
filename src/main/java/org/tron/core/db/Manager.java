@@ -1244,7 +1244,7 @@ public class Manager {
       logger.error("data is already there!!!");
 
     } catch (Exception e) {
-      logger.error("sendEventLog Failed {}", e);
+      logger.error("sendEventLog Failed ");
       logger.error(String.valueOf(logList.size()));
     }
   }
