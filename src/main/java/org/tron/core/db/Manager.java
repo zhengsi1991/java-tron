@@ -1171,6 +1171,8 @@ public class Manager {
           }
 
           String rawLogData = ByteArray.toHexString(log.getData().toByteArray());
+          logger.error(rawLogData);
+          logger.error(String.valueOf(event.getNonIndexedParameters().size()));
           List<Type> nonIndexedValues = FunctionReturnDecoder.decode(rawLogData, event.getNonIndexedParameters());
 
           List<Type> indexedValues = new ArrayList<>();
