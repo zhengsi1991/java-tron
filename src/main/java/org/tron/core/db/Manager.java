@@ -1243,6 +1243,7 @@ public class Manager {
 
     } catch (Exception e) {
       logger.error("sendEventLog Failed {}", e);
+      logger.error(String.valueOf(logList.size()));
     }
   }
   /**
