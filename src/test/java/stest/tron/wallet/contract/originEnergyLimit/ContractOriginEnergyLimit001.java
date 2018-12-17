@@ -2,18 +2,21 @@ package stest.tron.wallet.contract.originEnergyLimit;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.math.BigInteger;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
+import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
@@ -76,12 +79,64 @@ public class ContractOriginEnergyLimit001 {
 
   }
 
+  public static Long getFreezeBalanceCount(byte[] accountAddress, String ecKey, Long targetEnergy,
+      WalletGrpc.WalletBlockingStub blockingStubFull, String msg) {
+    if(msg != null) {
+      logger.info(msg);
+    }
+    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(accountAddress,
+        blockingStubFull);
+
+    Account info = PublicMethed.queryAccount(accountAddress, blockingStubFull);
+
+    Account getAccount = PublicMethed.queryAccount(ecKey, blockingStubFull);
+
+    long balance = info.getBalance();
+    long frozenBalance = info.getAccountResource().getFrozenBalanceForEnergy().getFrozenBalance();
+    long totalEnergyLimit = resourceInfo.getTotalEnergyLimit();
+    long totalEnergyWeight = resourceInfo.getTotalEnergyWeight();
+    long energyUsed = resourceInfo.getEnergyUsed();
+    long energyLimit = resourceInfo.getEnergyLimit();
+
+    logger.info("Balance:" + balance);
+    logger.info("frozenBalance: " + frozenBalance);
+    logger.info("totalEnergyLimit: " + totalEnergyLimit);
+    logger.info("totalEnergyWeight: " + totalEnergyWeight);
+    logger.info("energyUsed: " + energyUsed);
+    logger.info("energyLimit: " + energyLimit);
+
+    if (energyUsed > energyLimit) {
+      targetEnergy = energyUsed - energyLimit + targetEnergy;
+    }
+
+    logger.info("targetEnergy: " + targetEnergy);
+    if (totalEnergyWeight == 0) {
+      return 1000_000L;
+    }
+
+    // totalEnergyLimit / (totalEnergyWeight + needBalance) = needEnergy / needBalance
+    BigInteger totalEnergyWeightBI = BigInteger.valueOf(totalEnergyWeight);
+    long needBalance = totalEnergyWeightBI.multiply(BigInteger.valueOf(1_000_000))
+        .multiply(BigInteger.valueOf(targetEnergy))
+        .divide(BigInteger.valueOf(totalEnergyLimit - targetEnergy)).longValue();
+
+    logger.info("[Debug]getFreezeBalanceCount, needBalance: " + needBalance);
+
+    if (needBalance < 1000000L) {
+      needBalance = 1000000L;
+      logger.info("[Debug]getFreezeBalanceCount, needBalance less than 1 TRX, modify to: " + needBalance);
+    }
+
+    return needBalance;
+  }
+
   //Origin_energy_limit001,028,029
   @Test(enabled = true)
   public void testOrigin_energy_limit001() {
-    PublicMethed
+
+    Assert.assertTrue(PublicMethed
         .sendcoin(grammarAddress3, 100000000000L, testNetAccountAddress, testNetAccountKey,
-            blockingStubFull);
+            blockingStubFull));
     String contractName = "aContract";
     String code = "608060405234801561001057600080fd5b50d3801561001d57600080fd5b50d2801561002a57600080fd5b5061014e8061003a6000396000f3006080604052600436106100405763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663329000b58114610045575b600080fd5b34801561005157600080fd5b50d3801561005e57600080fd5b50d2801561006b57600080fd5b50610077600435610089565b60408051918252519081900360200190f35b604080516003808252608082019092526000916060919060208201838038833901905050905060018160008151811015156100c057fe5b602090810290910101528051600290829060019081106100dc57fe5b602090810290910101528051600390829060029081106100f857fe5b60209081029091010152805181908490811061011057fe5b906020019060200201519150509190505600a165627a7a7230582058dd457e2aeba46e78dd8b9c36b777d362763c05ec1ad62e0d79de51ff3dde790029";
     String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"i\",\"type\":\"uint256\"}],\"name\":\"findArgsByIndexTest\",\"outputs\":[{\"name\":\"z\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
@@ -89,6 +144,7 @@ public class ContractOriginEnergyLimit001 {
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, -1, "0", 0, null, testKeyForGrammarAddress3,
             grammarAddress3, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Assert.assertTrue(contractAddress == null);
 
@@ -103,6 +159,8 @@ public class ContractOriginEnergyLimit001 {
         .deployContract(contractName, abi, code, "", maxFeeLimit,
             0L, 100, 9223372036854775807L, "0", 0, null, testKeyForGrammarAddress3,
             grammarAddress3, blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     Optional<TransactionInfo> infoById1 = null;
 //    infoById1 = PublicMethed.getTransactionInfoById(contractAddress2, blockingStubFull);
 //    Assert.assertTrue(infoById1.get().getResultValue() == 0);

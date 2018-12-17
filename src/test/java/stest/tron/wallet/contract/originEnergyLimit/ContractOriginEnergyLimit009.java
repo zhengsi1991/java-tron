@@ -25,7 +25,6 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.myself.DebugUtils;
 
 @Slf4j
 public class ContractOriginEnergyLimit009 {
@@ -245,9 +244,6 @@ public class ContractOriginEnergyLimit009 {
 
     logger.info("need balance:" + devNeedBalance);
 
-    logger.info("[Debug] before freeze, check the dev resource:");
-    DebugUtils.printAccountResource(dev001Address, blockingStubFull);
-
     // get balance
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, devNeedBalance, fromAddress,
         testKey002, blockingStubFull));
@@ -257,9 +253,6 @@ public class ContractOriginEnergyLimit009 {
         3, 1, dev001Key, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    logger.info("[Debug] after freeze, check the dev resource:");
-    DebugUtils.printAccountResource(dev001Address, blockingStubFull);
 
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
@@ -291,8 +284,6 @@ public class ContractOriginEnergyLimit009 {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    DebugUtils.printContractTxidInfo(deployTxid, blockingStubFull, "Deploy trs info: ");
-
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(deployTxid, blockingStubFull);
 
@@ -302,9 +293,6 @@ public class ContractOriginEnergyLimit009 {
 
     Assert.assertTrue(smartContract.getAbi() != null);
     PublicMethed.waitProduceNextBlock(blockingStubFull1);
-
-    DebugUtils.printAccountResource(contractAddress, blockingStubFull);
-    DebugUtils.printAccountResource(dev001Address, blockingStubFull);
 
     Assert.assertTrue(devEnergyLimitAfter > 0);
     Assert.assertTrue(devEnergyUsageAfter > 0);
@@ -326,11 +314,6 @@ public class ContractOriginEnergyLimit009 {
     // get energy
     Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSUN,
         3, 1, dev001Key, blockingStubFull));
-
-    logger.info("Debug: before trigger, check dev account resource:");
-    DebugUtils.printAccountResource(dev001Address, blockingStubFull);
-    logger.info("Debug: before trigger, check User account resource:");
-    DebugUtils.printAccountResource(user001Address, blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     devEnergyLimitBefore = accountResource.getEnergyLimit();
@@ -381,12 +364,6 @@ public class ContractOriginEnergyLimit009 {
     logger.info("after trigger, user userBalanceAfter is " + Long.toString(userBalanceAfter));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    DebugUtils.printContractTxidInfo(triggerTxid, blockingStubFull, "Debug: trigger trs info:");
-    logger.info("Debug: after trigger, check Dev account resource:");
-    DebugUtils.printAccountResource(dev001Address, blockingStubFull);
-    logger.info("Debug: after trigger, check user account resource:");
-    DebugUtils.printAccountResource(user001Address, blockingStubFull);
 
     infoById = PublicMethed.getTransactionInfoById(triggerTxid, blockingStubFull);
 
