@@ -1127,7 +1127,8 @@ public class Manager {
       IntStream.range(0,logList.size()).forEach(idx -> {
         org.tron.protos.Protocol.TransactionInfo.Log log = logList.get(idx);
         byte[] logContractAddress = MUtil.convertToTronAddress(log.getAddress().toByteArray());
-//        logger.error(Hex.toHexString(log.getTopicsList().get(0).toByteArray()));
+//        logger.error(log.getAddress());
+
         Protocol.SmartContract.ABI abi = abiCache.getIfPresent(logContractAddress);
         if (abi == null) {
           abi = getContractStore().getABI(logContractAddress);
@@ -1171,8 +1172,7 @@ public class Manager {
           }
 
           String rawLogData = ByteArray.toHexString(log.getData().toByteArray());
-          logger.error(rawLogData);
-          logger.error(String.valueOf(event.getNonIndexedParameters().size()));
+          logger.error(event.getNonIndexedParameters().toString());
           List<Type> nonIndexedValues = FunctionReturnDecoder.decode(rawLogData, event.getNonIndexedParameters());
 
           List<Type> indexedValues = new ArrayList<>();
@@ -1245,7 +1245,7 @@ public class Manager {
 
     } catch (Exception e) {
       logger.error("sendEventLog Failed ");
-      logger.error(String.valueOf(logList.size()));
+      logger.error(Hex.toHexString(transactionInfoCapsule.getId()));
     }
   }
   /**
