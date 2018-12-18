@@ -102,7 +102,7 @@ public class ApplicationImpl implements Application {
 
     for(String key:map.keySet())
     {
-      System.out.println("Key: "+key +" Value: "+map.get(key));
+      System.out.println("Key: "+key +" Value: "+(28800-map.get(key)));
     }
 
     logger.info("******** begin to shutdown ********");
