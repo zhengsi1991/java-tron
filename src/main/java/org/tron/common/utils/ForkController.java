@@ -51,21 +51,34 @@ public class ForkController {
       return false;
     }
 
+    logger.info("after_checkEnergy");
+
     if (passSet.contains(version)) {
       return true;
     }
+
+    logger.info("after_passSet.contains");
 
     byte[] stats = manager.getDynamicPropertiesStore().statsByVersion(version);
     boolean pass;
     if (version == ForkBlockVersionConsts.ENERGY_LIMIT) {
       pass = check(stats);
+
+      logger.info("after_check");
     } else {
       pass = check2(stats);
+      for (byte stat : stats) {
+        logger.info("stat=" + stat);
+      }
+      logger.info("after_check2");
     }
 
     if (pass) {
       passSet.add(version);
     }
+
+    logger.info("pass=" + pass);
+
     return pass;
   }
 

@@ -56,9 +56,11 @@ public class SolidityNode {
     try {
       new Thread(() -> getBlock()).start();
       new Thread(() -> processBlock()).start();
-      logger.info( "Success to start solid node, ID: {}, remoteBlockNum: {}.", ID.get(), remoteBlockNum);
+      logger.info("Success to start solid node, ID: {}, remoteBlockNum: {}.", ID.get(),
+          remoteBlockNum);
     } catch (Exception e) {
-      logger.error("Failed to start solid node, address: {}.", Args.getInstance().getTrustNodeAddr());
+      logger
+          .error("Failed to start solid node, address: {}.", Args.getInstance().getTrustNodeAddr());
       System.exit(0);
     }
   }
@@ -100,7 +102,8 @@ public class SolidityNode {
       try {
         dbManager.pushVerifiedBlock(new BlockCapsule(block));
         dbManager.getDynamicPropertiesStore().saveLatestSolidifiedBlockNum(blockNum);
-        logger.info("Success to process block: {}, blockQueueSize: {}.", blockNum, blockQueue.size());
+        logger
+            .info("Success to process block: {}, blockQueueSize: {}.", blockNum, blockQueue.size());
         return;
       } catch (Exception e) {
         logger.error("Failed to process block {}.", new BlockCapsule(block), e);
@@ -120,11 +123,11 @@ public class SolidityNode {
           logger.info("Success to get block: {}, cost: {}ms.",
               blockNum, System.currentTimeMillis() - time);
           return block;
-        }else {
+        } else {
           logger.warn("Get block id not the same , {}, {}.", num, blockNum);
           sleep(exceptionSleepTime);
         }
-      }catch (Exception e){
+      } catch (Exception e) {
         logger.error("Failed to get block: {}, reason: {}.", blockNum, e.getMessage());
         sleep(exceptionSleepTime);
       }
@@ -140,7 +143,8 @@ public class SolidityNode {
             blockNum, remoteBlockNum, System.currentTimeMillis() - time);
         return blockNum;
       } catch (Exception e) {
-        logger.error("Failed to get last solid blockNum: {}, reason: {}.", remoteBlockNum.get(), e.getMessage());
+        logger.error("Failed to get last solid blockNum: {}, reason: {}.", remoteBlockNum.get(),
+            e.getMessage());
         sleep(exceptionSleepTime);
       }
     }
@@ -175,7 +179,7 @@ public class SolidityNode {
 
     logger.info("index switch is {}",
         BooleanUtils.toStringOnOff(BooleanUtils.toBoolean(cfgArgs.getStorage().getIndexSwitch())));
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory
         .getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.toLevel(cfgArgs.getLogLevel()));
 
@@ -192,6 +196,17 @@ public class SolidityNode {
       return;
     }
     Application appT = ApplicationFactory.create(context);
+
+    Manager manager = context.getBean(Manager.class);
+    long start = 1544704800000L;
+    int interval = 300000;
+    long next = start;
+    while (next < System.currentTimeMillis()) {
+      next += interval;
+    }
+    manager.getDynamicPropertiesStore().saveMaintenanceTimeInterval(interval);
+    manager.getDynamicPropertiesStore().saveNextMaintenanceTime(next);
+
     FullNode.shutdown(appT);
 
     //appT.init(cfgArgs);

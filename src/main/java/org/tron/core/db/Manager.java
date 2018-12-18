@@ -1302,9 +1302,9 @@ public class Manager {
     }
 
     // checkWitness
-//    if (!witnessController.validateWitnessSchedule(block)) {
-//      throw new ValidateScheduleException("validateWitnessSchedule error");
-//    }
+    if (!witnessController.validateWitnessSchedule(block)) {
+      throw new ValidateScheduleException("validateWitnessSchedule error");
+    }
 
     for (TransactionCapsule transactionCapsule : block.getTransactions()) {
       transactionCapsule.setBlockNum(block.getNum());
