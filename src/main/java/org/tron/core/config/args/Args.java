@@ -244,6 +244,11 @@ public class Args {
 
   @Getter
   @Setter
+  @Parameter(names = {"--solidity-thread"}, description = "Num of solidity thread")
+  private int solidityThreads;
+
+  @Getter
+  @Setter
   private int maxConcurrentCallsPerConnection;
 
   @Getter
@@ -366,6 +371,10 @@ public class Args {
 
   @Getter
   @Setter
+  private int allowMultiSign;
+
+  @Getter
+  @Setter
   private String logLevel;
 
   @Getter
@@ -452,6 +461,7 @@ public class Args {
     INSTANCE.minTimeRatio = 0.0;
     INSTANCE.maxTimeRatio = 5.0;
     INSTANCE.longRunningTime = 10;
+    INSTANCE.allowMultiSign = 0;
   }
 
   /**
@@ -656,6 +666,10 @@ public class Args {
         config.hasPath("node.rpc.thread") ? config.getInt("node.rpc.thread")
             : Runtime.getRuntime().availableProcessors() / 2;
 
+    INSTANCE.solidityThreads =
+        config.hasPath("node.solidity.threads") ? config.getInt("node.solidity.threads")
+            : Runtime.getRuntime().availableProcessors();
+
     INSTANCE.maxConcurrentCallsPerConnection =
         config.hasPath("node.rpc.maxConcurrentCallsPerConnection") ?
             config.getInt("node.rpc.maxConcurrentCallsPerConnection") : Integer.MAX_VALUE;
@@ -698,6 +712,9 @@ public class Args {
         config.hasPath("committee.allowCreationOfContracts") ? config
             .getInt("committee.allowCreationOfContracts") : 0;
 
+    INSTANCE.allowMultiSign =
+        config.hasPath("committee.allowMultiSign") ? config
+            .getInt("committee.allowMultiSign") : 0;
     INSTANCE.allowAdaptiveEnergy =
         config.hasPath("committee.allowAdaptiveEnergy") ? config
             .getInt("committee.allowAdaptiveEnergy") : 0;
@@ -980,6 +997,7 @@ public class Args {
     logger.info("Seed node size: {}", args.getSeedNode().getIpList().size());
     logger.info("Max connection: {}", args.getNodeMaxActiveNodes());
     logger.info("Max connection with same IP: {}", args.getNodeMaxActiveNodesWithSameIp());
+    logger.info("Solidity threads: {}", args.getSolidityThreads());
     logger.info("************************ Backup config ************************");
     logger.info("Backup listen port: {}", args.getBackupPort());
     logger.info("Backup member size: {}", args.getBackupMembers().size());

@@ -52,7 +52,6 @@ import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.TransactionInfoCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.capsule.utils.BlockUtil;
-import org.tron.core.config.Parameter.AdaptiveResourceLimitConstants;
 import org.tron.core.config.Parameter.ChainConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.config.args.GenesisBlock;
@@ -652,7 +651,7 @@ public class Manager {
       TooBigTransactionException, TransactionExpirationException,
       ReceiptCheckErrException, VMIllegalException, TooBigTransactionResultException {
 
-    if (!trx.validateSignature()) {
+    if (!trx.validateSignature(this)) {
       throw new ValidateSignatureException("trans sig validate failed");
     }
 
@@ -721,7 +720,7 @@ public class Manager {
     processBlock(block);
     this.blockStore.put(block.getBlockId().getBytes(), block);
     this.blockIndexStore.put(block.getBlockId());
-    updateFork();
+    updateFork(block);
     if (System.currentTimeMillis() - block.getTimeStamp() >= 60_000) {
       revokingStore.setMaxFlushCount(SnapshotManager.DEFAULT_MAX_FLUSH_COUNT);
     } else {
@@ -1064,7 +1063,7 @@ public class Manager {
 
     validateDup(trxCap);
 
-    if (!trxCap.validateSignature()) {
+    if (!trxCap.validateSignature(this)) {
       throw new ValidateSignatureException("trans sig validate failed");
     }
 
@@ -1323,7 +1322,10 @@ public class Manager {
       }
     }
     if (getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 1) {
-      updateAdaptiveTotalEnergyLimit();
+      EnergyProcessor energyProcessor = new EnergyProcessor(this);
+
+      energyProcessor.updateTotalEnergyAverageUsage(block.getTimeStamp());
+      energyProcessor.updateAdaptiveTotalEnergyLimit();
     }
     this.updateDynamicProperties(block);
     this.updateSignedWitness(block);
@@ -1333,34 +1335,7 @@ public class Manager {
     updateRecentBlock(block);
   }
 
-  public void updateAdaptiveTotalEnergyLimit() {
-    long totalEnergyAverageUsage = getDynamicPropertiesStore()
-        .getTotalEnergyAverageUsage();
-    long targetTotalEnergyLimit = getDynamicPropertiesStore().getTotalEnergyTargetLimit();
-    long totalEnergyCurrentLimit = getDynamicPropertiesStore()
-        .getTotalEnergyCurrentLimit();
 
-    long result;
-    if (totalEnergyAverageUsage > targetTotalEnergyLimit) {
-      result = totalEnergyCurrentLimit * AdaptiveResourceLimitConstants.CONTRACT_RATE_NUMERATOR
-          / AdaptiveResourceLimitConstants.CONTRACT_RATE_DENOMINATOR;
-      // logger.info(totalEnergyAverageUsage + ">" + targetTotalEnergyLimit + "\n" + result);
-    } else {
-      result = totalEnergyCurrentLimit * AdaptiveResourceLimitConstants.EXPAND_RATE_NUMERATOR
-          / AdaptiveResourceLimitConstants.EXPAND_RATE_DENOMINATOR;
-      // logger.info(totalEnergyAverageUsage + "<" + targetTotalEnergyLimit + "\n" + result);
-    }
-
-    result = Math.min(
-        Math.max(result, getDynamicPropertiesStore().getTotalEnergyLimit()),
-        getDynamicPropertiesStore().getTotalEnergyLimit()
-            * AdaptiveResourceLimitConstants.LIMIT_MULTIPLIER);
-
-    getDynamicPropertiesStore().saveTotalEnergyCurrentLimit(result);
-    logger.debug(
-        "adjust totalEnergyCurrentLimit, old[" + totalEnergyCurrentLimit + "], new[" + result
-            + "]");
-  }
 
   private void updateTransHashCache(BlockCapsule block) {
     for (TransactionCapsule transactionCapsule : block.getTransactions()) {
@@ -1406,14 +1381,8 @@ public class Manager {
     logger.info("update solid block, num = {}", latestSolidifiedBlockNum);
   }
 
-  public void updateFork() {
-    try {
-      long latestSolidifiedBlockNum = dynamicPropertiesStore.getLatestSolidifiedBlockNum();
-      BlockCapsule solidifiedBlock = getBlockByNum(latestSolidifiedBlockNum);
-      forkController.update(solidifiedBlock);
-    } catch (ItemNotFoundException | BadItemException e) {
-      logger.error("solidified block not found");
-    }
+  public void updateFork(BlockCapsule block) {
+    forkController.update(block);
   }
 
   public long getSyncBeginNumber() {
@@ -1448,8 +1417,7 @@ public class Manager {
     proposalController.processProposals();
     witnessController.updateWitness();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
-    forkController.updateWhenMaintenance(block);
-    forkController.reset(block);
+    forkController.reset();
   }
 
   /**
@@ -1603,16 +1571,19 @@ public class Manager {
 
     private TransactionCapsule trx;
     private CountDownLatch countDownLatch;
+    private Manager manager;
 
-    ValidateSignTask(TransactionCapsule trx, CountDownLatch countDownLatch) {
+    ValidateSignTask(TransactionCapsule trx, CountDownLatch countDownLatch,
+        Manager manager) {
       this.trx = trx;
       this.countDownLatch = countDownLatch;
+      this.manager = manager;
     }
 
     @Override
     public Boolean call() throws ValidateSignatureException {
       try {
-        trx.validateSignature();
+        trx.validateSignature(manager);
       } catch (ValidateSignatureException e) {
         throw e;
       } finally {
@@ -1632,7 +1603,7 @@ public class Manager {
 
     for (TransactionCapsule transaction : block.getTransactions()) {
       Future<Boolean> future = validateSignService
-          .submit(new ValidateSignTask(transaction, countDownLatch));
+          .submit(new ValidateSignTask(transaction, countDownLatch, this));
       futures.add(future);
     }
     countDownLatch.await();

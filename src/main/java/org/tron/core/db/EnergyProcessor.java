@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.TransactionCapsule;
+import org.tron.core.config.Parameter.AdaptiveResourceLimitConstants;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.protos.Protocol.Account.AccountResource;
@@ -33,17 +34,48 @@ public class EnergyProcessor extends ResourceProcessor {
     accountCapsule.setEnergyUsage(increase(oldEnergyUsage, 0, latestConsumeTime, now));
   }
 
-  public void updateTotalEnergyAverageUsage(long now, long energy) {
-    long totalNetAverageUsage = dbManager.getDynamicPropertiesStore().getTotalEnergyAverageUsage();
-    long totalNetAverageTime = dbManager.getDynamicPropertiesStore().getTotalEnergyAverageTime();
+  public void updateTotalEnergyAverageUsage(long now) {
+    long blockEnergyUsage = dbManager.getDynamicPropertiesStore().getBlockEnergyUsage();
+    long totalEnergyAverageUsage = dbManager.getDynamicPropertiesStore()
+        .getTotalEnergyAverageUsage();
+    long totalEnergyAverageTime = dbManager.getDynamicPropertiesStore().getTotalEnergyAverageTime();
 
-    long newPublicNetAverageUsage = increase(totalNetAverageUsage, energy, totalNetAverageTime,
-        now, averageWindowSize);
+    long newPublicEnergyAverageUsage = increase(totalEnergyAverageUsage, blockEnergyUsage,
+        totalEnergyAverageTime, now, averageWindowSize);
 
-    dbManager.getDynamicPropertiesStore().saveTotalEnergyAverageUsage(newPublicNetAverageUsage);
+    dbManager.getDynamicPropertiesStore().saveTotalEnergyAverageUsage(newPublicEnergyAverageUsage);
     dbManager.getDynamicPropertiesStore().saveTotalEnergyAverageTime(now);
   }
 
+  public void updateAdaptiveTotalEnergyLimit() {
+    long totalEnergyAverageUsage = dbManager.getDynamicPropertiesStore()
+        .getTotalEnergyAverageUsage();
+    long targetTotalEnergyLimit = dbManager.getDynamicPropertiesStore().getTotalEnergyTargetLimit();
+    long totalEnergyCurrentLimit = dbManager.getDynamicPropertiesStore()
+        .getTotalEnergyCurrentLimit();
+    long totalEnergyLimit = dbManager.getDynamicPropertiesStore().getTotalEnergyLimit();
+
+    long result;
+    if (totalEnergyAverageUsage > targetTotalEnergyLimit) {
+      result = totalEnergyCurrentLimit * AdaptiveResourceLimitConstants.CONTRACT_RATE_NUMERATOR
+          / AdaptiveResourceLimitConstants.CONTRACT_RATE_DENOMINATOR;
+      // logger.info(totalEnergyAverageUsage + ">" + targetTotalEnergyLimit + "\n" + result);
+    } else {
+      result = totalEnergyCurrentLimit * AdaptiveResourceLimitConstants.EXPAND_RATE_NUMERATOR
+          / AdaptiveResourceLimitConstants.EXPAND_RATE_DENOMINATOR;
+      // logger.info(totalEnergyAverageUsage + "<" + targetTotalEnergyLimit + "\n" + result);
+    }
+
+    result = Math.min(
+        Math.max(result, totalEnergyLimit),
+        totalEnergyLimit * AdaptiveResourceLimitConstants.LIMIT_MULTIPLIER
+    );
+
+    dbManager.getDynamicPropertiesStore().saveTotalEnergyCurrentLimit(result);
+    logger.debug(
+        "adjust totalEnergyCurrentLimit, old[" + totalEnergyCurrentLimit + "], new[" + result
+            + "]");
+  }
 
   @Override
   public void consume(TransactionCapsule trx,
@@ -145,7 +177,8 @@ public class EnergyProcessor extends ResourceProcessor {
     dbManager.getAccountStore().put(accountCapsule.createDbKey(), accountCapsule);
 
     if (dbManager.getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 1) {
-      updateTotalEnergyAverageUsage(now, energy);
+      long blockEnergyUsage = dbManager.getDynamicPropertiesStore().getBlockEnergyUsage() + energy;
+      dbManager.getDynamicPropertiesStore().saveBlockEnergyUsage(blockEnergyUsage);
     }
 
     return true;
