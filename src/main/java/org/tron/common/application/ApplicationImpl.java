@@ -114,16 +114,16 @@ public class ApplicationImpl implements Application {
     strList.add("419F1F87615C2CECE9E6EB5105F91641838620B886");
     strList.add("41A94E66FC4052F74EAB7477CA7CDD672C0585ECC7");
     strList.add("41256457AAD6551D6F28D0798B7CD44BAB5F410F38");
-
-
-    List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(4000000 , 1000000);
     for (int m = 0; m < strList.size(); m ++) {
+
       long lastNumber = 0;
-      System.out.println("address:"+ strList.get(m));
+      for (int i = 0; i < 10000; i ++ ) {
+        List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(4500000 + i * 1000, 1000);
+        if (value.size() == 0) break;
         for (int j = 0; j < value.size(); j ++ ){
           BlockCapsule bl = value.get(j);
           String tmp =  ByteArray.toHexString(bl.getWitnessAddress().toByteArray());
-          if (tmp.equals(strList.get(m))) {
+          if (tmp.equalsIgnoreCase(strList.get(m))) {
             if (lastNumber != 0 &&  bl.getNum() - lastNumber > 27 ){
               Date date = new Date(bl.getTimeStamp());
               if (map.containsKey(formatter.format(date))){
@@ -137,13 +137,13 @@ public class ApplicationImpl implements Application {
             lastNumber = bl.getNum();
           }
         }
-
-
+      }
     }
     for(String key:map.keySet())
     {
       System.out.println("Key: "+key +" Value: "+map.get(key));
     }
+
     logger.info("******** begin to shutdown ********");
     synchronized (dbManager.getRevokingStore()) {
       closeRevokingStore();
