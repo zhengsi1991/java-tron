@@ -29,7 +29,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 @Slf4j
-public class ContractTrcToken001 {
+public class ContractTrcToken044 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -206,18 +206,19 @@ public class ContractTrcToken001 {
         + "\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":"
         + "\"payable\",\"type\":\"constructor\"}]";
 
+    Long transferCount = -1L;
     String transferTokenTxid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
-            assetAccountId.toStringUtf8(), 100, null, dev001Key,
+            assetAccountId.toStringUtf8(), transferCount, null, dev001Key,
             dev001Address, blockingStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
-    }
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+
+    logger.info("deploy transaction failed with message: " + infoById.get().getResMessage());
 
     transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
     SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,
@@ -242,12 +243,12 @@ public class ContractTrcToken001 {
         assetAccountId, blockingStubFull);
     logger.info("contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contactAssetCount);
 
-    Assert.assertTrue(energyLimit > 0);
-    Assert.assertTrue(energyUsage > 0);
-    Assert.assertEquals(balanceBefore, balanceAfter);
-    Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
-    Assert.assertEquals(Long.valueOf(100), contactAssetCount);
- }
+//    Assert.assertTrue(energyLimit > 0);
+//    Assert.assertTrue(energyUsage > 0);
+//    Assert.assertEquals(balanceBefore, balanceAfter);
+//    Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
+//    Assert.assertEquals(Long.valueOf(100), contactAssetCount);
+  }
 
   @AfterClass
   public void shutdown() throws InterruptedException {

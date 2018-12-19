@@ -31,7 +31,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 @Slf4j
-public class ContractTrcToken002 {
+public class ContractTrcToken018 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -50,7 +50,6 @@ public class ContractTrcToken002 {
   private static final long TotalSupply = 1000L;
   private byte[] transferTokenContractAddress = null;
   private byte[] receiveTokenContractAddress = null;
-  private byte[] tokenBalanceContractAddress = null;
 
   private String description = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetDescription");
@@ -190,13 +189,13 @@ public class ContractTrcToken002 {
 
     logger.info("** deploy transfer token contract");
     deployTransferTokenContract(dev001Address, dev001Key);
-    logger.info("** deploy receive token contract");
-    deployRevContract(dev001Address, dev001Key);
-    logger.info("** trigger transfer token contract to contract address");
-    triggerContract(transferTokenContractAddress, receiveTokenContractAddress, user001Address,
-        user001Key);
+
+    ECKey ecKey3 = new ECKey(Utils.getRandom());
+    byte[] tmpAddress = ecKey3.getAddress();
+    String tmp001Key = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
+
     logger.info("** trigger transfer token contract to normal address");
-    triggerContract(transferTokenContractAddress, dev001Address, user001Address, user001Key);
+    triggerContract(transferTokenContractAddress, tmpAddress, user001Address, user001Key);
   }
 
   public void deployTransferTokenContract(byte[] dev001Address, String dev001Key) {

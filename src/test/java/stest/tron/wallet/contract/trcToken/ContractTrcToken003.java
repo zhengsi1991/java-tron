@@ -29,7 +29,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 @Slf4j
-public class ContractTrcToken001 {
+public class ContractTrcToken003 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -170,12 +170,11 @@ public class ContractTrcToken001 {
 
   @Test
   public void deployTransferTokenContract() {
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10000000,
-        0, 1, ByteString.copyFrom(dev001Address),
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 1_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address),
-        testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+        getFreezeBalanceCount(dev001Address, dev001Key, 50000L, blockingStubFull, null),
+        0, 1, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     testCreateAssetIssue(dev001Address, dev001Key);
 
@@ -193,6 +192,10 @@ public class ContractTrcToken001 {
     logger.info("before AssetId: " + assetAccountId.toStringUtf8() +
         ", devAssetCountBefore: " + devAssetCountBefore);
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+
     String contractName = "transferTokenContract";
     String code = "608060405260e2806100126000396000f300608060405260043610603e5763ffffffff7c01000000"
         + "000000000000000000000000000000000000000000000000006000350416633be9ece781146043575b600080"
@@ -206,18 +209,22 @@ public class ContractTrcToken001 {
         + "\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":"
         + "\"payable\",\"type\":\"constructor\"}]";
 
+    String fakeTokenId = Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 1);
+
     String transferTokenTxid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
-            assetAccountId.toStringUtf8(), 100, null, dev001Key,
+            fakeTokenId, 100, null, dev001Key,
             dev001Address, blockingStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(transferTokenTxid, blockingStubFull);
 
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
-    }
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    logger.info("deploy transaction failed with message: " + infoById.get().getResMessage());
+
 
     transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
     SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,

@@ -31,7 +31,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 @Slf4j
-public class ContractTrcToken002 {
+public class ContractTrcToken005 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -343,9 +343,9 @@ public class ContractTrcToken002 {
         assetAccountId, blockingStubFull);
     logger.info("Contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contractAssetCount);
 
-//    Assert.assertTrue(energyLimit > 0);
-//    Assert.assertTrue(energyUsage > 0);
-//    Assert.assertEquals(balanceBefore, balanceAfter);
+    Assert.assertTrue(energyLimit > 0);
+    Assert.assertTrue(energyUsage > 0);
+    Assert.assertEquals(balanceBefore, balanceAfter);
     Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
     Assert.assertEquals(Long.valueOf(100), contractAssetCount);
   }
@@ -389,8 +389,10 @@ public class ContractTrcToken002 {
     logger.info("before trigger, receiveTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + receiveAssetBefore);
 
+    String fakeTokenId = Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 1);
+
     String param = "\"" + Base58.encode58Check(receiveTokenAddress)
-        + "\"," + assetAccountId.toStringUtf8() + ",\"1\"";
+        + "\"," + fakeTokenId + ",\"1\"";
 
     String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
         "TransferTokenTo(address,trcToken,uint256)", param, false, 0,

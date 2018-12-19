@@ -31,7 +31,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 
 
 @Slf4j
-public class ContractTrcToken002 {
+public class ContractTrcToken046 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -389,12 +389,14 @@ public class ContractTrcToken002 {
     logger.info("before trigger, receiveTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + receiveAssetBefore);
 
+    Long transferCount = -1L;
+
     String param = "\"" + Base58.encode58Check(receiveTokenAddress)
         + "\"," + assetAccountId.toStringUtf8() + ",\"1\"";
 
     String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
         "TransferTokenTo(address,trcToken,uint256)", param, false, 0,
-        1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
+        1000000000L, assetAccountId.toStringUtf8(), transferCount, user001Address, user001Key,
         blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
