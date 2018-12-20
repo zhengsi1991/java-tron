@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -13,6 +15,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.WalletGrpc;
@@ -207,25 +210,16 @@ public class ContractTrcToken004 {
         + "\"payable\",\"type\":\"constructor\"}]";
 
     Long transferCount = devAssetCountBefore + 100L;
-    String transferTokenTxid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+    GrpcAPI.Return response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             assetAccountId.toStringUtf8(), transferCount, null, dev001Key,
             dev001Address, blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : assetBalance is not sufficient.", response.getMessage().toStringUtf8());
 
-    Assert.assertTrue(infoById.get().getResultValue() != 0);
-
-    logger.info("deploy transaction failed with message: " + infoById.get().getResMessage());
-
-    transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,
-        blockingStubFull);
-    Assert.assertNotNull(smartContract.getAbi());
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
@@ -239,15 +233,10 @@ public class ContractTrcToken004 {
     logger.info("after AssetId: " + assetAccountId.toStringUtf8() +
         ", devAssetCountAfter: " + devAssetCountAfter);
 
-    Long contactAssetCount = getAssetIssueValue(transferTokenContractAddress,
-        assetAccountId, blockingStubFull);
-    logger.info("contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contactAssetCount);
-
-//    Assert.assertTrue(energyLimit > 0);
-//    Assert.assertTrue(energyUsage > 0);
-//    Assert.assertEquals(balanceBefore, balanceAfter);
-//    Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
-//    Assert.assertEquals(Long.valueOf(100), contactAssetCount);
+    Assert.assertTrue(energyLimit > 0);
+    Assert.assertTrue(energyUsage == 0);
+    Assert.assertEquals(balanceBefore, balanceAfter);
+    Assert.assertEquals(devAssetCountBefore, devAssetCountAfter);
   }
 
   @AfterClass
