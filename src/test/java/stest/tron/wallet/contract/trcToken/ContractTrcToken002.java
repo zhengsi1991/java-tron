@@ -30,8 +30,6 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.myself.DebugUtils;
-
 
 @Slf4j
 public class ContractTrcToken002 {
@@ -395,9 +393,6 @@ public class ContractTrcToken002 {
     long userBalanceBefore = PublicMethed.queryAccount(user001Address, blockingStubFull)
         .getBalance();
 
-    DebugUtils.printAccountResource(transferTokenContractAddress, blockingStubFull);
-    DebugUtils.printAccountResource(receiveTokenAddress, blockingStubFull);
-
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
@@ -442,7 +437,6 @@ public class ContractTrcToken002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    DebugUtils.printContractTxidInfo(triggerTxid, blockingStubFull, null);
 
     Optional<Transaction> trsById = PublicMethed.getTransactionById(triggerTxid, blockingStubFull);
     long feeLimit = trsById.get().getRawData().getFeeLimit();
@@ -472,9 +466,6 @@ public class ContractTrcToken002 {
 
     long consumeURPercent = smartContract.getConsumeUserResourcePercent();
     logger.info("ConsumeURPercent: " + consumeURPercent);
-
-    DebugUtils.printAccountResource(transferTokenContractAddress, blockingStubFull);
-    DebugUtils.printAccountResource(receiveTokenAddress, blockingStubFull);
 
     Assert.assertEquals(originEnergyUsage, devEnergyUsageAfter - devEnergyUsageBefore);
     Assert.assertEquals(energyUsage, userEnergyUsageAfter - userEnergyUsageBefore);

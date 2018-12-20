@@ -26,7 +26,6 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.myself.DebugUtils;
 
 
 @Slf4j
@@ -220,8 +219,6 @@ public class ContractTrcToken001 {
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
     }
-
-    DebugUtils.printContractTxidInfo(transferTokenTxid, blockingStubFull, null);
 
     transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
     SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,
