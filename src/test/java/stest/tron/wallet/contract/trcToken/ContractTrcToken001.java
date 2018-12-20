@@ -26,6 +26,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.DebugUtils;
 
 
 @Slf4j
@@ -170,7 +171,8 @@ public class ContractTrcToken001 {
 
   @Test
   public void deployTransferTokenContract() {
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10000000,
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+        getFreezeBalanceCount(dev001Address, dev001Key, 50000L, blockingStubFull, null),
         0, 1, ByteString.copyFrom(dev001Address),
         testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 1_000_000L,
@@ -209,7 +211,7 @@ public class ContractTrcToken001 {
     String transferTokenTxid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
-            assetAccountId.toStringUtf8(), 100, null, dev001Key,
+            assetAccountId.toStringUtf8(), 100L, null, dev001Key,
             dev001Address, blockingStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
@@ -218,6 +220,8 @@ public class ContractTrcToken001 {
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
     }
+
+    DebugUtils.printContractTxidInfo(transferTokenTxid, blockingStubFull, null);
 
     transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
     SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,

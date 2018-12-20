@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -13,6 +15,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.WalletGrpc;
@@ -22,10 +25,12 @@ import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.SmartContract;
+import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.DebugUtils;
 
 
 @Slf4j
@@ -209,29 +214,17 @@ public class ContractTrcToken003 {
         + "\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":"
         + "\"payable\",\"type\":\"constructor\"}]";
 
-    String fakeTokenId = Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 1);
+    String fakeTokenId = Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 100);
 
-    String transferTokenTxid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
+    GrpcAPI.Return response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
             fakeTokenId, 100, null, dev001Key,
             dev001Address, blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Assert.assertTrue(infoById.get().getResultValue() != 0);
-    logger.info("deploy transaction failed with message: " + infoById.get().getResMessage());
-
-
-    transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,
-        blockingStubFull);
-    Assert.assertNotNull(smartContract.getAbi());
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : No asset !", response.getMessage().toStringUtf8());
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
@@ -245,15 +238,10 @@ public class ContractTrcToken003 {
     logger.info("after AssetId: " + assetAccountId.toStringUtf8() +
         ", devAssetCountAfter: " + devAssetCountAfter);
 
-    Long contactAssetCount = getAssetIssueValue(transferTokenContractAddress,
-        assetAccountId, blockingStubFull);
-    logger.info("contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contactAssetCount);
-
     Assert.assertTrue(energyLimit > 0);
-    Assert.assertTrue(energyUsage > 0);
+    Assert.assertTrue(energyUsage == 0);
     Assert.assertEquals(balanceBefore, balanceAfter);
-    Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
-    Assert.assertEquals(Long.valueOf(100), contactAssetCount);
+    Assert.assertEquals(devAssetCountBefore, devAssetCountAfter);
  }
 
   @AfterClass

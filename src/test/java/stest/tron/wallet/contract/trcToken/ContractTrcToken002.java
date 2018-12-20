@@ -3,6 +3,8 @@ package stest.tron.wallet.contract.trcToken;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +30,7 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.DebugUtils;
 
 
 @Slf4j
@@ -207,6 +210,12 @@ public class ContractTrcToken002 {
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
+//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address,
+//        getFreezeBalanceCount(dev001Address, dev001Key, 50000L, blockingStubFull, null),
+//        0, 1,dev001Key, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalance(dev001Address, 1_000_000L,
+//        0, dev001Key, blockingStubFull));
+
     testCreateAssetIssue(dev001Address, dev001Key);
 
     //before deploy, check account resource
@@ -288,6 +297,10 @@ public class ContractTrcToken002 {
             blockingStubFull, null), 0, 1,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
+//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address,
+//        getFreezeBalanceCount(dev001Address, dev001Key, 50000L, blockingStubFull, null),
+//        0, 1,dev001Key, blockingStubFull));
+
     // before deploy, check account resource
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
         blockingStubFull);
@@ -323,7 +336,6 @@ public class ContractTrcToken002 {
     logger.info("after AssetId: " + assetAccountId.toStringUtf8() +
         ", devAssetCountAfter: " + devAssetCountAfter);
 
-
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
@@ -343,9 +355,9 @@ public class ContractTrcToken002 {
         assetAccountId, blockingStubFull);
     logger.info("Contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contractAssetCount);
 
-//    Assert.assertTrue(energyLimit > 0);
-//    Assert.assertTrue(energyUsage > 0);
-//    Assert.assertEquals(balanceBefore, balanceAfter);
+    Assert.assertTrue(energyLimit > 0);
+    Assert.assertTrue(energyUsage > 0);
+    Assert.assertEquals(balanceBefore, balanceAfter);
     Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
     Assert.assertEquals(Long.valueOf(100), contractAssetCount);
   }
@@ -357,6 +369,12 @@ public class ContractTrcToken002 {
         getFreezeBalanceCount(user001Address, user001Key, 50000L,
             blockingStubFull, null), 0, 1,
         ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+
+//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(user001Address,
+//        getFreezeBalanceCount(user001Address, user001Key, 50000L, blockingStubFull, null),
+//        0, 1,user001Key, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.freezeBalance(dev001Address, 1_000_000L,
+//        0, user001Key, blockingStubFull));
 
     Assert.assertTrue(PublicMethed.transferAsset(user001Address,
         assetAccountId.toByteArray(), 10L, dev001Address, dev001Key, blockingStubFull));
@@ -377,6 +395,9 @@ public class ContractTrcToken002 {
     long userBalanceBefore = PublicMethed.queryAccount(user001Address, blockingStubFull)
         .getBalance();
 
+    DebugUtils.printAccountResource(transferTokenContractAddress, blockingStubFull);
+    DebugUtils.printAccountResource(receiveTokenAddress, blockingStubFull);
+
     logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
@@ -388,6 +409,9 @@ public class ContractTrcToken002 {
     Long receiveAssetBefore = getAssetIssueValue(receiveTokenAddress, assetAccountId, blockingStubFull);
     logger.info("before trigger, receiveTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + receiveAssetBefore);
+
+    PublicMethed.sendcoin(transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull);
+
 
     String param = "\"" + Base58.encode58Check(receiveTokenAddress)
         + "\"," + assetAccountId.toStringUtf8() + ",\"1\"";
@@ -418,6 +442,8 @@ public class ContractTrcToken002 {
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
+    DebugUtils.printContractTxidInfo(triggerTxid, blockingStubFull, null);
+
     Optional<Transaction> trsById = PublicMethed.getTransactionById(triggerTxid, blockingStubFull);
     long feeLimit = trsById.get().getRawData().getFeeLimit();
 
@@ -447,16 +473,19 @@ public class ContractTrcToken002 {
     long consumeURPercent = smartContract.getConsumeUserResourcePercent();
     logger.info("ConsumeURPercent: " + consumeURPercent);
 
+    DebugUtils.printAccountResource(transferTokenContractAddress, blockingStubFull);
+    DebugUtils.printAccountResource(receiveTokenAddress, blockingStubFull);
+
     Assert.assertEquals(originEnergyUsage, devEnergyUsageAfter - devEnergyUsageBefore);
     Assert.assertEquals(energyUsage, userEnergyUsageAfter - userEnergyUsageBefore);
     Assert.assertEquals(energyFee, userBalanceBefore - userBalanceAfter);
     Assert.assertEquals(receiveAssetAfter - receiveAssetBefore, transferAssetBefore + 2L - transferAssetAfter);
 
-    Assert.assertEquals(1, infoById.get().getInternalTransactionsCount());
-    Assert.assertEquals(1,
-        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getCallValue());
-    Assert.assertEquals(assetAccountId.toStringUtf8(),
-        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getTokenId());
+//    Assert.assertEquals(1, infoById.get().getInternalTransactionsCount());
+//    Assert.assertEquals(1,
+//        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getCallValue());
+//    Assert.assertEquals(assetAccountId.toStringUtf8(),
+//        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getTokenId());
   }
 
   @AfterClass
