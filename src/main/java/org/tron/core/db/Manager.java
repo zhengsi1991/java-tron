@@ -1123,7 +1123,6 @@ public class Manager {
         org.tron.protos.Protocol.TransactionInfo.Log log = logList.get(idx);
         byte[] logContractAddress = MUtil.convertToTronAddress(log.getAddress().toByteArray());
         Protocol.SmartContract.ABI abi = abiCache.getIfPresent(logContractAddress);
-        logger.info("sendEventLog TX:{} IDX:{} ContractAddress:{}", Hex.toHexString(transactionInfoCapsule.getId()), idx, Hex.toHexString(logContractAddress));
         if (abi == null) {
           abi = getContractStore().getABI(logContractAddress);
           if (abi == null) {
