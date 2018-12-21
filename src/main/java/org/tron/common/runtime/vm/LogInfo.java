@@ -22,7 +22,9 @@ import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.List;
 import org.spongycastle.util.encoders.Hex;
+import org.tron.protos.Protocol.SmartContractInfo;
 import org.tron.protos.Protocol.TransactionInfo.Log;
+import org.tron.protos.Protocol.TransactionInfoV2;
 
 /**
  * @author Roman Mandeleil
@@ -79,6 +81,16 @@ public class LogInfo {
     ByteString address = ByteString.copyFrom(logInfo.getAddress());
     ByteString data = ByteString.copyFrom(logInfo.getData());
     return Log.newBuilder().setAddress(address).addAllTopics(topics).setData(data).build();
+  }
+
+  public static SmartContractInfo.Log buildLogV2(LogInfo logInfo) {
+    List<ByteString> topics = Lists.newArrayList();
+    logInfo.getTopics().forEach(topic -> {
+      topics.add(ByteString.copyFrom(topic.getData()));
+    });
+    ByteString address = ByteString.copyFrom(logInfo.getAddress());
+    ByteString data = ByteString.copyFrom(logInfo.getData());
+    return SmartContractInfo.Log.newBuilder().setAddress(address).addAllTopics(topics).setData(data).build();
   }
 
 }

@@ -50,6 +50,7 @@ import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ExchangeCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.TransactionInfoCapsule;
+import org.tron.core.capsule.TransactionInfoV2Capsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.capsule.utils.BlockUtil;
 import org.tron.core.config.Parameter.AdaptiveResourceLimitConstants;
@@ -86,6 +87,7 @@ import org.tron.core.services.WitnessService;
 import org.tron.core.witness.ProposalController;
 import org.tron.core.witness.WitnessController;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.protos.Protocol.TransactionInfoV2;
 
 
 @Slf4j
@@ -1061,10 +1063,16 @@ public class Manager {
     }
     transactionStore.put(trxCap.getTransactionId().getBytes(), trxCap);
 
-    TransactionInfoCapsule transactionInfo = TransactionInfoCapsule
-        .buildInstance(trxCap, blockCap, trace);
+    boolean newLogic = true;
 
-    transactionHistoryStore.put(trxCap.getTransactionId().getBytes(), transactionInfo);
+    if (newLogic) {
+      TransactionInfoV2Capsule transactionInfo = TransactionInfoV2Capsule.buildInstance(trxCap, blockCap, trace);
+
+    } else {
+      TransactionInfoCapsule transactionInfo = TransactionInfoCapsule
+          .buildInstance(trxCap, blockCap, trace);
+      transactionHistoryStore.put(trxCap.getTransactionId().getBytes(), transactionInfo);
+    }
 
     return true;
   }

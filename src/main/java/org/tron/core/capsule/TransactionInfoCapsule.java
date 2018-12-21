@@ -164,7 +164,7 @@ public class TransactionInfoCapsule implements ProtoCapsule<TransactionInfo> {
     builder.setFee(fee);
     builder.addContractResult(contractResult);
     builder.setContractAddress(ContractAddress);
-    builder.setUnfreezeAmount(programResult.getRet().getUnfreezeAmount());
+    builder.setUnfreezeAmount(trxCap.getInstance().getRet(0).getUnfreezeAmount());
     builder.setAssetIssueID(programResult.getRet().getAssetIssueID());
     builder.setExchangeId(programResult.getRet().getExchangeId());
     builder.setWithdrawAmount(programResult.getRet().getWithdrawAmount());
@@ -175,9 +175,7 @@ public class TransactionInfoCapsule implements ProtoCapsule<TransactionInfo> {
 
     List<Log> logList = new ArrayList<>();
     programResult.getLogInfoList().forEach(
-        logInfo -> {
-          logList.add(LogInfo.buildLog(logInfo));
-        }
+        logInfo -> logList.add(LogInfo.buildLog(logInfo))
     );
     builder.addAllLog(logList);
 
