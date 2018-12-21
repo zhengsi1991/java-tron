@@ -1,5 +1,6 @@
 package org.tron.abi;
 
+import lombok.extern.slf4j.Slf4j;
 import org.tron.abi.datatypes.*;
 import org.tron.abi.datatypes.generated.Uint160;
 import org.tron.abi.utils.Numeric;
@@ -18,6 +19,7 @@ import java.util.function.BiFunction;
  * <a href="https://github.com/ethereum/wiki/wiki/Ethereum-Contract-ABI">here</a>.
  * </p>
  */
+@Slf4j(topic = "Runtime")
 public class TypeDecoder {
 
     static final int MAX_BYTE_LENGTH_FOR_HEX_STRING = Type.MAX_BYTE_LENGTH << 1;
@@ -75,6 +77,7 @@ public class TypeDecoder {
     }
 
     static Address decodeAddress(String input) {
+        logger.info("decodeAddress:{}", input);
         return new Address(decodeNumeric(input, Uint160.class));
     }
 
