@@ -93,6 +93,16 @@ public class Args {
   private int longRunningTime = 10;
 
   @Getter
+  @Setter
+  @Parameter(names = {"--event-server"})
+  private String eventServerEndPoint = "";
+
+  @Getter
+  @Setter
+  @Parameter(names = {"--secret-key"})
+  private String secretKey = "";
+
+  @Getter
   @Parameter(description = "--seed-nodes")
   private List<String> seedNodes = new ArrayList<>();
 
@@ -964,6 +974,16 @@ public class Args {
         ? config.getInt("node.backup.port") : 10001;
     INSTANCE.backupMembers = config.hasPath("node.backup.members")
         ? config.getStringList("node.backup.members") : new ArrayList<>();
+  }
+
+  public String getEventServerEndPoint(){
+    if (this.eventServerEndPoint.indexOf("http://") == -1 && this.eventServerEndPoint.indexOf("https://") == -1)
+      this.eventServerEndPoint = "http://"+this.eventServerEndPoint;
+    return this.eventServerEndPoint;
+  }
+
+  public String getSecretKey(){
+    return this.secretKey;
   }
 
   private static void logConfig() {

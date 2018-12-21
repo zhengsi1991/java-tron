@@ -118,6 +118,8 @@ public class Manager {
     FullNode, SolidityNode;
   }
 
+  public static String eventServer = "";
+  public static String secretKey = "";
   @Autowired
   private AmqpTemplate amqpTemplate;
 
@@ -1115,16 +1117,6 @@ public class Manager {
       return;
     }
     try {
-//      Protocol.SmartContract.ABI abi = abiCache.getIfPresent(contractAddress);
-//      if (abi == null) {
-//        abi = getContractStore().getABI(contractAddress);
-//        if (abi == null) {
-//          return;
-//        }
-//        abiCache.put(contractAddress, abi);
-//      }
-//      Protocol.SmartContract.ABI finalAbi = abi;
-
       IntStream.range(0,logList.size()).forEach(idx -> {
         org.tron.protos.Protocol.TransactionInfo.Log log = logList.get(idx);
         byte[] logContractAddress = MUtil.convertToTronAddress(log.getAddress().toByteArray());
@@ -1237,21 +1229,20 @@ public class Manager {
                   Wallet.encode58Check(logContractAddress), entryName, resultJsonObject,rawJsonObject,
                   Hex.toHexString(transactionInfoCapsule.getId()), resultParamType, this.resource.toString(), idx);
 
-          // 事件日志写入MongoDB
-          // depreciate in future release
-
-          eventLogService.insertEventLogCollection(eventLogEntity,Wallet.encode58Check(logContractAddress));
-          eventLogService.insertEventLog(eventLogEntity);
-
           // send event log to event server
-          if (1 == 2) {
+          if (eventServer.length() >= 10) {
             HttpHeaders headers = new HttpHeaders();
             MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
             map.add("data", EventLogEntity.toJSONString(eventLogEntity));
-            map.add("key", "some secret key");
+            headers.set("Auth-Secret", secretKey);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.postForEntity("http://127.0.0.1:18891/send", request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(eventServer, request, String.class);
+          }else{
+            // 事件日志写入MongoDB
+            // depreciate in future release
+            eventLogService.insertEventLogCollection(eventLogEntity,Wallet.encode58Check(logContractAddress));
+            eventLogService.insertEventLog(eventLogEntity);
           }
 
         });

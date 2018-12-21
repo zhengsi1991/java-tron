@@ -16,6 +16,7 @@ import org.tron.core.services.WitnessService;
 import org.tron.core.services.http.FullNodeHttpApiService;
 import org.tron.core.services.interfaceOnSolidity.RpcApiServiceOnSolidity;
 import org.tron.core.services.interfaceOnSolidity.http.solidity.HttpApiOnSolidityService;
+import org.tron.core.db.Manager;
 
 @Slf4j
 public class FullNode {
@@ -30,6 +31,9 @@ public class FullNode {
 
     ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.toLevel(cfgArgs.getLogLevel()));
+
+    Manager.eventServer = cfgArgs.getEventServerEndPoint();
+    Manager.secretKey = cfgArgs.getSecretKey();
 
     if (cfgArgs.isHelp()) {
       logger.info("Here is the help message.");
