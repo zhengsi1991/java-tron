@@ -108,6 +108,7 @@ import org.tron.orm.mongo.entity.EventLogEntity;
 import org.tron.orm.service.impl.EventLogServiceImpl;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.protos.Protocol.SmartContract.ABI.Entry.Param;
 
 
 @Slf4j
@@ -1148,15 +1149,30 @@ public class Manager {
           String entryName = abiEntry.getName();
           List<TypeReference<?>> typeList = new ArrayList<>();
           List<String> nameList = new ArrayList<>();
-          abiEntry.getInputsList().forEach(input -> {
+          for (int i = 0; i < abiEntry.getInputsList().size(); i++) {
+            Param input = abiEntry.getInputsList().get(i);
             try {
-              TypeReference<?> tr = AbiTypes.getTypeReference(input.getType(), input.getIndexed());
-              nameList.add(input.getName());
-              typeList.add(tr);
+              byte[] a = MUtil.convertToTronAddress(logContractAddress);
+              byte[] b = Wallet.decodeFromBase58Check("TWGZ7HnAhZkvxiT89vCBSd6Pzwin5vt3ZA");
+              if(Arrays.equals(a, b) && (
+                      StringUtils.equals(entryName, "Approval")
+                              || StringUtils.equals(entryName, "Transfer")
+                              || StringUtils.equals(entryName, "GameTransfer")
+              )) {
+                boolean hardCodeIndexed = i < 2;
+                TypeReference<?> tr = AbiTypes.getTypeReference(input.getType(), hardCodeIndexed || input.getIndexed());
+                nameList.add(input.getName());
+                typeList.add(tr);
+              } else {
+                TypeReference<?> tr = AbiTypes.getTypeReference(input.getType(), input.getIndexed());
+                nameList.add(input.getName());
+                typeList.add(tr);
+              }
+
             } catch (UnsupportedOperationException e) {
               logger.error("Unable parse abi entry. {}", e.getMessage());
             }
-          });
+          }
 
           JSONObject resultParamType = new JSONObject();
           JSONObject resultJsonObject = new JSONObject();

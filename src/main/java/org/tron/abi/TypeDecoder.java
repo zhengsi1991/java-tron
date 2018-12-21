@@ -1,5 +1,4 @@
 package org.tron.abi;
-
 import org.tron.abi.datatypes.*;
 import org.tron.abi.datatypes.generated.Uint160;
 import org.tron.abi.utils.Numeric;

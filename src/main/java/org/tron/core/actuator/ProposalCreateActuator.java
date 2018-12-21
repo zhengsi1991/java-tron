@@ -14,9 +14,9 @@ import org.tron.common.utils.StringUtil;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionResultCapsule;
+import org.tron.core.config.Parameter;
 import org.tron.core.config.Parameter.ChainParameters;
 import org.tron.core.config.Parameter.ForkBlockVersionConsts;
-import org.tron.core.config.Parameter.ForkBlockVersionEnum;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
@@ -36,29 +36,29 @@ public class ProposalCreateActuator extends AbstractActuator {
     long fee = calcFee();
     try {
       final ProposalCreateContract proposalCreateContract = this.contract
-          .unpack(ProposalCreateContract.class);
+              .unpack(ProposalCreateContract.class);
       long id = (Objects.isNull(getDeposit())) ?
-          dbManager.getDynamicPropertiesStore().getLatestProposalNum() + 1 :
-          getDeposit().getLatestProposalNum() + 1;
+              dbManager.getDynamicPropertiesStore().getLatestProposalNum() + 1 :
+              getDeposit().getLatestProposalNum() + 1;
       ProposalCapsule proposalCapsule =
-          new ProposalCapsule(proposalCreateContract.getOwnerAddress(), id);
+              new ProposalCapsule(proposalCreateContract.getOwnerAddress(), id);
 
       proposalCapsule.setParameters(proposalCreateContract.getParametersMap());
 
       long now = dbManager.getHeadBlockTimeStamp();
       long maintenanceTimeInterval = (Objects.isNull(getDeposit())) ?
-          dbManager.getDynamicPropertiesStore().getMaintenanceTimeInterval() :
-          getDeposit().getMaintenanceTimeInterval();
+              dbManager.getDynamicPropertiesStore().getMaintenanceTimeInterval() :
+              getDeposit().getMaintenanceTimeInterval();
       proposalCapsule.setCreateTime(now);
 
       long currentMaintenanceTime =
-          (Objects.isNull(getDeposit())) ? dbManager.getDynamicPropertiesStore()
-              .getNextMaintenanceTime() :
-              getDeposit().getNextMaintenanceTime();
+              (Objects.isNull(getDeposit())) ? dbManager.getDynamicPropertiesStore()
+                      .getNextMaintenanceTime() :
+                      getDeposit().getNextMaintenanceTime();
       long now3 = now + Args.getInstance().getProposalExpireTime();
       long round = (now3 - currentMaintenanceTime) / maintenanceTimeInterval;
       long expirationTime =
-          currentMaintenanceTime + (round + 1) * maintenanceTimeInterval;
+              currentMaintenanceTime + (round + 1) * maintenanceTimeInterval;
       proposalCapsule.setExpirationTime(expirationTime);
 
       if (Objects.isNull(deposit)) {
@@ -88,8 +88,8 @@ public class ProposalCreateActuator extends AbstractActuator {
     }
     if (!this.contract.is(ProposalCreateContract.class)) {
       throw new ContractValidateException(
-          "contract type error,expected type [ProposalCreateContract],real type[" + contract
-              .getClass() + "]");
+              "contract type error,expected type [ProposalCreateContract],real type[" + contract
+                      .getClass() + "]");
     }
     final ProposalCreateContract contract;
     try {
@@ -108,21 +108,21 @@ public class ProposalCreateActuator extends AbstractActuator {
     if (!Objects.isNull(deposit)) {
       if (Objects.isNull(deposit.getAccount(ownerAddress))) {
         throw new ContractValidateException(
-            ACCOUNT_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
+                ACCOUNT_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
       }
     } else if (!dbManager.getAccountStore().has(ownerAddress)) {
       throw new ContractValidateException(
-          ACCOUNT_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
+              ACCOUNT_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
     }
 
     if (!Objects.isNull(getDeposit())) {
       if (Objects.isNull(getDeposit().getWitness(ownerAddress))) {
         throw new ContractValidateException(
-            WITNESS_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
+                WITNESS_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
       }
     } else if (!dbManager.getWitnessStore().has(ownerAddress)) {
       throw new ContractValidateException(
-          WITNESS_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
+              WITNESS_EXCEPTION_STR + readableOwnerAddress + NOT_EXIST_STR);
     }
 
     if (contract.getParametersMap().size() == 0) {
@@ -145,7 +145,7 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (0): {
         if (entry.getValue() < 3 * 27 * 1000 || entry.getValue() > 24 * 3600 * 1000) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
+                  "Bad chain parameter value,valid range is [3 * 27 * 1000,24 * 3600 * 1000]");
         }
         return;
       }
@@ -159,26 +159,26 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (8): {
         if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
+                  "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
         break;
       }
       case (9): {
         if (entry.getValue() != 1) {
           throw new ContractValidateException(
-              "This value[ALLOW_CREATION_OF_CONTRACTS] is only allowed to be 1");
+                  "This value[ALLOW_CREATION_OF_CONTRACTS] is only allowed to be 1");
         }
         break;
       }
       case (10): {
         if (dbManager.getDynamicPropertiesStore().getRemoveThePowerOfTheGr() == -1) {
           throw new ContractValidateException(
-              "This proposal has been executed before and is only allowed to be executed once");
+                  "This proposal has been executed before and is only allowed to be executed once");
         }
 
         if (entry.getValue() != 1) {
           throw new ContractValidateException(
-              "This value[REMOVE_THE_POWER_OF_THE_GR] is only allowed to be 1");
+                  "This value[REMOVE_THE_POWER_OF_THE_GR] is only allowed to be 1");
         }
         break;
       }
@@ -189,20 +189,20 @@ public class ProposalCreateActuator extends AbstractActuator {
       case (13):
         if (entry.getValue() < 10 || entry.getValue() > 100) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [10,100]");
+                  "Bad chain parameter value,valid range is [10,100]");
         }
         break;
       case (14): {
         if (entry.getValue() != 1) {
           throw new ContractValidateException(
-              "This value[ALLOW_UPDATE_ACCOUNT_NAME] is only allowed to be 1");
+                  "This value[ALLOW_UPDATE_ACCOUNT_NAME] is only allowed to be 1");
         }
         break;
       }
       case (15): {
         if (entry.getValue() != 1) {
           throw new ContractValidateException(
-              "This value[ALLOW_SAME_TOKEN_NAME] is only allowed to be 1");
+                  "This value[ALLOW_SAME_TOKEN_NAME] is only allowed to be 1");
         }
         break;
       }
@@ -212,20 +212,17 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         if (entry.getValue() != 1) {
           throw new ContractValidateException(
-              "This value[ALLOW_DELEGATE_RESOURCE] is only allowed to be 1");
+                  "This value[ALLOW_DELEGATE_RESOURCE] is only allowed to be 1");
         }
         break;
       }
-      case (17): { // deprecated
+      case (17): {
         if (!dbManager.getForkController().pass(ForkBlockVersionConsts.ENERGY_LIMIT)) {
-          throw new ContractValidateException("Bad chain parameter id");
-        }
-        if (dbManager.getForkController().pass(ForkBlockVersionEnum.VERSION_3_2_2)) {
           throw new ContractValidateException("Bad chain parameter id");
         }
         if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000_000_000L) {
           throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
+                  "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
         }
         break;
       }
@@ -235,21 +232,11 @@ public class ProposalCreateActuator extends AbstractActuator {
         }
         if (entry.getValue() != 1) {
           throw new ContractValidateException(
-              "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
+                  "This value[ALLOW_TVM_TRANSFER_TRC10] is only allowed to be 1");
         }
         if (dbManager.getDynamicPropertiesStore().getAllowSameTokenName() == 0) {
           throw new ContractValidateException("[ALLOW_SAME_TOKEN_NAME] proposal must be approved "
-              + "before [ALLOW_TVM_TRANSFER_TRC10] can be proposed");
-        }
-        break;
-      }
-      case (19): {
-        if (!dbManager.getForkController().pass(ForkBlockVersionEnum.VERSION_3_2_2)) {
-          throw new ContractValidateException("Bad chain parameter id");
-        }
-        if (entry.getValue() < 0 || entry.getValue() > 100_000_000_000_000_000L) {
-          throw new ContractValidateException(
-              "Bad chain parameter value,valid range is [0,100_000_000_000_000_000L]");
+                  + "before [ALLOW_TVM_TRANSFER_TRC10] can be proposed");
         }
         break;
       }
