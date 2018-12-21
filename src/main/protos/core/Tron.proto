@@ -422,19 +422,20 @@ message SmartContractInfo {
   int64 fee = 1;
   repeated bytes contract_result = 2;
   bytes contract_address = 3;
-  string assetIssueID = 4;
-  int64 withdraw_amount = 5;
-  int64 unfreeze_amount = 6;
+
 
   repeated Log log = 7;
   repeated InternalTransaction internal_transactions = 8;
 }
 
-message ExchangeCreateContractInfo {
+message ExchangeContractInfo {
   int64 exchange_received_amount = 18;
   int64 exchange_inject_another_amount = 19;
   int64 exchange_withdraw_another_amount = 20;
   int64 exchange_id = 21;
+  string assetIssueID = 4;
+  int64 withdraw_amount = 5;
+  int64 unfreeze_amount = 6;
 }
 
 message Transactions {
