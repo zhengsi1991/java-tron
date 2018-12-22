@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -84,10 +85,9 @@ public class ApplicationImpl implements Application {
         }
       });
 
-
-      long lastNumber = 0;
+      long startNumber = 4900000;
       for (int i = 0; i < 10000; i ++ ) {
-        List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(4500000 + i * 1000, 1000);
+        List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(startNumber + i * 1000, 1000);
         if (value.size() == 0) break;
         for (int j = 0; j < value.size(); j ++ ){
           BlockCapsule bl = value.get(j);
@@ -104,6 +104,47 @@ public class ApplicationImpl implements Application {
     {
       System.out.println("Key: "+key +" Value: "+(28800-map.get(key)));
     }
+
+
+    Map<Long,List<String>> mapHash= new TreeMap<Long, List<String>>();
+
+    for (int i = 0; i < 10000; i ++ ) {
+      List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(startNumber + i * 1000, 1000);
+      if (value.size() == 0) break;
+      for (int j = 0; j < value.size(); j ++ ){
+        BlockCapsule bl = value.get(j);
+       long time =  bl.getTimeStamp() / 1000 / 3600 / 6;
+        if (mapHash.containsKey(time)) {
+          List<String> arrayList = mapHash.get(time);
+          String tmp =  ByteArray.toHexString(bl.getWitnessAddress().toByteArray());
+          arrayList.add(tmp.toLowerCase());
+          mapHash.put(time, arrayList);
+        } else {
+          List<String> arrayList = new ArrayList<String>();
+          String tmp =  ByteArray.toHexString(bl.getWitnessAddress().toByteArray());
+          arrayList.add(tmp);
+          mapHash.put(time, arrayList);
+        }
+
+      }
+    }
+    for (Long time : mapHash.keySet()) {
+      List<String> tmp = mapHash.get(time);
+      Map<String,Integer> tmap = new HashMap<String, Integer>();
+      for (String p : tmp) {
+        if (tmap.containsKey(formatter.format(p))){
+          tmap.put(formatter.format(p),tmap.get(formatter.format(p))+1);
+        }else{
+          tmap.put(formatter.format(p),1);
+        }
+      }
+
+      for(String p : tmap.keySet()) {
+        System.out.println("Key: "+p +" Value: "+(tmap.get(p)));
+      }
+    }
+
+
 
     logger.info("******** begin to shutdown ********");
     synchronized (dbManager.getRevokingStore()) {
