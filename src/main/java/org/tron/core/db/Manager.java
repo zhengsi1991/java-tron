@@ -801,6 +801,8 @@ public class Manager {
     //
     long start = System.currentTimeMillis();
 
+
+
     try (PendingManager pm = new PendingManager(this)) {
 
       if (!block.generatedByMyself) {

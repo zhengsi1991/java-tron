@@ -1,5 +1,6 @@
 package org.tron.common.application;
 
+import com.googlecode.cqengine.query.simple.In;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -76,7 +77,6 @@ public class ApplicationImpl implements Application {
 
   @Override
   public void shutdown() {
-
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH");
     Map<String,Integer> map= new TreeMap<String, Integer>(
@@ -131,6 +131,7 @@ public class ApplicationImpl implements Application {
         }
       }
     }
+    Map<String,Map<String, Double>> mapHash1= new TreeMap<String, Map<String, Double>>();
 
     for (Long time : mapHash.keySet()) {
       List<String> tmp = mapHash.get(time);
@@ -143,12 +144,33 @@ public class ApplicationImpl implements Application {
         }
       }
       Date date = new Date(time *1000 *3600 * 6);
+      String nowDay = formatter.format(date);
 
       for(String p : tmap.keySet()) {
         System.out.println("time "+  formatter1.format(date) +"Key: "+p +" Value: "+(tmap.get(p)));
+        double number = 266.66  - tmap.get(p);
+        if (mapHash1.containsKey(formatter.format(date)) == false) {
+          Map<String, Double> tmpHash = new TreeMap<String, Double>();
+          tmpHash.put(p, number);
+          mapHash1.put(formatter.format(date), tmpHash);
+        } else {
+          Map<String, Double> tmpHash = mapHash1.get(formatter.format(date));
+          if (tmpHash.containsKey(p)){
+            tmpHash.put(p, tmpHash.get(p) + number);
+          } else {
+            tmpHash.put(p , number);
+          }
+          mapHash1.put(formatter.format(date), tmpHash);
+        }
       }
     }
-
+    for (String p : mapHash1.keySet()) {
+      System.out.println("date" + p);
+      Map<String, Double> value = mapHash1.get(p);
+      for(String address : value.keySet()) {
+        System.out.println("address: "+address +" Value: "+ value.get(address));
+      }
+    }
 
 
     logger.info("******** begin to shutdown ********");
