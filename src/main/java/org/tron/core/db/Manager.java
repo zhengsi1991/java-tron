@@ -802,6 +802,7 @@ public class Manager {
     long start = System.currentTimeMillis();
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH");
     Map<String,Integer> map= new TreeMap<String, Integer>(
       new Comparator<String>() {
         public int compare(String obj1, String obj2) {
@@ -809,6 +810,69 @@ public class Manager {
           return obj2.compareTo(obj1);
         }
       });
+
+    long startNumber = 3800000;
+    for (int i = 0; i < 10000; i ++ ) {
+      List<BlockCapsule> value =  getBlockStore().getLimitNumber(startNumber + i * 1000, 1000);
+      if (value.size() == 0) break;
+      for (int j = 0; j < value.size(); j ++ ){
+        BlockCapsule bl = value.get(j);
+        Date date = new Date(bl.getTimeStamp());
+        if (map.containsKey(formatter.format(date))){
+          map.put(formatter.format(date),map.get(formatter.format(date))+1);
+        }else{
+          map.put(formatter.format(date),1);
+        }
+      }
+    }
+
+    for(String key:map.keySet())
+    {
+      System.out.println("1Key: "+key +" Value: "+(28800-map.get(key)));
+    }
+
+    logger.info("******** tmp ********");
+
+    Map<Long,List<String>> mapHash= new TreeMap<Long, List<String>>();
+
+    for (int i = 0; i < 10000; i ++ ) {
+      List<BlockCapsule> value =  getBlockStore().getLimitNumber(startNumber + i * 1000, 1000);
+      if (value.size() == 0) break;
+      for (int j = 0; j < value.size(); j ++ ){
+        BlockCapsule bl = value.get(j);
+        long time =  bl.getTimeStamp() / 1000 / 3600 / 6;
+        //System.out.println("===" + time);
+        if (mapHash.containsKey(time)) {
+          List<String> arrayList = mapHash.get(time);
+          String tmp =  ByteArray.toHexString(bl.getWitnessAddress().toByteArray());
+          arrayList.add(tmp.toLowerCase());
+          mapHash.put(time, arrayList);
+        } else {
+          List<String> arrayList = new ArrayList<String>();
+          String tmp =  ByteArray.toHexString(bl.getWitnessAddress().toByteArray());
+          arrayList.add(tmp);
+          mapHash.put(time, arrayList);
+        }
+      }
+    }
+
+    for (Long time : mapHash.keySet()) {
+      List<String> tmp = mapHash.get(time);
+      Map<String,Integer> tmap = new HashMap<String, Integer>();
+      for (String p : tmp) {
+        if (tmap.containsKey(p)){
+          tmap.put(p,tmap.get(p)+1);
+        }else{
+          tmap.put(p,1);
+        }
+      }
+      Date date = new Date(time *1000 *3600 * 6);
+
+      for(String p : tmap.keySet()) {
+        System.out.println("time "+  formatter1.format(date) +"Key: "+p +" Value: "+(tmap.get(p)));
+      }
+    }
+
 
     try (PendingManager pm = new PendingManager(this)) {
 
