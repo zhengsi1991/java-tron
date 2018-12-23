@@ -79,15 +79,9 @@ public class ApplicationImpl implements Application {
   public void shutdown() {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH");
-    Map<String,Integer> map= new TreeMap<String, Integer>(
-      new Comparator<String>() {
-        public int compare(String obj1, String obj2) {
-          // 降序排序
-          return obj2.compareTo(obj1);
-        }
-      });
+    Map<String,List<String>> map= new TreeMap<String, List<String>>();
 
-    long startNumber = 3800000;
+    long startNumber = 4900000;
     for (int i = 0; i < 10000; i ++ ) {
       List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(startNumber + i * 1000, 1000);
       if (value.size() == 0) break;
@@ -95,82 +89,36 @@ public class ApplicationImpl implements Application {
         BlockCapsule bl = value.get(j);
         Date date = new Date(bl.getTimeStamp());
         if (map.containsKey(formatter.format(date))){
-          map.put(formatter.format(date),map.get(formatter.format(date))+1);
+          List<String> tmp = map.get(formatter.format(date));
+          tmp.add(ByteArray.toHexString(bl.getWitnessAddress().toByteArray()));
+          map.put(formatter.format(date),tmp);
         }else{
-          map.put(formatter.format(date),1);
+          List<String> tmp = new ArrayList<String>();
+          tmp.add(ByteArray.toHexString(bl.getWitnessAddress().toByteArray()));
+          map.put(formatter.format(date),tmp);
         }
       }
     }
 
     for(String key:map.keySet())
     {
-      System.out.println("1Key: "+key +" Value: "+(28800-map.get(key)));
-    }
-
-    logger.info("******** tmp ********");
-
-    Map<Long,List<String>> mapHash= new TreeMap<Long, List<String>>();
-
-    for (int i = 0; i < 10000; i ++ ) {
-      List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(startNumber + i * 1000, 1000);
-      if (value.size() == 0) break;
-      for (int j = 0; j < value.size(); j ++ ){
-        BlockCapsule bl = value.get(j);
-        long time =  bl.getTimeStamp() / 1000 / 3600 / 6;
-        //System.out.println("===" + time);
-        if (mapHash.containsKey(time)) {
-          List<String> arrayList = mapHash.get(time);
-          String tmp =  ByteArray.toHexString(bl.getWitnessAddress().toByteArray());
-          arrayList.add(tmp.toLowerCase());
-          mapHash.put(time, arrayList);
-        } else {
-          List<String> arrayList = new ArrayList<String>();
-          String tmp =  ByteArray.toHexString(bl.getWitnessAddress().toByteArray());
-          arrayList.add(tmp);
-          mapHash.put(time, arrayList);
-        }
-      }
-    }
-    Map<String,Map<String, Double>> mapHash1= new TreeMap<String, Map<String, Double>>();
-
-    for (Long time : mapHash.keySet()) {
-      List<String> tmp = mapHash.get(time);
-      Map<String,Integer> tmap = new HashMap<String, Integer>();
+      List<String> tmp = map.get(key);
+      System.out.println("1Key: "+key );
+      Map<String,Integer> map2= new TreeMap<String, Integer>();
       for (String p : tmp) {
-        if (tmap.containsKey(p)){
-          tmap.put(p,tmap.get(p)+1);
-        }else{
-          tmap.put(p,1);
-        }
-      }
-      Date date = new Date(time *1000 *3600 * 6);
-      String nowDay = formatter.format(date);
-
-      for(String p : tmap.keySet()) {
-        System.out.println("time "+  formatter1.format(date) +"Key: "+p +" Value: "+(tmap.get(p)));
-        double number = 266.66  - tmap.get(p);
-        if (mapHash1.containsKey(formatter.format(date)) == false) {
-          Map<String, Double> tmpHash = new TreeMap<String, Double>();
-          tmpHash.put(p, number);
-          mapHash1.put(formatter.format(date), tmpHash);
+        if (map2.containsKey(p)) {
+          Integer q = map2.get(p);
+          map2.put(p, q + 1);
         } else {
-          Map<String, Double> tmpHash = mapHash1.get(formatter.format(date));
-          if (tmpHash.containsKey(p)){
-            tmpHash.put(p, tmpHash.get(p) + number);
-          } else {
-            tmpHash.put(p , number);
-          }
-          mapHash1.put(formatter.format(date), tmpHash);
+          map2.put(p, 1);
         }
       }
-    }
-    for (String p : mapHash1.keySet()) {
-      System.out.println("date" + p);
-      Map<String, Double> value = mapHash1.get(p);
-      for(String address : value.keySet()) {
-        System.out.println("address: "+address +" Value: "+ value.get(address));
+      for (String p : map2.keySet()) {
+        System.out.println("address: "+p + (1066 - map2.get(p)) );
       }
+
     }
+
 
 
     logger.info("******** begin to shutdown ********");
