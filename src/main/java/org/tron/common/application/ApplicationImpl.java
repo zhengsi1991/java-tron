@@ -114,7 +114,7 @@ public class ApplicationImpl implements Application {
         }
       }
       for (String p : map2.keySet()) {
-        System.out.println("address: "+p + (1066 - map2.get(p)) );
+        System.out.println("address: "+p + " value " +(1066 - map2.get(p)) );
       }
 
     }
