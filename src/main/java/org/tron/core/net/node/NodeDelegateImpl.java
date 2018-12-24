@@ -67,8 +67,11 @@ public class NodeDelegateImpl implements NodeDelegate {
       throw new BadBlockException("block time error");
     }
     try {
+      long time = System.currentTimeMillis();
       dbManager.preValidateTransactionSign(block);
+      long validTime = System.currentTimeMillis();
       dbManager.pushBlock(block);
+      logger.info("### push block valid cost: {}, total cost: {}", validTime -time, System.currentTimeMillis() - time);
       if (!syncMode) {
         List<TransactionCapsule> trx = null;
         trx = block.getTransactions();
