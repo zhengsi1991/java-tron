@@ -44,6 +44,8 @@ import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.net.message.BlockMessage;
 import org.tron.core.net.message.MessageTypes;
 import org.tron.core.net.message.TransactionMessage;
+import org.tron.core.net.node.TrxHandler.TrxEvent;
+import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 
 @Slf4j(topic = "net")
 public class NodeDelegateImpl implements NodeDelegate {
@@ -57,7 +59,7 @@ public class NodeDelegateImpl implements NodeDelegate {
   @Override
   public synchronized LinkedList<Sha256Hash> handleBlock(BlockCapsule block, boolean syncMode)
       throws BadBlockException, UnLinkedBlockException, InterruptedException, NonCommonBlockException,ValidateScheduleException, ValidateSignatureException {
-
+    long startTime = System.currentTimeMillis();
     if (block.getInstance().getSerializedSize() > BLOCK_SIZE + 100) {
       throw new BadBlockException("block size over limit");
     }
@@ -68,7 +70,20 @@ public class NodeDelegateImpl implements NodeDelegate {
     }
     try {
       dbManager.preValidateTransactionSign(block);
+      long prevalidTime = System.currentTimeMillis();
       dbManager.pushBlock(block);
+      int count = 0;
+      for(TransactionCapsule trx : block.getTransactions()) {
+        int type = trx.getInstance().getRawData().getContract(0).getType().getNumber();
+        if (type == ContractType.TriggerSmartContract_VALUE || type == ContractType.CreateSmartContract_VALUE) {
+          count++;
+        }
+      }
+      logger.info("### block {}, cost: {}/{}/{}/{}", block.getBlockId().getString(),
+          prevalidTime - startTime,
+          System.currentTimeMillis() - startTime,
+          block.getTransactions().size(),
+          count);
       if (!syncMode) {
         List<TransactionCapsule> trx = null;
         trx = block.getTransactions();
