@@ -56,7 +56,7 @@ public class NodeDelegateImpl implements NodeDelegate {
 
   @Override
   public synchronized LinkedList<Sha256Hash> handleBlock(BlockCapsule block, boolean syncMode)
-      throws BadBlockException, UnLinkedBlockException, InterruptedException, NonCommonBlockException {
+      throws BadBlockException, UnLinkedBlockException, InterruptedException, NonCommonBlockException,ValidateScheduleException, ValidateSignatureException {
 
     if (block.getInstance().getSerializedSize() > BLOCK_SIZE + 100) {
       throw new BadBlockException("block size over limit");
@@ -78,13 +78,12 @@ public class NodeDelegateImpl implements NodeDelegate {
       } else {
         return null;
       }
-
     } catch (AccountResourceInsufficientException e) {
       throw new BadBlockException("AccountResourceInsufficientException," + e.getMessage());
     } catch (ValidateScheduleException e) {
-      throw new BadBlockException("validate schedule exception," + e.getMessage());
+      throw new ValidateScheduleException("validate schedule exception," + e.getMessage());
     } catch (ValidateSignatureException e) {
-      throw new BadBlockException("validate signature exception," + e.getMessage());
+      throw new ValidateSignatureException("validate signature exception," + e.getMessage());
     } catch (ContractValidateException e) {
       throw new BadBlockException("ContractValidate exception," + e.getMessage());
     } catch (ContractExeException e) {

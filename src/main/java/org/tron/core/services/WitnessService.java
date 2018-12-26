@@ -255,18 +255,6 @@ public class WitnessService implements Service {
         return BlockProductionCondition.EXCEPTION_PRODUCING_BLOCK;
       }
 
-      int blockProducedTimeOut = Args.getInstance().getBlockProducedTimeOut();
-
-      long timeout = Math
-          .min(ChainConstant.BLOCK_PRODUCED_INTERVAL * blockProducedTimeOut / 100 + 500,
-              ChainConstant.BLOCK_PRODUCED_INTERVAL);
-      if (DateTime.now().getMillis() - now > timeout) {
-        logger.warn("Task timeout ( > {}ms)，startTime:{},endTime:{}", timeout, new DateTime(now),
-            DateTime.now());
-        tronApp.getDbManager().eraseBlock();
-        return BlockProductionCondition.TIME_OUT;
-      }
-
       logger.info(
           "Produce block successfully, blockNumber:{}, abSlot[{}], blockId:{}, transactionSize:{}, blockTime:{}, parentBlockId:{}",
           block.getNum(), controller.getAbSlotAtTime(now), block.getBlockId(),
@@ -274,22 +262,13 @@ public class WitnessService implements Service {
           new DateTime(block.getTimeStamp()),
           block.getParentHash());
 
-      broadcastBlock(block);
-
       return BlockProductionCondition.PRODUCED;
+
     } catch (TronException e) {
       logger.error(e.getMessage(), e);
       return BlockProductionCondition.EXCEPTION_PRODUCING_BLOCK;
     } finally {
       controller.setGeneratingBlock(false);
-    }
-  }
-
-  private void broadcastBlock(BlockCapsule block) {
-    try {
-      tronApp.getP2pNode().broadcast(new BlockMessage(block.getData()));
-    } catch (Exception ex) {
-      throw new RuntimeException("BroadcastBlock error");
     }
   }
 

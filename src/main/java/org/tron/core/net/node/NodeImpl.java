@@ -59,6 +59,8 @@ import org.tron.core.exception.StoreException;
 import org.tron.core.exception.TraitorPeerException;
 import org.tron.core.exception.TronException;
 import org.tron.core.exception.UnLinkedBlockException;
+import org.tron.core.exception.ValidateScheduleException;
+import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.net.message.BlockMessage;
 import org.tron.core.net.message.ChainInventoryMessage;
 import org.tron.core.net.message.FetchInvDataMessage;
@@ -758,12 +760,9 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
               .filter(p -> p.getAdvObjSpreadToUs().containsKey(block.getBlockId()))
               .forEach(p -> updateBlockWeBothHave(p, block));
 
-          broadcast(new BlockMessage(block));
-
         } catch (BadBlockException e) {
           logger.error("We get a bad block {}, from {}, reason is {} ",
               block.getBlockId().getString(), peer.getNode().getHost(), e.getMessage());
-          disconnectPeer(peer, ReasonCode.BAD_BLOCK);
         } catch (UnLinkedBlockException e) {
           logger.error("We get a unlinked block {}, from {}, head is {}", block.getBlockId().
               getString(), peer.getNode().getHost(), del.getHeadBlockId().getString());
@@ -775,6 +774,10 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
           disconnectPeer(peer, ReasonCode.FORKED);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
+        } catch (ValidateSignatureException | ValidateScheduleException e) {
+          logger.error("We get a bad block {}, from {}, reason is {}.",
+              block.getBlockId().getString(), peer.getNode().getHost(), e.getMessage());
+          disconnectPeer(peer, ReasonCode.BAD_BLOCK);
         }
       }
     }
@@ -792,7 +795,7 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
       freshBlockId.offer(block.getBlockId());
       logger.info("Success handle block {}", block.getBlockId().getString());
       isAccept = true;
-    } catch (BadBlockException e) {
+    } catch (BadBlockException | ValidateScheduleException | ValidateSignatureException e) {
       logger.error("We get a bad block {}, reason is {} ", block.getBlockId().getString(),
           e.getMessage());
       reason = ReasonCode.BAD_BLOCK;

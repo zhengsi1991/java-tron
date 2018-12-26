@@ -44,6 +44,7 @@ public class ApplicationImpl implements Application {
     blockStoreDb = dbManager.getBlockStore();
     services = new ServiceContainer();
     nodeDelegate = new NodeDelegateImpl(dbManager);
+    dbManager.setP2pNode(p2pNode);
   }
 
   @Override

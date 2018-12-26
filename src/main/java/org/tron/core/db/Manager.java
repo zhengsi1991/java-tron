@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -82,6 +81,8 @@ import org.tron.core.exception.UnLinkedBlockException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.core.exception.ValidateScheduleException;
 import org.tron.core.exception.ValidateSignatureException;
+import org.tron.core.net.message.BlockMessage;
+import org.tron.core.net.node.NodeImpl;
 import org.tron.core.services.WitnessService;
 import org.tron.core.witness.ProposalController;
 import org.tron.core.witness.WitnessController;
@@ -189,6 +190,9 @@ public class Manager {
 
   @Getter
   private ForkController forkController = ForkController.instance();
+
+  @Setter
+  private NodeImpl p2pNode;
 
   public WitnessStore getWitnessStore() {
     return this.witnessStore;
@@ -670,12 +674,12 @@ public class Manager {
         block.getTransactions().size());
   }
 
-  private void applyBlock(BlockCapsule block) throws ContractValidateException,
+  private void applyBlock(BlockCapsule block, boolean isAdvBlock) throws ContractValidateException,
       ContractExeException, ValidateSignatureException, AccountResourceInsufficientException,
       TransactionExpirationException, TooBigTransactionException, DupTransactionException,
       TaposException, ValidateScheduleException, ReceiptCheckErrException,
       VMIllegalException, TooBigTransactionResultException {
-    processBlock(block);
+    processBlock(block, isAdvBlock);
     this.blockStore.put(block.getBlockId().getBytes(), block);
     this.blockIndexStore.put(block.getBlockId());
     updateFork(block);
@@ -723,7 +727,7 @@ public class Manager {
         Exception exception = null;
         // todo  process the exception carefully later
         try (ISession tmpSession = revokingStore.buildSession()) {
-          applyBlock(item.getBlk());
+          applyBlock(item.getBlk(), false);
           tmpSession.commit();
         } catch (AccountResourceInsufficientException
             | ValidateSignatureException
@@ -759,7 +763,7 @@ public class Manager {
             for (KhaosBlock khaosBlock : second) {
               // todo  process the exception carefully later
               try (ISession tmpSession = revokingStore.buildSession()) {
-                applyBlock(khaosBlock.getBlk());
+                applyBlock(khaosBlock.getBlk(), false);
                 tmpSession.commit();
               } catch (AccountResourceInsufficientException
                   | ValidateSignatureException
@@ -779,6 +783,14 @@ public class Manager {
     }
   }
 
+  private void broadcast(BlockCapsule block) {
+    try {
+      p2pNode.broadcast(new BlockMessage(block.getData()));
+    }catch (Exception e){
+      logger.error("Broadcast block {} failed, reason: {}",
+          block.getBlockId().getString(), e.getMessage());
+    }
+  }
 
   /**
    * save a block.
@@ -821,6 +833,7 @@ public class Manager {
         }
       } else {
         if (newBlock.getNum() <= getDynamicPropertiesStore().getLatestBlockHeaderNumber()) {
+          broadcast(block);
           return;
         }
 
@@ -875,7 +888,7 @@ public class Manager {
           return;
         }
         try (ISession tmpSession = revokingStore.buildSession()) {
-          applyBlock(newBlock);
+          applyBlock(newBlock, true);
           tmpSession.commit();
         } catch (Throwable throwable) {
           logger.error(throwable.getMessage(), throwable);
@@ -1251,7 +1264,7 @@ public class Manager {
   /**
    * process block.
    */
-  public void processBlock(BlockCapsule block)
+  public void processBlock(BlockCapsule block, boolean isAdvBlock)
       throws ValidateSignatureException, ContractValidateException, ContractExeException,
       AccountResourceInsufficientException, TaposException, TooBigTransactionException,
       DupTransactionException, TransactionExpirationException, ValidateScheduleException,
@@ -1261,6 +1274,10 @@ public class Manager {
     // checkWitness
     if (!witnessController.validateWitnessSchedule(block)) {
       throw new ValidateScheduleException("validateWitnessSchedule error");
+    }
+
+    if (isAdvBlock) {
+      broadcast(block);
     }
 
     //reset BlockEnergyUsage
