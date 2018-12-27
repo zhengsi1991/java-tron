@@ -117,6 +117,9 @@ public class Args {
   @Parameter(names = {"--storage-index-switch"}, description = "Storage index switch.(on or off)")
   private String storageIndexSwitch = "";
 
+  @Parameter(names = {"--storage-transactionHistory-switch"}, description = "Storage transaction history switch.(on or off)")
+  private String storageTransactionHistoreSwitch = "";
+
   @Getter
   private Storage storage;
 
@@ -200,6 +203,10 @@ public class Args {
 //  @Getter
 //  @Setter
 //  private long syncNodeCount;
+  @Getter
+  @Setter
+  @Parameter(names = {"--save-internaltx"})
+  private boolean saveInternalTx;
 
   @Getter
   @Setter
@@ -234,6 +241,11 @@ public class Args {
   @Setter
   @Parameter(names = {"--rpc-thread"}, description = "Num of gRPC thread")
   private int rpcThreadNum;
+
+  @Getter
+  @Setter
+  @Parameter(names = {"--solidity-thread"}, description = "Num of solidity thread")
+  private int solidityThreads;
 
   @Getter
   @Setter
@@ -372,6 +384,10 @@ public class Args {
   @Getter
   @Setter
   private String trxReferenceBlock;
+
+  @Getter
+  @Setter
+  private int minEffectiveConnection;
 
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
@@ -541,6 +557,11 @@ public class Args {
         .filter(StringUtils::isNotEmpty)
         .orElse(Storage.getIndexSwitchFromConfig(config)));
 
+    INSTANCE.storage.setTransactionHistoreSwitch(Optional.ofNullable(INSTANCE.storageTransactionHistoreSwitch)
+      .filter(StringUtils::isNotEmpty)
+      .orElse(Storage.getTransactionHistoreSwitchFromConfig(config)));
+
+
     INSTANCE.storage.setPropertyMapFromConfig(config);
 
     INSTANCE.seedNode = new SeedNode();
@@ -640,6 +661,10 @@ public class Args {
         config.hasPath("node.rpc.thread") ? config.getInt("node.rpc.thread")
             : Runtime.getRuntime().availableProcessors() / 2;
 
+    INSTANCE.solidityThreads =
+        config.hasPath("node.solidity.threads") ? config.getInt("node.solidity.threads")
+            : Runtime.getRuntime().availableProcessors();
+
     INSTANCE.maxConcurrentCallsPerConnection =
         config.hasPath("node.rpc.maxConcurrentCallsPerConnection") ?
             config.getInt("node.rpc.maxConcurrentCallsPerConnection") : Integer.MAX_VALUE;
@@ -653,6 +678,12 @@ public class Args {
 
     INSTANCE.blockProducedTimeOut = config.hasPath("node.blockProducedTimeOut") ?
         config.getInt("node.blockProducedTimeOut") : ChainConstant.BLOCK_PRODUCED_TIME_OUT;
+    if (INSTANCE.blockProducedTimeOut < 30) {
+      INSTANCE.blockProducedTimeOut = 30;
+    }
+    if (INSTANCE.blockProducedTimeOut > 100) {
+      INSTANCE.blockProducedTimeOut = 100;
+    }
 
     INSTANCE.netMaxTrxPerSecond = config.hasPath("node.netMaxTrxPerSecond") ?
         config.getInt("node.netMaxTrxPerSecond") : NetConstants.NET_MAX_TRX_PER_SECOND;
@@ -739,10 +770,19 @@ public class Args {
     INSTANCE.trxReferenceBlock = config.hasPath("trx.reference.block") ?
         config.getString("trx.reference.block") : "head";
 
+    INSTANCE.minEffectiveConnection = config.hasPath("node.rpc.minEffectiveConnection") ?
+        config.getInt("node.rpc.minEffectiveConnection") : 1;
+
     INSTANCE.vmTrace =
         config.hasPath("vm.vmTrace") ? config
             .getBoolean("vm.vmTrace") : false;
+
+    INSTANCE.saveInternalTx =
+        config.hasPath("vm.saveInternalTx") && config.getBoolean("vm.saveInternalTx");
+
     initBackupProperty(config);
+
+
 
     logConfig();
   }
@@ -955,6 +995,7 @@ public class Args {
     logger.info("Seed node size: {}", args.getSeedNode().getIpList().size());
     logger.info("Max connection: {}", args.getNodeMaxActiveNodes());
     logger.info("Max connection with same IP: {}", args.getNodeMaxActiveNodesWithSameIp());
+    logger.info("Solidity threads: {}", args.getSolidityThreads());
     logger.info("************************ Backup config ************************");
     logger.info("Backup listen port: {}", args.getBackupPort());
     logger.info("Backup member size: {}", args.getBackupMembers().size());

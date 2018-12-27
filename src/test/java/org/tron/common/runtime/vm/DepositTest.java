@@ -93,6 +93,7 @@ public class DepositTest {
   }*/
 
 
+  @Test
   @Ignore
   public void loopCallTest()
       throws ContractExeException, ReceiptCheckErrException, VMIllegalException, ContractValidateException {

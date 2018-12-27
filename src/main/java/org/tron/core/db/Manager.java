@@ -633,8 +633,7 @@ public class Manager {
   }
 
   void validateDup(TransactionCapsule transactionCapsule) throws DupTransactionException {
-    if (getTransactionStore().getUnchecked(transactionCapsule.getTransactionId().getBytes())
-        != null) {
+    if (getTransactionStore().has(transactionCapsule.getTransactionId().getBytes())) {
       logger.debug(ByteArray.toHexString(transactionCapsule.getTransactionId().getBytes()));
       throw new DupTransactionException("dup trans");
     }
@@ -718,7 +717,7 @@ public class Manager {
     processBlock(block);
     this.blockStore.put(block.getBlockId().getBytes(), block);
     this.blockIndexStore.put(block.getBlockId());
-    updateFork();
+    updateFork(block);
     if (System.currentTimeMillis() - block.getTimeStamp() >= 60_000) {
       revokingStore.setMaxFlushCount(SnapshotManager.DEFAULT_MAX_FLUSH_COUNT);
     } else {
@@ -1263,7 +1262,7 @@ public class Manager {
     // if (lastHeadBlockIsMaintenanceBefore != lastHeadBlockIsMaintenance()) {
     if (!witnessController.validateWitnessSchedule(witnessCapsule.getAddress(), when)) {
       logger.info("It's not my turn, "
-          + "and the first block after the maintenance period has just been processed");
+          + "and the first block after the maintenance period has just been processed.");
 
       logger.info("when:{},lastHeadBlockIsMaintenanceBefore:{},lastHeadBlockIsMaintenanceAfter:{}",
           when, lastHeadBlockIsMaintenanceBefore, lastHeadBlockIsMaintenance());
@@ -1532,14 +1531,8 @@ public class Manager {
     logger.info("update solid block, num = {}", latestSolidifiedBlockNum);
   }
 
-  public void updateFork() {
-    try {
-      long latestSolidifiedBlockNum = dynamicPropertiesStore.getLatestSolidifiedBlockNum();
-      BlockCapsule solidifiedBlock = getBlockByNum(latestSolidifiedBlockNum);
-      forkController.update(solidifiedBlock);
-    } catch (ItemNotFoundException | BadItemException e) {
-      logger.error("solidified block not found");
-    }
+  public void updateFork(BlockCapsule block) {
+    forkController.update(block);
   }
 
   public long getSyncBeginNumber() {
@@ -1574,7 +1567,7 @@ public class Manager {
     proposalController.processProposals();
     witnessController.updateWitness();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
-    forkController.reset(block);
+    forkController.reset();
   }
 
   /**
@@ -1772,13 +1765,8 @@ public class Manager {
   }
 
   public void rePush(TransactionCapsule tx) {
-
-    try {
-      if (transactionStore.get(tx.getTransactionId().getBytes()) != null) {
-        return;
-      }
-    } catch (BadItemException e) {
-      // do nothing
+    if (transactionStore.has(tx.getTransactionId().getBytes())) {
+      return;
     }
 
     try {
@@ -1806,6 +1794,10 @@ public class Manager {
     } catch (TooBigTransactionResultException e) {
       logger.debug("too big transaction result");
     }
+  }
+
+  public void setMode(boolean mode) {
+    revokingStore.setMode(mode);
   }
 
 }

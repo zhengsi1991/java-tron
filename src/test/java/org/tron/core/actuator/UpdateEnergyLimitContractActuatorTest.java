@@ -36,7 +36,6 @@ import org.tron.protos.Protocol;
 
 
 @Slf4j
-
 @Ignore
 public class UpdateEnergyLimitContractActuatorTest {
 

@@ -44,7 +44,6 @@ public class SnapshotManagerTest {
       new LevelDbDataSourceImpl(Args.getInstance().getOutputDirectoryByDbName("testSnapshotManager-tmp"), "testSnapshotManagerTmp");
     tmpLevelDbDataSource.initDB();
     revokingDatabase.setTmpLevelDbDataSource(tmpLevelDbDataSource);
-
   }
 
   @After
@@ -79,8 +78,8 @@ public class SnapshotManagerTest {
     }
 
     revokingDatabase.flush();
-    Assert.assertEquals(new ProtoCapsuleTest("refresh4".getBytes()),
-        tronDatabase.getOnSolidity(protoCapsule.getData()));
+    Assert.assertEquals(new ProtoCapsuleTest("refresh10".getBytes()),
+        tronDatabase.get(protoCapsule.getData()));
   }
 
   @Test

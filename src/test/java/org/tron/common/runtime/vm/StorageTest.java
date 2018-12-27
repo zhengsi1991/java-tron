@@ -192,6 +192,7 @@ public class StorageTest {
     Assert.assertEquals(result.getReceipt().getEnergyUsageTotal(), 5389);
   }
 
+  @Test
   @Ignore
   public void testParentChild() {
     byte[] stats = new byte[27];
