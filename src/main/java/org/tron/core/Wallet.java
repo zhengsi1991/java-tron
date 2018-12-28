@@ -295,11 +295,11 @@ public class Wallet {
     }
     byte[] address = decode58Check(addressBase58);
     if (address == null) {
-      return null;
+      return addressBase58.getBytes();
     }
 
     if (!addressValid(address)) {
-      return null;
+      return addressBase58.getBytes();
     }
 
     return address;
