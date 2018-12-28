@@ -623,7 +623,9 @@ public class Manager {
       }
 
       try (ISession tmpSession = revokingStore.buildSession()) {
+        long time = System.currentTimeMillis();
         processTransaction(trx, null);
+        trx.setCost(System.currentTimeMillis() - time);
         pendingTransactions.add(trx);
         tmpSession.merge();
       }
@@ -1004,11 +1006,12 @@ public class Manager {
    */
   public BlockCapsule getBlockById(final Sha256Hash hash)
       throws BadItemException, ItemNotFoundException {
-    return this.khaosDb.containBlock(hash)
-        ? this.khaosDb.getBlock(hash)
-        : blockStore.get(hash.getBytes());
+    BlockCapsule block = this.khaosDb.getBlock(hash);
+    if (block == null) {
+      block = blockStore.get(hash.getBytes());
+    }
+    return block;
   }
-
 
   /**
    * judge has blocks.
@@ -1082,7 +1085,9 @@ public class Manager {
         .buildInstance(trxCap, blockCap, trace);
 
     transactionHistoryStore.put(trxCap.getTransactionId().getBytes(), transactionInfo);
+
     trxCap.setTrxTrace(null);
+
     return true;
   }
 
