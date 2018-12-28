@@ -1082,7 +1082,7 @@ public class Manager {
         .buildInstance(trxCap, blockCap, trace);
 
     transactionHistoryStore.put(trxCap.getTransactionId().getBytes(), transactionInfo);
-
+    trxCap.setTrxTrace(null);
     return true;
   }
 
