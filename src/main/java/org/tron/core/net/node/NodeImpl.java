@@ -338,7 +338,7 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
         BlockCache.put(msg.getMessageId(), (BlockMessage) msg);
         type = InventoryType.BLOCK;
       } else if (msg instanceof TransactionMessage) {
-        TrxCache.put(msg.getMessageId(), new TransactionMessage(msg.getData()));
+        TrxCache.put(msg.getMessageId(), (TransactionMessage)msg);
         type = InventoryType.TRX;
       } else {
         return;
