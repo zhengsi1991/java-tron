@@ -3541,7 +3541,7 @@ public class PublicMethed {
   }
 
 
-  public Transaction addTransactionSign(Transaction transaction, String priKey,
+  public static Transaction addTransactionSign(Transaction transaction, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
