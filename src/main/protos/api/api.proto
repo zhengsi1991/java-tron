@@ -583,11 +583,21 @@ service Wallet {
   }
 
   rpc GetTransactionInfoById (BytesMessage) returns (TransactionInfo) {
-    option (google.api.http) = {
+     option (google.api.http) = {
       post: "/wallet/gettransactioninfobyid"
       body: "*"
       additional_bindings {
         get: "/wallet/gettransactioninfobyid"
+      }
+    };
+  }
+
+  rpc GetTransactionInfoV2ById (BytesMessage) returns (TransactionInfoV2) {
+    option (google.api.http) = {
+      post: "/wallet/gettransactioninfov2byid"
+      body: "*"
+      additional_bindings {
+        get: "/wallet/gettransactioninfov2byid"
       }
     };
   }
@@ -754,7 +764,7 @@ service WalletSolidity {
     };
   }
   rpc GetTransactionInfoById (BytesMessage) returns (TransactionInfo) {
-    option (google.api.http) = {
+     option (google.api.http) = {
       post: "/walletsolidity/gettransactioninfobyid"
       body: "*"
       additional_bindings {
@@ -762,6 +772,16 @@ service WalletSolidity {
       }
     };
   }
+  rpc GetTransactionInfoV2ById (BytesMessage) returns (TransactionInfoV2) {
+    option (google.api.http) = {
+      post: "/walletsolidity/gettransactioninfov2byid"
+      body: "*"
+      additional_bindings {
+        get: "/walletsolidity/gettransactioninfov2byid"
+      }
+    };
+  }
+
   //Warning: do not invoke this interface provided by others.
   rpc GenerateAddress (EmptyMessage) returns (AddressPrKeyPairMessage) {
     option (google.api.http) = {

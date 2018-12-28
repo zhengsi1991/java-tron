@@ -1,4 +1,5 @@
 package org.tron.core.capsule;
+
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -13,12 +14,19 @@ import org.tron.core.config.args.Args;
 import org.tron.core.db.TransactionTrace;
 import org.tron.core.exception.BadItemException;
 import org.tron.protos.Protocol;
-import org.tron.protos.Protocol.ExchangeCreateContractInfo;
+import org.tron.protos.Protocol.AssetIssueInfo;
+import org.tron.protos.Protocol.ExchangeCreateInfo;
+import org.tron.protos.Protocol.ExchangeInjectInfo;
+import org.tron.protos.Protocol.ExchangeTransactionInfo;
+import org.tron.protos.Protocol.ExchangeWithdrawInfo;
 import org.tron.protos.Protocol.SmartContractInfo;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Protocol.TransactionInfo;
 import org.tron.protos.Protocol.TransactionInfo.Log;
 import org.tron.protos.Protocol.TransactionInfoV2;
 import org.tron.protos.Protocol.TransactionInfoV2.code;
+import org.tron.protos.Protocol.UnfreezeBalanceInfo;
+import org.tron.protos.Protocol.WithdrawBalanceInfo;
 
 public class TransactionInfoV2Capsule implements ProtoCapsule<TransactionInfoV2> {
 
@@ -40,54 +48,60 @@ public class TransactionInfoV2Capsule implements ProtoCapsule<TransactionInfoV2>
   private TransactionInfoV2Capsule() {
   }
 
-  public static TransactionInfoV2Capsule buildInstance(TransactionCapsule trxCap, BlockCapsule block,
+  public static TransactionInfoV2Capsule buildInstance(TransactionCapsule trxCap,
+      BlockCapsule block,
       TransactionTrace trace) {
     TransactionInfoV2.Builder transactionInfoBuilder = TransactionInfoV2.newBuilder();
 
     // common part
+    transactionInfoBuilder.setId(ByteString.copyFrom(trxCap.getTransactionId().getBytes()));
+    ReceiptCapsule traceReceipt = trace.getReceipt();
+    ProgramResult programResult = trace.getRuntimeResult();
+    long fee =
+        programResult.getRet().getFee() + traceReceipt.getEnergyFee() + traceReceipt.getNetFee();
+    transactionInfoBuilder.setFee(fee);
     if (Objects.nonNull(block)) {
-      transactionInfoBuilder.setBlockNumber(block.getInstance().getBlockHeader().getRawData().getNumber());
-      transactionInfoBuilder.setBlockTimestamp(block.getInstance().getBlockHeader().getRawData().getTimestamp());
+      transactionInfoBuilder
+          .setBlockNumber(block.getInstance().getBlockHeader().getRawData().getNumber());
+      transactionInfoBuilder
+          .setBlockTimestamp(block.getInstance().getBlockHeader().getRawData().getTimestamp());
     }
     transactionInfoBuilder.setReceipt(trace.getReceipt().getReceipt());
-    transactionInfoBuilder.setResult(code.SUCESS);
+    transactionInfoBuilder.setResult(TransactionInfoV2.code.SUCESS);
+
     if (StringUtils.isNoneEmpty(trace.getRuntimeError()) || Objects
         .nonNull(trace.getRuntimeResult().getException())) {
-      transactionInfoBuilder.setResult(code.FAILED);
-      transactionInfoBuilder.setMessage(ByteString.copyFromUtf8(trace.getRuntimeError()));
+      transactionInfoBuilder.setResult(TransactionInfoV2.code.FAILED);
     }
-    transactionInfoBuilder.setId(ByteString.copyFrom(trxCap.getTransactionId().getBytes()));
+
+    Transaction.Contract contract = trxCap.getInstance().getRawData().getContract(0);
+    transactionInfoBuilder.setType(contract.getType());
+    Any contractInfo = null;
 
     // contract private part
-    Transaction.Contract contract = trxCap.getInstance().getRawData().getContract(0);
-    ProgramResult programResult = trace.getRuntimeResult();
-
     switch (contract.getType()) {
       case TriggerSmartContract:
       case CreateSmartContract: {
-        ReceiptCapsule traceReceipt = trace.getReceipt();
 
         SmartContractInfo.Builder infoBuilder = SmartContractInfo.newBuilder();
 
-        long fee =
-            programResult.getRet().getFee() + traceReceipt.getEnergyFee() + traceReceipt
-                .getNetFee();
         ByteString contractResult = ByteString.copyFrom(programResult.getHReturn());
-        ByteString contractAddress = ByteString.copyFrom(programResult.getContractAddress());
-
-        infoBuilder.setFee(fee);
         infoBuilder.addContractResult(contractResult);
+        ByteString contractAddress = ByteString.copyFrom(programResult.getContractAddress());
         infoBuilder.setContractAddress(contractAddress);
-        infoBuilder.setWithdrawAmount(programResult.getRet().getWithdrawAmount());
-        infoBuilder.setUnfreezeAmount(programResult.getRet().getUnfreezeAmount());
-        infoBuilder.setAssetIssueID(programResult.getRet().getAssetIssueID());
 
         List<SmartContractInfo.Log> logList = new ArrayList<>();
         programResult.getLogInfoList().forEach(
             info -> logList.add(LogInfo.buildLogV2(info)));
         infoBuilder.addAllLog(logList);
 
-        if (Args.getInstance().isSaveInternalTx() && null != programResult.getInternalTransactions()) {
+        if (StringUtils.isNoneEmpty(trace.getRuntimeError()) || Objects
+            .nonNull(trace.getRuntimeResult().getException())) {
+          infoBuilder.setResMessage(ByteString.copyFromUtf8(trace.getRuntimeError()));
+        }
+
+        if (Args.getInstance().isSaveInternalTx() && null != programResult
+            .getInternalTransactions()) {
           for (InternalTransaction internalTransaction : programResult
               .getInternalTransactions()) {
             Protocol.InternalTransaction.Builder internalTrxBuilder = Protocol.InternalTransaction
@@ -95,10 +109,12 @@ public class TransactionInfoV2Capsule implements ProtoCapsule<TransactionInfoV2>
             // set hash
             internalTrxBuilder.setHash(ByteString.copyFrom(internalTransaction.getHash()));
             // set caller
-            internalTrxBuilder.setCallerAddress(ByteString.copyFrom(internalTransaction.getSender()));
+            internalTrxBuilder
+                .setCallerAddress(ByteString.copyFrom(internalTransaction.getSender()));
             // set TransferTo
             internalTrxBuilder
-                .setTransferToAddress(ByteString.copyFrom(internalTransaction.getTransferToAddress()));
+                .setTransferToAddress(
+                    ByteString.copyFrom(internalTransaction.getTransferToAddress()));
             //TODO: "for loop" below in future for multiple token case, we only have one for now.
             Protocol.InternalTransaction.CallValueInfo.Builder callValueInfoBuilder =
                 Protocol.InternalTransaction.CallValueInfo.newBuilder();
@@ -114,33 +130,65 @@ public class TransactionInfoV2Capsule implements ProtoCapsule<TransactionInfoV2>
               internalTrxBuilder.addCallValueInfo(tokenInfoBuilder);
             });
             // Token for loop end here
-            internalTrxBuilder.setNote(ByteString.copyFrom(internalTransaction.getNote().getBytes()));
+            internalTrxBuilder
+                .setNote(ByteString.copyFrom(internalTransaction.getNote().getBytes()));
             internalTrxBuilder.setRejected(internalTransaction.isRejected());
             infoBuilder.addInternalTransactions(internalTrxBuilder);
           }
         }
-
-        transactionInfoBuilder.setInfo(Any.pack(infoBuilder.build()));
-
+        contractInfo = Any.pack(infoBuilder.build());
         break;
       }
-      case ExchangeCreateContract:
-      case ExchangeTransactionContract:
-      case ExchangeInjectContract:
-      case ExchangeWithdrawContract: {
-        ExchangeCreateContractInfo.Builder infoBuilder = ExchangeCreateContractInfo.newBuilder();
-        infoBuilder.setExchangeId(programResult.getRet().getExchangeId());
+
+      case AssetIssueContract: {
+        AssetIssueInfo.Builder infoBuilder = AssetIssueInfo.newBuilder();
+        infoBuilder.setAssetIssueId(programResult.getRet().getAssetIssueID());
+        contractInfo = Any.pack(infoBuilder.build());
+        break;
+      }
+      case WithdrawBalanceContract: {
+        WithdrawBalanceInfo.Builder infoBuilder = WithdrawBalanceInfo.newBuilder();
+        infoBuilder.setWithdrawAmount(programResult.getRet().getWithdrawAmount());
+        contractInfo = Any.pack(infoBuilder.build());
+        break;
+      }
+      case UnfreezeBalanceContract: {
+        UnfreezeBalanceInfo.Builder infoBuilder = UnfreezeBalanceInfo.newBuilder();
+        infoBuilder.setUnfreezeAmount(trxCap.getInstance().getRet(0).getUnfreezeAmount());
+        contractInfo = Any.pack(infoBuilder.build());
+        break;
+      }
+      case ExchangeTransactionContract: {
+        ExchangeTransactionInfo.Builder infoBuilder = ExchangeTransactionInfo.newBuilder();
         infoBuilder.setExchangeReceivedAmount(programResult.getRet().getExchangeReceivedAmount());
+        contractInfo = Any.pack(infoBuilder.build());
+        break;
+      }
+      case ExchangeInjectContract: {
+        ExchangeInjectInfo.Builder infoBuilder = ExchangeInjectInfo.newBuilder();
         infoBuilder.setExchangeInjectAnotherAmount(
             programResult.getRet().getExchangeInjectAnotherAmount());
+        contractInfo = Any.pack(infoBuilder.build());
+        break;
+      }
+      case ExchangeCreateContract: {
+        ExchangeCreateInfo.Builder infoBuilder = ExchangeCreateInfo.newBuilder();
+        infoBuilder.setExchangeId(programResult.getRet().getExchangeId());
+        contractInfo = Any.pack(infoBuilder.build());
+        break;
+      }
+      case ExchangeWithdrawContract: {
+        ExchangeWithdrawInfo.Builder infoBuilder = ExchangeWithdrawInfo.newBuilder();
         infoBuilder.setExchangeWithdrawAnotherAmount(
             programResult.getRet().getExchangeWithdrawAnotherAmount());
-
-        transactionInfoBuilder.setInfo(Any.pack(infoBuilder.build()));
-
+        contractInfo = Any.pack(infoBuilder.build());
         break;
       }
       default:
+        break;
+    }
+    if (contractInfo != null) {
+      transactionInfoBuilder.setInfo(contractInfo);
     }
 
     return new TransactionInfoV2Capsule(transactionInfoBuilder.build());

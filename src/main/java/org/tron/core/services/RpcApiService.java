@@ -99,6 +99,7 @@ import org.tron.protos.Protocol.Proposal;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.Protocol.TransactionInfoV2;
 import org.tron.protos.Protocol.TransactionSign;
 
 @Component
@@ -468,6 +469,20 @@ public class RpcApiService implements Service {
       ByteString id = request.getValue();
       if (null != id) {
         TransactionInfo reply = wallet.getTransactionInfoById(id);
+
+        responseObserver.onNext(reply);
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getTransactionInfoV2ById(BytesMessage request,
+        StreamObserver<TransactionInfoV2> responseObserver) {
+      ByteString id = request.getValue();
+      if (null != id) {
+        TransactionInfoV2 reply = wallet.getTransactionInfoV2ById(id);
 
         responseObserver.onNext(reply);
       } else {
@@ -1581,6 +1596,20 @@ public class RpcApiService implements Service {
       ByteString id = request.getValue();
       if (null != id) {
         TransactionInfo reply = wallet.getTransactionInfoById(id);
+
+        responseObserver.onNext(reply);
+      } else {
+        responseObserver.onNext(null);
+      }
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getTransactionInfoV2ById(BytesMessage request,
+        StreamObserver<TransactionInfoV2> responseObserver) {
+      ByteString id = request.getValue();
+      if (null != id) {
+        TransactionInfoV2 reply = wallet.getTransactionInfoV2ById(id);
 
         responseObserver.onNext(reply);
       } else {

@@ -131,6 +131,8 @@ public class Manager {
   @Autowired
   private TransactionHistoryStore transactionHistoryStore;
   @Autowired
+  private TransactionHistoryV2Store transactionHistoryV2Store;
+  @Autowired
   private CodeStore codeStore;
   @Autowired
   private ContractStore contractStore;
@@ -1066,7 +1068,8 @@ public class Manager {
     boolean newLogic = true;
 
     if (newLogic) {
-      TransactionInfoV2Capsule transactionInfo = TransactionInfoV2Capsule.buildInstance(trxCap, blockCap, trace);
+      TransactionInfoV2Capsule transactionInfoV2 = TransactionInfoV2Capsule.buildInstance(trxCap, blockCap, trace);
+      transactionHistoryV2Store.put(trxCap.getTransactionId().getBytes(), transactionInfoV2);
 
     } else {
       TransactionInfoCapsule transactionInfo = TransactionInfoCapsule
@@ -1245,6 +1248,10 @@ public class Manager {
 
   public TransactionHistoryStore getTransactionHistoryStore() {
     return this.transactionHistoryStore;
+  }
+
+  public TransactionHistoryV2Store getTransactionHistoryV2Store() {
+    return this.transactionHistoryV2Store;
   }
 
   public BlockStore getBlockStore() {
@@ -1524,6 +1531,7 @@ public class Manager {
     closeOneStore(proposalStore);
     closeOneStore(recentBlockStore);
     closeOneStore(transactionHistoryStore);
+    closeOneStore(transactionHistoryV2Store);
     closeOneStore(votesStore);
     closeOneStore(delegatedResourceStore);
     closeOneStore(assetIssueV2Store);

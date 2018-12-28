@@ -89,6 +89,7 @@ import org.tron.core.capsule.ExchangeCapsule;
 import org.tron.core.capsule.ProposalCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.TransactionInfoCapsule;
+import org.tron.core.capsule.TransactionInfoV2Capsule;
 import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.config.Parameter.ChainConstant;
@@ -138,6 +139,7 @@ import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.Protocol.TransactionInfoV2;
 import org.tron.protos.Protocol.TransactionSign;
 
 @Slf4j
@@ -415,7 +417,7 @@ public class Wallet {
     TransactionCapsule trx = new TransactionCapsule(signaturedTransaction);
     Message message = new TransactionMessage(signaturedTransaction);
 
-    try{
+    try {
       if (minEffectiveConnection != 0) {
         if (p2pNode.getActivePeer().isEmpty()) {
           logger.warn("Broadcast transaction {} failed, no connection.", trx.getTransactionId());
@@ -429,7 +431,8 @@ public class Wallet {
             .count();
 
         if (count < minEffectiveConnection) {
-          String info = "effective connection:" + count + " lt minEffectiveConnection:" + minEffectiveConnection;
+          String info = "effective connection:" + count + " lt minEffectiveConnection:"
+              + minEffectiveConnection;
           logger.warn("Broadcast transaction {} failed, {}.", trx.getTransactionId(), info);
           return builder.setResult(false).setCode(response_code.NOT_ENOUGH_EFFECTIVE_CONNECTION)
               .setMessage(ByteString.copyFromUtf8(info))
@@ -443,7 +446,8 @@ public class Wallet {
       }
 
       if (dbManager.isGeneratingBlock()) {
-        logger.warn("Broadcast transaction {} failed, is generating block.", trx.getTransactionId());
+        logger
+            .warn("Broadcast transaction {} failed, is generating block.", trx.getTransactionId());
         return builder.setResult(false).setCode(response_code.SERVER_BUSY).build();
       }
 
@@ -985,6 +989,8 @@ public class Wallet {
       return null;
     }
     TransactionInfoCapsule transactionInfoCapsule = null;
+    transactionId = ByteString.copyFromUtf8(transactionId.toStringUtf8().toLowerCase());
+
     try {
       transactionInfoCapsule = dbManager.getTransactionHistoryStore()
           .get(transactionId.toByteArray());
@@ -992,6 +998,24 @@ public class Wallet {
     }
     if (transactionInfoCapsule != null) {
       return transactionInfoCapsule.getInstance();
+    }
+    return null;
+  }
+
+  public TransactionInfoV2 getTransactionInfoV2ById(ByteString transactionId) {
+    if (Objects.isNull(transactionId)) {
+      return null;
+    }
+    TransactionInfoV2Capsule transactionInfoV2Capsule = null;
+    transactionId = ByteString.copyFromUtf8(transactionId.toStringUtf8().toLowerCase());
+
+    try {
+      transactionInfoV2Capsule = dbManager.getTransactionHistoryV2Store()
+          .get(transactionId.toByteArray());
+    } catch (StoreException e) {
+    }
+    if (transactionInfoV2Capsule != null) {
+      return transactionInfoV2Capsule.getInstance();
     }
     return null;
   }
