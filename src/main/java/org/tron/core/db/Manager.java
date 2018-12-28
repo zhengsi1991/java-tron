@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -1231,10 +1232,13 @@ public class Manager {
 
           // send event log to event server
           if (eventServer.length() >= 10) {
+            logger.error("*************{}",eventServer);
             HttpHeaders headers = new HttpHeaders();
             MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
             map.add("data", EventLogEntity.toJSONString(eventLogEntity));
             headers.set("Auth-Secret", secretKey);
+            headers.set("data", EventLogEntity.toJSONString(eventLogEntity));
+            headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.postForEntity(eventServer, request, String.class);
