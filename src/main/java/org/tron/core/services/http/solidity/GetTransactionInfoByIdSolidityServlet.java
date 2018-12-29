@@ -15,6 +15,7 @@ import org.tron.core.Wallet;
 import org.tron.core.WalletSolidity;
 import org.tron.core.services.http.JsonFormat;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.Protocol.TransactionInfoV2;
 
 
 @Component
@@ -28,12 +29,18 @@ public class GetTransactionInfoByIdSolidityServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
     try {
       String input = request.getParameter("value");
-      TransactionInfo transInfo = wallet.getTransactionInfoById(ByteString.copyFrom(
+      TransactionInfoV2 transInfoV2 = wallet.getTransactionInfoV2ById(ByteString.copyFrom(
           ByteArray.fromHexString(input)));
-      if (transInfo == null) {
-        response.getWriter().println("{}");
+      if (transInfoV2 != null) {
+        response.getWriter().println(JsonFormat.printToString(transInfoV2));
       } else {
-        response.getWriter().println(JsonFormat.printToString(transInfo));
+        TransactionInfo transInfo = wallet.getTransactionInfoById(ByteString.copyFrom(
+            ByteArray.fromHexString(input)));
+        if (transInfo != null) {
+          response.getWriter().println(JsonFormat.printToString(transInfo));
+        } else {
+          response.getWriter().println("{}");
+        }
       }
     } catch (Exception e) {
       logger.debug("Exception: {}", e.getMessage());
@@ -52,11 +59,17 @@ public class GetTransactionInfoByIdSolidityServlet extends HttpServlet {
           .collect(Collectors.joining(System.lineSeparator()));
       BytesMessage.Builder build = BytesMessage.newBuilder();
       JsonFormat.merge(input, build);
-      TransactionInfo transInfo = wallet.getTransactionInfoById(build.build().getValue());
-      if (transInfo == null) {
-        response.getWriter().println("{}");
+      TransactionInfoV2 transInfoV2 = wallet.getTransactionInfoV2ById(ByteString.copyFrom(
+          ByteArray.fromHexString(input)));
+      if (transInfoV2 != null) {
+        response.getWriter().println(JsonFormat.printToString(transInfoV2));
       } else {
-        response.getWriter().println(JsonFormat.printToString(transInfo));
+        TransactionInfo transInfo = wallet.getTransactionInfoById(build.build().getValue());
+        if (transInfo != null) {
+          response.getWriter().println(JsonFormat.printToString(transInfo));
+        } else {
+          response.getWriter().println("{}");
+        }
       }
     } catch (Exception e) {
       logger.debug("Exception: {}", e.getMessage());

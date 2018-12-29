@@ -481,9 +481,8 @@ public class RpcApiService implements Service {
     public void getTransactionInfoV2ById(BytesMessage request,
         StreamObserver<TransactionInfoV2> responseObserver) {
       ByteString id = request.getValue();
-      if (null != id) {
+      if (id != null) {
         TransactionInfoV2 reply = wallet.getTransactionInfoV2ById(id);
-
         responseObserver.onNext(reply);
       } else {
         responseObserver.onNext(null);
@@ -1608,9 +1607,8 @@ public class RpcApiService implements Service {
     public void getTransactionInfoV2ById(BytesMessage request,
         StreamObserver<TransactionInfoV2> responseObserver) {
       ByteString id = request.getValue();
-      if (null != id) {
+      if (id != null) {
         TransactionInfoV2 reply = wallet.getTransactionInfoV2ById(id);
-
         responseObserver.onNext(reply);
       } else {
         responseObserver.onNext(null);

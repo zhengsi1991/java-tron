@@ -171,16 +171,16 @@ public class TransactionInfoV2Capsule implements ProtoCapsule<TransactionInfoV2>
         contractInfo = Any.pack(infoBuilder.build());
         break;
       }
-      case ExchangeCreateContract: {
-        ExchangeCreateInfo.Builder infoBuilder = ExchangeCreateInfo.newBuilder();
-        infoBuilder.setExchangeId(programResult.getRet().getExchangeId());
-        contractInfo = Any.pack(infoBuilder.build());
-        break;
-      }
       case ExchangeWithdrawContract: {
         ExchangeWithdrawInfo.Builder infoBuilder = ExchangeWithdrawInfo.newBuilder();
         infoBuilder.setExchangeWithdrawAnotherAmount(
             programResult.getRet().getExchangeWithdrawAnotherAmount());
+        contractInfo = Any.pack(infoBuilder.build());
+        break;
+      }
+      case ExchangeCreateContract: {
+        ExchangeCreateInfo.Builder infoBuilder = ExchangeCreateInfo.newBuilder();
+        infoBuilder.setExchangeId(programResult.getRet().getExchangeId());
         contractInfo = Any.pack(infoBuilder.build());
         break;
       }

@@ -390,7 +390,6 @@ message SmartContractInfo {
 }
 
 message AssetIssueInfo {
-  // TODO: string or int64 ?
   string asset_issue_id = 1;
 }
 

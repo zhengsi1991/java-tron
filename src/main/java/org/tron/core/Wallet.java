@@ -989,7 +989,6 @@ public class Wallet {
       return null;
     }
     TransactionInfoCapsule transactionInfoCapsule = null;
-    transactionId = ByteString.copyFromUtf8(transactionId.toStringUtf8().toLowerCase());
 
     try {
       transactionInfoCapsule = dbManager.getTransactionHistoryStore()
@@ -1007,7 +1006,6 @@ public class Wallet {
       return null;
     }
     TransactionInfoV2Capsule transactionInfoV2Capsule = null;
-    transactionId = ByteString.copyFromUtf8(transactionId.toStringUtf8().toLowerCase());
 
     try {
       transactionInfoV2Capsule = dbManager.getTransactionHistoryV2Store()
