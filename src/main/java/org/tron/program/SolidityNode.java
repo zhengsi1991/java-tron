@@ -180,6 +180,9 @@ public class SolidityNode {
         .getLogger(Logger.ROOT_LOGGER_NAME);
     root.setLevel(Level.toLevel(cfgArgs.getLogLevel()));
 
+    Manager.eventServer = cfgArgs.getEventServerEndPoint();
+    Manager.secretKey = cfgArgs.getSecretKey();
+
     if (StringUtils.isEmpty(cfgArgs.getTrustNodeAddr())) {
       logger.error("Trust node not set.");
       return;
