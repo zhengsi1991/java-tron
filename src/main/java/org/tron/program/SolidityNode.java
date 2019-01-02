@@ -97,6 +97,7 @@ public class SolidityNode {
   private void loopProcessBlock(Block block) {
     while (flag) {
       long blockNum = block.getBlockHeader().getRawData().getNumber();
+      dbManager.triggerResource();
       try {
         dbManager.pushVerifiedBlock(new BlockCapsule(block));
         dbManager.getDynamicPropertiesStore().saveLatestSolidifiedBlockNum(blockNum);
