@@ -2,6 +2,7 @@ package stest.tron.wallet.multiSign.SignAndBroadcast;
 
 import static org.tron.api.GrpcAPI.TransactionSignWeight.Result.response_code.NOT_ENOUGH_PERMISSION;
 import static org.tron.api.GrpcAPI.TransactionSignWeight.Result.response_code.PERMISSION_ERROR;
+import static org.tron.api.GrpcAPI.TransactionSignWeight.Result.response_code.*;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -174,6 +175,7 @@ public class GetTransactionSignWeight {
     logger.info("Before Sign TransactionSignWeight info :\n" + txWeight);
 
     Assert.assertEquals(NOT_ENOUGH_PERMISSION, txWeight.getResult().getCode());
+    Assert.assertEquals(0, txWeight.getCurrentWeight());
 
     Transaction transaction1 = PublicMethed
         .addTransactionSign(transaction, tmpKey02, blockingStubFull);
@@ -186,7 +188,7 @@ public class GetTransactionSignWeight {
     logger.info("Before broadcast TransactionSignWeight info :\n" + txWeight);
 
     Assert.assertEquals(4, txWeight.getCurrentWeight());
-    txWeight.getResult().getCode();
+      Assert.assertEquals(ENOUGH_PERMISSION, txWeight.getResult().getCode());
     txWeight.getResult().getMessage();
 
     Assert.assertTrue(PublicMethedForMutiSign.broadcastTransaction(transaction2, blockingStubFull));
