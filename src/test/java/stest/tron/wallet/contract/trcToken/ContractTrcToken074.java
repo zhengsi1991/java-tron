@@ -28,10 +28,9 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.myself.DebugUtils;
 
 @Slf4j
-public class ContractTrcToken073 {
+public class ContractTrcToken074 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -299,8 +298,10 @@ public class ContractTrcToken073 {
     logger.info("before trigger, dev001Address has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + devAssetBefore);
 
+    tokenId = Long.toString(Long.MAX_VALUE);
+
     String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
-        "getToken(trcToken)", assetAccountId.toStringUtf8(), false, 0,
+        "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
 
@@ -332,10 +333,64 @@ public class ContractTrcToken073 {
     logger.info("msgId: " + msgId );
     logger.info("msgTokenValue: " + msgTokenValue );
 
-    Assert.assertEquals(msgTokenBalance, devAssetBefore);
+    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
 
-//    Assert.assertEquals(msgId.toString(), tokenId);
-//    Assert.assertEquals(Long.valueOf(msgTokenValue), Long.valueOf(tokenValue));
+
+    tokenId = Long.toString(0);
+
+    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+        "getToken(trcToken)", tokenId, false, 0,
+        1000000000L, "0", 0, dev001Address, dev001Key,
+        blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    if (infoById.get().getResultValue() != 0) {
+      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
+    }
+
+//    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
+    logger.info("The msg value: " + infoById.get().getLogList().get(0).getTopicsList());
+    msgTokenBalance = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(1).toByteArray());
+    msgId = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(2).toByteArray());
+    msgTokenValue = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(3).toByteArray());
+
+    logger.info("msgTokenBalance: " + msgTokenBalance);
+    logger.info("msgId: " + msgId );
+    logger.info("msgTokenValue: " + msgTokenValue );
+
+    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
+
+
+    tokenId = Long.toString(Long.MIN_VALUE);
+
+    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+        "getToken(trcToken)", tokenId, false, 0,
+        1000000000L, "0", 0, dev001Address, dev001Key,
+        blockingStubFull);
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    if (infoById.get().getResultValue() != 0) {
+      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
+    }
+
+//    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
+    logger.info("The msg value: " + infoById.get().getLogList().get(0).getTopicsList());
+     msgTokenBalance = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(1).toByteArray());
+     msgId = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(2).toByteArray());
+     msgTokenValue = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(3).toByteArray());
+
+    logger.info("msgTokenBalance: " + msgTokenBalance);
+    logger.info("msgId: " + msgId );
+    logger.info("msgTokenValue: " + msgTokenValue );
+
+    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
+
   }
 
   @AfterClass
