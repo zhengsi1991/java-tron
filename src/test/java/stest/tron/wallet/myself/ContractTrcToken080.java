@@ -1,4 +1,4 @@
-package stest.tron.wallet.contract.trcToken;
+package stest.tron.wallet.myself;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
