@@ -552,6 +552,7 @@ public class MultiSignUpdateAccountPermission099 {
   @Test
   public void test07RepeatUpdateSamePermission() {
     List<String> ownerPermissionKeys = new ArrayList<>();
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
     ownerPermissionKeys.add(ownerKey);
     recoverAccountPermission(ownerKey, ownerPermissionKeys);
     recoverAccountPermission(ownerKey, ownerPermissionKeys);
