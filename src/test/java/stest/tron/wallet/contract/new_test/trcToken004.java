@@ -1,4 +1,4 @@
-package stest.tron.wallet.contract.trcToken;
+package stest.tron.wallet.contract.new_test;
 
 import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
 
@@ -35,7 +35,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.myself.DebugUtils;
 
 @Slf4j
-public class ContractTrcToken047 {
+public class trcToken004 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -333,8 +333,11 @@ public class ContractTrcToken047 {
 
     PublicMethed.sendcoin(transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull);
 
-      tokenId =  Long.toString(100_0000);
-    tokenValue = 10;
+    tokenId = assetAccountId.toStringUtf8();
+//     tokenId =  Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 100000);
+//      tokenId =  Long.toString(100_0001);
+//    tokenId =  Long.toString(Long.MAX_VALUE);
+    tokenValue = -1;
     callValue = 5;
 
     GrpcAPI.Return response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
@@ -344,11 +347,11 @@ public class ContractTrcToken047 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !",
+    Assert.assertEquals("contract validate error : tokenValue must >= 0",
         response.getMessage().toStringUtf8());
 
-    tokenId = Long.toString(0);
-    tokenValue = 10;
+    tokenId = assetAccountId.toStringUtf8();
+    tokenValue = Long.MIN_VALUE;
     callValue = 5;
 
     response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
@@ -358,21 +361,7 @@ public class ContractTrcToken047 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !",
-        response.getMessage().toStringUtf8());
-
-    tokenId = Long.toString(Long.MIN_VALUE);
-    tokenValue = 10;
-    callValue = 5;
-
-    response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
-        "msgTokenValueAndTokenIdTest()", "#", false, callValue,
-        1000000000L, tokenId, tokenValue, user001Address, user001Key,
-        blockingStubFull);
-
-    Assert.assertFalse(response.getResult());
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !",
+    Assert.assertEquals("contract validate error : tokenValue must >= 0",
         response.getMessage().toStringUtf8());
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);

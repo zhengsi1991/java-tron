@@ -22,6 +22,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.DebugUtils;
 
 @Slf4j
 public class ContractOriginEnergyLimit001 {
@@ -79,56 +80,6 @@ public class ContractOriginEnergyLimit001 {
 
   }
 
-  public static Long getFreezeBalanceCount(byte[] accountAddress, String ecKey, Long targetEnergy,
-      WalletGrpc.WalletBlockingStub blockingStubFull, String msg) {
-    if(msg != null) {
-      logger.info(msg);
-    }
-    AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(accountAddress,
-        blockingStubFull);
-
-    Account info = PublicMethed.queryAccount(accountAddress, blockingStubFull);
-
-    Account getAccount = PublicMethed.queryAccount(ecKey, blockingStubFull);
-
-    long balance = info.getBalance();
-    long frozenBalance = info.getAccountResource().getFrozenBalanceForEnergy().getFrozenBalance();
-    long totalEnergyLimit = resourceInfo.getTotalEnergyLimit();
-    long totalEnergyWeight = resourceInfo.getTotalEnergyWeight();
-    long energyUsed = resourceInfo.getEnergyUsed();
-    long energyLimit = resourceInfo.getEnergyLimit();
-
-    logger.info("Balance:" + balance);
-    logger.info("frozenBalance: " + frozenBalance);
-    logger.info("totalEnergyLimit: " + totalEnergyLimit);
-    logger.info("totalEnergyWeight: " + totalEnergyWeight);
-    logger.info("energyUsed: " + energyUsed);
-    logger.info("energyLimit: " + energyLimit);
-
-    if (energyUsed > energyLimit) {
-      targetEnergy = energyUsed - energyLimit + targetEnergy;
-    }
-
-    logger.info("targetEnergy: " + targetEnergy);
-    if (totalEnergyWeight == 0) {
-      return 1000_000L;
-    }
-
-    // totalEnergyLimit / (totalEnergyWeight + needBalance) = needEnergy / needBalance
-    BigInteger totalEnergyWeightBI = BigInteger.valueOf(totalEnergyWeight);
-    long needBalance = totalEnergyWeightBI.multiply(BigInteger.valueOf(1_000_000))
-        .multiply(BigInteger.valueOf(targetEnergy))
-        .divide(BigInteger.valueOf(totalEnergyLimit - targetEnergy)).longValue();
-
-    logger.info("[Debug]getFreezeBalanceCount, needBalance: " + needBalance);
-
-    if (needBalance < 1000000L) {
-      needBalance = 1000000L;
-      logger.info("[Debug]getFreezeBalanceCount, needBalance less than 1 TRX, modify to: " + needBalance);
-    }
-
-    return needBalance;
-  }
 
   //Origin_energy_limit001,028,029
   @Test(enabled = true)
@@ -146,6 +97,9 @@ public class ContractOriginEnergyLimit001 {
             grammarAddress3, blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
+    logger.info("contractAddress: " + contractAddress) ;
+    DebugUtils.printContractTxidInfo(contractAddress,blockingStubFull,null);
+
     Assert.assertTrue(contractAddress == null);
 
     String contractAddress1 = PublicMethed
@@ -159,6 +113,7 @@ public class ContractOriginEnergyLimit001 {
         .deployContract(contractName, abi, code, "", maxFeeLimit,
             0L, 100, 9223372036854775807L, "0", 0, null, testKeyForGrammarAddress3,
             grammarAddress3, blockingStubFull);
+
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById1 = null;
@@ -190,6 +145,5 @@ public class ContractOriginEnergyLimit001 {
     SmartContract smartContract4 = PublicMethed.getContract(contractAddress2, blockingStubFull);
     Assert.assertEquals(smartContract4.getOriginEnergyLimit(), 99);
   }
-
 
 }

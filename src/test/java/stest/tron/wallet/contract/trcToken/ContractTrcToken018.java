@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -28,6 +30,7 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.DebugUtils;
 
 
 @Slf4j
@@ -322,7 +325,6 @@ public class ContractTrcToken018 {
     logger.info("after AssetId: " + assetAccountId.toStringUtf8() +
         ", devAssetCountAfter: " + devAssetCountAfter);
 
-
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
@@ -422,9 +424,9 @@ public class ContractTrcToken018 {
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
+
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure", infoById.get().getResMessage().toStringUtf8());
 
     long energyUsage = infoById.get().getReceipt().getEnergyUsage();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
@@ -446,16 +448,17 @@ public class ContractTrcToken018 {
     long consumeURPercent = smartContract.getConsumeUserResourcePercent();
     logger.info("ConsumeURPercent: " + consumeURPercent);
 
-    Assert.assertEquals(originEnergyUsage, devEnergyUsageAfter - devEnergyUsageBefore);
-    Assert.assertEquals(energyUsage, userEnergyUsageAfter - userEnergyUsageBefore);
-    Assert.assertEquals(energyFee, userBalanceBefore - userBalanceAfter);
-    Assert.assertEquals(receiveAssetAfter - receiveAssetBefore, transferAssetBefore + 2L - transferAssetAfter);
+//    Assert.assertEquals(originEnergyUsage, devEnergyUsageAfterter - devEnergyUsageBefore);
+//    Assert.assertEquals(energyUsage, userEnergyUsageAfter - userEnergyUsageBefore);
+//    Assert.assertEquals(energyFee, userBalanceBefore - userBalanceAfter);
+    Assert.assertEquals(receiveAssetAfter, receiveAssetBefore);
+    Assert.assertEquals(transferAssetBefore, transferAssetAfter);
 
-    Assert.assertEquals(1, infoById.get().getInternalTransactionsCount());
-    Assert.assertEquals(1,
-        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getCallValue());
-    Assert.assertEquals(assetAccountId.toStringUtf8(),
-        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getTokenId());
+//    Assert.assertEquals(1, infoById.get().getInternalTransactionsCount());
+//    Assert.assertEquals(1,
+//        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getCallValue());
+//    Assert.assertEquals(assetAccountId.toStringUtf8(),
+//        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getTokenId());
   }
 
   @AfterClass

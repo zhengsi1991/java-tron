@@ -1,7 +1,5 @@
 package stest.tron.wallet.contract.trcToken;
 
-import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
-
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -17,7 +15,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.WalletGrpc;
@@ -27,15 +24,13 @@ import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.SmartContract;
-import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
-import stest.tron.wallet.myself.DebugUtils;
 
 @Slf4j
-public class ContractTrcToken047 {
+public class ContractTrcToken0613 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key1");
@@ -53,8 +48,6 @@ public class ContractTrcToken047 {
   private static ByteString assetAccountId = null;
   private static final long TotalSupply = 1000L;
   private byte[] transferTokenContractAddress = null;
-  private byte[] receiveTokenContractAddress = null;
-  private byte[] tokenBalanceContractAddress = null;
 
   private String description = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetDescription");
@@ -64,10 +57,6 @@ public class ContractTrcToken047 {
   private ECKey ecKey1 = new ECKey(Utils.getRandom());
   private byte[] dev001Address = ecKey1.getAddress();
   private String dev001Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-
-  private ECKey ecKey2 = new ECKey(Utils.getRandom());
-  private byte[] user001Address = ecKey2.getAddress();
-  private String user001Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
 
   @BeforeSuite
   public void beforeSuite() {
@@ -84,25 +73,18 @@ public class ContractTrcToken047 {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     PublicMethed.printAddress(dev001Key);
-    PublicMethed.printAddress(user001Key);
 
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 1100_000_000L, fromAddress,
-        testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 100_000_000L, fromAddress,
         testKey002, blockingStubFull));
   }
 
   @AfterClass(enabled = true)
   public void afterClass() {
-
     Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
         dev001Address, blockingStubFull));
     Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 0,
         dev001Address, blockingStubFull));
-//    Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
-//        user001Address, blockingStubFull));
   }
-
 
   public static long getFreezeBalanceCount(byte[] accountAddress, String ecKey, Long targetEnergy,
       WalletGrpc.WalletBlockingStub blockingStubFull, String msg) {
@@ -198,6 +180,7 @@ public class ContractTrcToken047 {
     return assetAccountId;
   }
 
+
   private List<String> getStrings(byte[] data){
     int index = 0;
     List<String> ret = new ArrayList<>();
@@ -221,9 +204,10 @@ public class ContractTrcToken047 {
   @Test
   public void deployTransferTokenContract() {
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        getFreezeBalanceCount(dev001Address, dev001Key, 70000L,
+        getFreezeBalanceCount(dev001Address, dev001Key, 130000L,
             blockingStubFull, null), 0, 1,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
@@ -244,32 +228,17 @@ public class ContractTrcToken047 {
         ", devAssetCountBefore: " + devAssetCountBefore);
 
     String contractName = "transferTokenContract";
-    String code = "6080604052610118806100136000396000f30060806040526004361060485763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416633be9ece78114604d57806371dc08ce146074575b600080fd5b607273ffffffffffffffffffffffffffffffffffffffff600435166024356044356098565b005b607a60e4565b60408051938452602084019290925282820152519081900360600190f35b60405173ffffffffffffffffffffffffffffffffffffffff84169082156108fc029083908590600081818185878a8ad094505050505015801560de573d6000803e3d6000fd5b50505050565bd3d2349091925600a165627a7a72305820b8d4f8ea5443a03d615ea5dfe7a7435498522f9c7abeb25583d953ee2d20be4a0029";
-    String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"},{\"name\":\"id\",\"type\":\"trcToken\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TransferTokenTo\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"msgTokenValueAndTokenIdTest\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"}]";
+    String code = "6080604052d3600055d2600155346002556101418061001f6000396000f3006080604052600436106100565763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166305c24200811461005b5780633be9ece71461008157806371dc08ce146100aa575b600080fd5b6100636100b2565b60408051938452602084019290925282820152519081900360600190f35b6100a873ffffffffffffffffffffffffffffffffffffffff600435166024356044356100c0565b005b61006361010d565b600054600154600254909192565b60405173ffffffffffffffffffffffffffffffffffffffff84169082156108fc029083908590600081818185878a8ad0945050505050158015610107573d6000803e3d6000fd5b50505050565bd3d2349091925600a165627a7a72305820a2fb39541e90eda9a2f5f9e7905ef98e66e60dd4b38e00b05de418da3154e7570029";
+    String abi = "[{\"constant\":false,\"inputs\":[],\"name\":\"getResultInCon\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"},{\"name\":\"id\",\"type\":\"trcToken\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TransferTokenTo\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"msgTokenValueAndTokenIdTest\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"}]\n";
 
-    String tokenId = assetAccountId.toStringUtf8();
-    long tokenValue = 100;
-    long callValue = 0;
+    String tokenId = Long.toString(-1);
+    long tokenValue = 0;
+    long callValue = 10;
 
     String transferTokenTxid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
-            maxFeeLimit, callValue, 0, 10000,
-            tokenId, tokenValue, null, dev001Key,
-            dev001Address, blockingStubFull);
-
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
-
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
-    }
-
-    transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,
-        blockingStubFull);
-    Assert.assertNotNull(smartContract.getAbi());
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
+            callValue, 0, 10000, tokenId, tokenValue,
+            null, dev001Key, dev001Address, blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();
@@ -283,28 +252,36 @@ public class ContractTrcToken047 {
     logger.info("after AssetId: " + assetAccountId.toStringUtf8() +
         ", devAssetCountAfter: " + devAssetCountAfter);
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
+
+    if (infoById.get().getResultValue() != 0) {
+      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
+    }
+
+    transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
+    SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,
+        blockingStubFull);
+    Assert.assertNotNull(smartContract.getAbi());
+
     Assert.assertTrue(PublicMethed.transferAsset(transferTokenContractAddress,
         assetAccountId.toByteArray(), 100L, dev001Address, dev001Key, blockingStubFull));
+
     Long contractAssetCount = getAssetIssueValue(transferTokenContractAddress,
         assetAccountId, blockingStubFull);
     logger.info("Contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contractAssetCount);
 
     Assert.assertTrue(energyLimit > 0);
     Assert.assertTrue(energyUsage > 0);
-    Assert.assertEquals(balanceBefore, balanceAfter);
-    Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
-    Assert.assertEquals(Long.valueOf(200), contractAssetCount);
+    Assert.assertEquals(callValue, balanceBefore - balanceAfter);
+    Assert.assertEquals(Long.valueOf(tokenValue), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
+    Assert.assertEquals(Long.valueOf(100L + tokenValue), contractAssetCount);
 
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
-        getFreezeBalanceCount(user001Address, user001Key, 50000L,
-            blockingStubFull, null), 0, 1,
-        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+    // get and verify the msg.value and msg.id
 
-    Assert.assertTrue(PublicMethed.transferAsset(user001Address,
-        assetAccountId.toByteArray(), 10L, dev001Address, dev001Key, blockingStubFull));
-
-    accountResource = PublicMethed.getAccountResource(dev001Address,
-        blockingStubFull);
+    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitBefore = accountResource.getEnergyLimit();
     long devEnergyUsageBefore = accountResource.getEnergyUsed();
     long devBalanceBefore = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
@@ -313,67 +290,14 @@ public class ContractTrcToken047 {
     logger.info("before trigger, devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, devBalanceBefore is " + Long.toString(devBalanceBefore));
 
-    accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
-    long userEnergyLimitBefore = accountResource.getEnergyLimit();
-    long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethed.queryAccount(user001Address, blockingStubFull)
-        .getBalance();
-
-    logger.info("before trigger, userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
-    logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
-    logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
-
     Long transferAssetBefore = getAssetIssueValue(transferTokenContractAddress, assetAccountId, blockingStubFull);
     logger.info("before trigger, transferTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + transferAssetBefore);
 
-    Long userAssetId = getAssetIssueValue(user001Address, ByteString.copyFromUtf8(tokenId), blockingStubFull);
-    logger.info("before userAssetId has AssetId "
-        + tokenId + ", Count is " + userAssetId);
-
-    PublicMethed.sendcoin(transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull);
-
-      tokenId =  Long.toString(100_0000);
-    tokenValue = 10;
-    callValue = 5;
-
-    GrpcAPI.Return response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
-        "msgTokenValueAndTokenIdTest()", "#", false, callValue,
-        1000000000L, tokenId, tokenValue, user001Address, user001Key,
+    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+        "getResultInCon()", "#", false, 0,
+        1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
-
-    Assert.assertFalse(response.getResult());
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !",
-        response.getMessage().toStringUtf8());
-
-    tokenId = Long.toString(0);
-    tokenValue = 10;
-    callValue = 5;
-
-    response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
-        "msgTokenValueAndTokenIdTest()", "#", false, callValue,
-        1000000000L, tokenId, tokenValue, user001Address, user001Key,
-        blockingStubFull);
-
-    Assert.assertFalse(response.getResult());
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !",
-        response.getMessage().toStringUtf8());
-
-    tokenId = Long.toString(Long.MIN_VALUE);
-    tokenValue = 10;
-    callValue = 5;
-
-    response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
-        "msgTokenValueAndTokenIdTest()", "#", false, callValue,
-        1000000000L, tokenId, tokenValue, user001Address, user001Key,
-        blockingStubFull);
-
-    Assert.assertFalse(response.getResult());
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !",
-        response.getMessage().toStringUtf8());
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
@@ -384,15 +308,29 @@ public class ContractTrcToken047 {
     logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
     logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
 
-    accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
-    long userEnergyLimitAfter = accountResource.getEnergyLimit();
-    long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
-    logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
-    logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    if (infoById.get().getResultValue() != 0) {
+      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
+    }
 
+    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
+
+    List<String> retList = getStrings(infoById.get().getContractResult(0).toByteArray());
+
+    Long msgId = ByteArray.toLong(ByteArray.fromHexString(retList.get(0)));
+    Long msgTokenValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(1)));
+    Long msgCallValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(2)));
+
+    logger.info("msgId: " + msgId );
+    logger.info("msgTokenValue: " + msgTokenValue );
+    logger.info("msgCallValue: " + msgCallValue );
+
+    Assert.assertEquals(msgId.toString(), tokenId);
+    Assert.assertEquals(Long.valueOf(msgTokenValue), Long.valueOf(tokenValue));
+    Assert.assertEquals(Long.valueOf(msgCallValue), Long.valueOf(callValue));
   }
 
   @AfterClass

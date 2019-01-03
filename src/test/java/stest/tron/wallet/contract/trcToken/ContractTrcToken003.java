@@ -24,9 +24,6 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Protocol.Account;
-import org.tron.protos.Protocol.SmartContract;
-import org.tron.protos.Protocol.Transaction;
-import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
@@ -52,7 +49,6 @@ public class ContractTrcToken003 {
   private static ByteString assetAccountDev = null;
   private static ByteString assetAccountUser = null;
   private static final long TotalSupply = 1000L;
-  private byte[] transferTokenContractAddress = null;
 
   private String description = Configuration.getByPath("testng.conf")
       .getString("defaultParameter.assetDescription");
@@ -88,6 +84,18 @@ public class ContractTrcToken003 {
     Assert.assertTrue(PublicMethed.sendcoin(user001Address, 1100_000_000L, fromAddress,
         testKey002, blockingStubFull));
   }
+
+  @AfterClass(enabled = true)
+  public void afterClass() {
+
+    Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
+        dev001Address, blockingStubFull));
+    Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 0,
+        dev001Address, blockingStubFull));
+//    Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
+//        user001Address, blockingStubFull));
+  }
+
 
   public static long getFreezeBalanceCount(byte[] accountAddress, String ecKey, Long targetEnergy,
       WalletGrpc.WalletBlockingStub blockingStubFull, String msg) {
@@ -189,8 +197,6 @@ public class ContractTrcToken003 {
         0, 1, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
-        0, 0, ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     assetAccountUser = testCreateAssetIssue(user001Address, user001Key);
     assetAccountDev = testCreateAssetIssue(dev001Address, dev001Key);
@@ -229,29 +235,50 @@ public class ContractTrcToken003 {
         + "\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":"
         + "\"payable\",\"type\":\"constructor\"}]";
 
+    // the tokenId is not exist
     String fakeTokenId = Long.toString(Long.valueOf(assetAccountDev.toStringUtf8()) + 100);
+    Long fakeTokenValue = 100L;
 
     GrpcAPI.Return response = PublicMethed
         .deployContractAndGetResponse(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
-            fakeTokenId, 100, null, dev001Key,
+            fakeTokenId, fakeTokenValue, null, dev001Key,
             dev001Address, blockingStubFull);
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !", response.getMessage().toStringUtf8());
+    Assert.assertEquals("contract validate error : No asset !",
+        response.getMessage().toStringUtf8());
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    // deployer didn't have any such token
+    fakeTokenId = assetAccountUser.toStringUtf8();
+    fakeTokenValue = 100L;
 
     response = PublicMethed
         .deployContractAndGetResponse(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
-            assetAccountUser.toStringUtf8(), 100, null, dev001Key,
+            fakeTokenId, fakeTokenValue, null, dev001Key,
             dev001Address, blockingStubFull);
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
     Assert.assertEquals("contract validate error : assetBalance must greater than 0.",
+        response.getMessage().toStringUtf8());
+
+    // deployer didn't have any Long.MAX_VALUE
+    fakeTokenId = Long.toString(Long.MAX_VALUE);
+
+    fakeTokenValue = 100L;
+
+    response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "",
+            maxFeeLimit, 0L, 0, 10000,
+            fakeTokenId, fakeTokenValue, null, dev001Key,
+            dev001Address, blockingStubFull);
+
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : No asset !",
         response.getMessage().toStringUtf8());
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
@@ -274,7 +301,7 @@ public class ContractTrcToken003 {
     Assert.assertEquals(balanceBefore, balanceAfter);
     Assert.assertEquals(devAssetCountBefore, devAssetCountAfter);
     Assert.assertEquals(userAssetCountBefore, userAssetCountAfter);
- }
+  }
 
   @AfterClass
   public void shutdown() throws InterruptedException {
