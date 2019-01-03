@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -61,28 +62,28 @@ public class ContractOriginEnergyLimit019 {
     Wallet wallet = new Wallet();
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     // get energy
-//    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-//        .usePlaintext(true).build();
-//    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-//    final String testKey001 = Configuration.getByPath("testng.conf")
-//        .getString("foundationAccount.key1");
-//    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
-//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(freezeAddress, 5000000000000000L,
-//        0, 1, testKey001, blockingStubFull));
+    channelFull = ManagedChannelBuilder.forTarget(fullnode)
+        .usePlaintext(true).build();
+    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    final String testKey001 = Configuration.getByPath("testng.conf")
+        .getString("foundationAccount.key1");
+    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(freezeAddress, 5000000000000000L,
+        0, 1, testKey001, blockingStubFull));
   }
 
-//  @AfterSuite
-//  public void afterSuite() {
-//    // unfreeze energy
-//    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-//        .usePlaintext(true).build();
-//    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-//    final String testKey001 = Configuration.getByPath("testng.conf")
-//        .getString("foundationAccount.key1");
-//    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
-////    Assert.assertTrue(PublicMethed.unFreezeBalance(freezeAddress, testKey001, 1,
-////        null, blockingStubFull));
-//  }
+  @AfterSuite
+  public void afterSuite() {
+    // unfreeze energy
+    channelFull = ManagedChannelBuilder.forTarget(fullnode)
+        .usePlaintext(true).build();
+    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    final String testKey001 = Configuration.getByPath("testng.conf")
+        .getString("foundationAccount.key1");
+    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
+    Assert.assertTrue(PublicMethed.unFreezeBalance(freezeAddress, testKey001, 1,
+        null, blockingStubFull));
+  }
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -221,7 +222,7 @@ public class ContractOriginEnergyLimit019 {
     // deploy contract parameters
     long deployFeeLimit = maxFeeLimit;
     long consumeUserResourcePercent = 75;
-    long originEnergyLimit = 1000000000;
+    long originEnergyLimit = 10000000000L;
 
     //dev balance and Energy
     long devTriggerTargetBalance = 0;
@@ -232,7 +233,7 @@ public class ContractOriginEnergyLimit019 {
     long userTargetEnergy = 600000000L;
 
     // trigger contract parameter, maxFeeLimit 10000000
-    long triggerFeeLimit = maxFeeLimit;
+    long triggerFeeLimit = 100000000000L;
     boolean expectRet = true;
 
 // A1B1C2
@@ -308,7 +309,7 @@ public class ContractOriginEnergyLimit019 {
 
     Assert.assertTrue(devEnergyLimitAfter > 0);
     Assert.assertTrue(devEnergyUsageAfter > 0);
-    Assert.assertEquals(devBalanceBefore, devBalanceAfter);
+//    Assert.assertEquals(devBalanceBefore, devBalanceAfter);
 
     // count dev energy, balance
     devFreezeBalanceSUN = getFreezeBalanceCount(dev001Address, dev001Key,
@@ -437,68 +438,16 @@ public class ContractOriginEnergyLimit019 {
     Assert.assertTrue(devEnergyLimitAfter > 0);
     Assert.assertEquals(devBalanceBefore, devBalanceAfter);
 
-    if (devMax >= devExpectCost) {
-      logger.info("Debug: 11 DEV is enough to pay");
-      Assert.assertEquals(originEnergyUsage, devExpectCost);
-    } else {
-      logger.info("Debug: 22 DEV is NOT enough to pay");
-      Assert.assertEquals(originEnergyUsage, devMax);
-      userExpectCost = userExpectCost + devExpectCost - devMax;
-      logger.info("new userExpectCost: " + userExpectCost );
-    }
+    // DEV is enough to pay
+    Assert.assertEquals(originEnergyUsage, devExpectCost);
+//    Assert.assertTrue(devEnergyUsageAfter == devExpectCost + devEnergyUsageBefore);
 
-    if (userMax >= userExpectCost) {
-      if ( userEnergyLimitBefore - userEnergyUsageBefore > userExpectCost) {
-        logger.info("Debug: 33 User Energy is enough to pay");
-        Assert.assertEquals(energyUsage, userExpectCost);
-        Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      } else {
-        logger.info("Debug: 44 User Energy + Balance is enough to pay");
-        Assert.assertEquals(userExpectCost, energyUsage + energyFee/100);
-//        Assert.assertEquals(energyUsage,userEnergyUsageAfter - userEnergyUsageBefore);
-        Assert.assertEquals(energyFee, userBalanceBefore - userBalanceAfter);
-      }
-    } else {
-      logger.info("Debug: 55 User is Not enough to pay---- TBD");
-      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-      Assert.assertTrue(
-          userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
-//      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-//      Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      Assert.assertFalse(isSuccess);
-    }
-
-    if (devMax >= devExpectCost) {
-      logger.info("Debug: 1 DEV is enough to pay");
-      Assert.assertTrue(devEnergyUsageAfter == devExpectCost + devEnergyUsageBefore);
-
-    } else {
-      logger.info("Debug: 2 DEV is NOT enough to pay");
-      Assert.assertEquals(devEnergyUsageAfter, devEnergyUsageBefore + devMax);
-//      userExpectCost = userExpectCost + devExpectCost - devMax;
-//      logger.info("new userExpectCost: " + userExpectCost );
-    }
-
-    if (userMax >= userExpectCost) {
-      if ( userEnergyLimitBefore - userEnergyUsageBefore > userExpectCost) {
-        logger.info("Debug: 3 User Energy is enough to pay");
-        Assert.assertEquals(userEnergyUsageAfter, userExpectCost + userEnergyUsageBefore);
-//        Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      } else {
-        logger.info("Debug: 4 User Energy + Balance is enough to pay");
-        Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-        Assert.assertTrue(
-            userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
-      }
-    } else {
-      logger.info("Debug: 5 User is Not enough to pay");
-      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-      Assert.assertTrue(
-          userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
-//      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-//      Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      Assert.assertFalse(isSuccess);
-    }
+    // User Energy is enough to pay
+    Assert.assertEquals(energyUsage, userExpectCost);
+    Assert.assertEquals(userBalanceBefore, userBalanceAfter);
+    Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
+    Assert.assertTrue(
+        userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
 
     if (expectRet) {
       Assert.assertTrue(isSuccess);

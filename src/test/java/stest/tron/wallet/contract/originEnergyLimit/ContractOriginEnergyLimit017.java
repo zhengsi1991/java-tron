@@ -437,68 +437,17 @@ public class ContractOriginEnergyLimit017 {
     Assert.assertTrue(devEnergyLimitAfter > 0);
     Assert.assertEquals(devBalanceBefore, devBalanceAfter);
 
-    if (devMax >= devExpectCost) {
-      logger.info("Debug: 11 DEV is enough to pay");
-      Assert.assertEquals(originEnergyUsage, devExpectCost);
-    } else {
-      logger.info("Debug: 22 DEV is NOT enough to pay");
-      Assert.assertEquals(originEnergyUsage, devMax);
-      userExpectCost = userExpectCost + devExpectCost - devMax;
-      logger.info("new userExpectCost: " + userExpectCost );
-    }
+    // DEV is enough to pay
+    Assert.assertEquals(originEnergyUsage, devExpectCost);
+    Assert.assertTrue(devEnergyUsageAfter == devExpectCost + devEnergyUsageBefore);
 
-    if (userMax >= userExpectCost) {
-      if ( userEnergyLimitBefore - userEnergyUsageBefore > userExpectCost) {
-        logger.info("Debug: 33 User Energy is enough to pay");
-        Assert.assertEquals(energyUsage, userExpectCost);
-        Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      } else {
-        logger.info("Debug: 44 User Energy + Balance is enough to pay");
-        Assert.assertEquals(userExpectCost, energyUsage + energyFee/100);
-//        Assert.assertEquals(energyUsage,userEnergyUsageAfter - userEnergyUsageBefore);
-        Assert.assertEquals(energyFee, userBalanceBefore - userBalanceAfter);
-      }
-    } else {
-      logger.info("Debug: 55 User is Not enough to pay---- TBD");
-      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-      Assert.assertTrue(
-          userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
-//      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-//      Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      Assert.assertFalse(isSuccess);
-    }
+    // User Energy is enough to pay");
+    Assert.assertEquals(energyUsage, userExpectCost);
+    Assert.assertEquals(userBalanceBefore, userBalanceAfter);
 
-    if (devMax >= devExpectCost) {
-      logger.info("Debug: 1 DEV is enough to pay");
-      Assert.assertTrue(devEnergyUsageAfter == devExpectCost + devEnergyUsageBefore);
-
-    } else {
-      logger.info("Debug: 2 DEV is NOT enough to pay");
-      Assert.assertEquals(devEnergyUsageAfter, devEnergyUsageBefore + devMax);
-//      userExpectCost = userExpectCost + devExpectCost - devMax;
-//      logger.info("new userExpectCost: " + userExpectCost );
-    }
-
-    if (userMax >= userExpectCost) {
-      if ( userEnergyLimitBefore - userEnergyUsageBefore > userExpectCost) {
-        logger.info("Debug: 3 User Energy is enough to pay");
-        Assert.assertEquals(userEnergyUsageAfter, userExpectCost + userEnergyUsageBefore);
-//        Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      } else {
-        logger.info("Debug: 4 User Energy + Balance is enough to pay");
-        Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-        Assert.assertTrue(
-            userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
-      }
-    } else {
-      logger.info("Debug: 5 User is Not enough to pay");
-      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-      Assert.assertTrue(
-          userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
-//      Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
-//      Assert.assertEquals(userBalanceBefore, userBalanceAfter);
-      Assert.assertFalse(isSuccess);
-    }
+    Assert.assertTrue(userEnergyUsageAfter >= userEnergyUsageBefore);
+    Assert.assertTrue(
+        userBalanceBefore == userBalanceAfter + (userExpectCost - (userEnergyUsageAfter - userEnergyUsageBefore))*100);
 
     if (expectRet) {
       Assert.assertTrue(isSuccess);
