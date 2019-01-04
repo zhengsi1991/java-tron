@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -15,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.WalletGrpc;
@@ -336,10 +339,47 @@ public class ContractTrcToken0553 {
     tokenValue = 0;
     callValue = 5;
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    GrpcAPI.Return response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
         "msgTokenValueAndTokenIdTest()", "#", false, callValue,
         1000000000L, tokenId, tokenValue, user001Address, user001Key,
         blockingStubFull);
+
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    tokenId = Long.toString(-1);
+    tokenValue = 0;
+    callValue = 5;
+
+    response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
+        "msgTokenValueAndTokenIdTest()", "#", false, callValue,
+        1000000000L, tokenId, tokenValue, user001Address, user001Key,
+        blockingStubFull);
+
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    tokenId = Long.toString(100_0000L);
+    tokenValue = 0;
+    callValue = 5;
+
+    response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
+        "msgTokenValueAndTokenIdTest()", "#", false, callValue,
+        1000000000L, tokenId, tokenValue, user001Address, user001Key,
+        blockingStubFull);
+
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
@@ -358,36 +398,6 @@ public class ContractTrcToken0553 {
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-
-    Optional<Transaction> trsById = PublicMethed.getTransactionById(triggerTxid, blockingStubFull);
-    long feeLimit = trsById.get().getRawData().getFeeLimit();
-
-    infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
-
-    logger.info("the value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
-
-    List<String> retList = getStrings(infoById.get().getContractResult(0).toByteArray());
-
-    Long msgId = ByteArray.toLong(ByteArray.fromHexString(retList.get(0)));
-    Long msgTokenValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(1)));
-    Long msgCallValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(2)));
-
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-    logger.info("msgCallValue: " + msgCallValue );
-
-    Assert.assertEquals(msgId.toString(), tokenId);
-    Assert.assertEquals(Long.valueOf(msgTokenValue), Long.valueOf(tokenValue));
-    Assert.assertEquals(Long.valueOf(msgCallValue), Long.valueOf(callValue));
-
   }
 
   @AfterClass

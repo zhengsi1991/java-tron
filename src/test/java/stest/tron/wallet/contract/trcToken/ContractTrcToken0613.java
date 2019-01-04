@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -15,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.WalletGrpc;
@@ -235,102 +238,45 @@ public class ContractTrcToken0613 {
     long tokenValue = 0;
     long callValue = 10;
 
-    String transferTokenTxid = PublicMethed
-        .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
+    GrpcAPI.Return response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "", maxFeeLimit,
             callValue, 0, 10000, tokenId, tokenValue,
             null, dev001Key, dev001Address, blockingStubFull);
 
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
-    energyLimit = accountResource.getEnergyLimit();
-    energyUsage = accountResource.getEnergyUsed();
-    long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    Long devAssetCountAfter = getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
-
-    logger.info("after energyLimit is " + Long.toString(energyLimit));
-    logger.info("after energyUsage is " + Long.toString(energyUsage));
-    logger.info("after balanceAfter is " + Long.toString(balanceAfter));
-    logger.info("after AssetId: " + assetAccountId.toStringUtf8() +
-        ", devAssetCountAfter: " + devAssetCountAfter);
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(transferTokenTxid, blockingStubFull);
+    tokenId = Long.toString(Long.MIN_VALUE);
+    tokenValue = 0;
+    callValue = 10;
 
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("deploy transaction failed with message: " + infoById.get().getResMessage());
-    }
+    response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "", maxFeeLimit,
+            callValue, 0, 10000, tokenId, tokenValue,
+            null, dev001Key, dev001Address, blockingStubFull);
 
-    transferTokenContractAddress = infoById.get().getContractAddress().toByteArray();
-    SmartContract smartContract = PublicMethed.getContract(transferTokenContractAddress,
-        blockingStubFull);
-    Assert.assertNotNull(smartContract.getAbi());
-
-    Assert.assertTrue(PublicMethed.transferAsset(transferTokenContractAddress,
-        assetAccountId.toByteArray(), 100L, dev001Address, dev001Key, blockingStubFull));
-
-    Long contractAssetCount = getAssetIssueValue(transferTokenContractAddress,
-        assetAccountId, blockingStubFull);
-    logger.info("Contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contractAssetCount);
-
-//    Assert.assertTrue(energyLimit > 0);
-//    Assert.assertTrue(energyUsage > 0);
-//    Assert.assertEquals(callValue, balanceBefore - balanceAfter);
-    Assert.assertEquals(Long.valueOf(tokenValue), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
-    Assert.assertEquals(Long.valueOf(100L + tokenValue), contractAssetCount);
-
-    // get and verify the msg.value and msg.id
-
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
-    long devEnergyLimitBefore = accountResource.getEnergyLimit();
-    long devEnergyUsageBefore = accountResource.getEnergyUsed();
-    long devBalanceBefore = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
-
-    logger.info("before trigger, devEnergyLimitBefore is " + Long.toString(devEnergyLimitBefore));
-    logger.info("before trigger, devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
-    logger.info("before trigger, devBalanceBefore is " + Long.toString(devBalanceBefore));
-
-    Long transferAssetBefore = getAssetIssueValue(transferTokenContractAddress, assetAccountId, blockingStubFull);
-    logger.info("before trigger, transferTokenContractAddress has AssetId "
-        + assetAccountId.toStringUtf8() + ", Count is " + transferAssetBefore);
-
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
-        "getResultInCon()", "#", false, 0,
-        1000000000L, "0", 0, dev001Address, dev001Key,
-        blockingStubFull);
-
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
-    long devEnergyLimitAfter = accountResource.getEnergyLimit();
-    long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
-
-    logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
-    logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
-    logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
+    tokenId = Long.toString(1000000);
+    tokenValue = 0;
+    callValue = 10;
 
-    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
+    response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "", maxFeeLimit,
+            callValue, 0, 10000, tokenId, tokenValue,
+            null, dev001Key, dev001Address, blockingStubFull);
 
-    List<String> retList = getStrings(infoById.get().getContractResult(0).toByteArray());
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
 
-    Long msgId = ByteArray.toLong(ByteArray.fromHexString(retList.get(0)));
-    Long msgTokenValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(1)));
-    Long msgCallValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(2)));
-
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-    logger.info("msgCallValue: " + msgCallValue );
-
-    Assert.assertEquals(msgId.toString(), tokenId);
-    Assert.assertEquals(Long.valueOf(msgTokenValue), Long.valueOf(tokenValue));
-    Assert.assertEquals(Long.valueOf(msgCallValue), Long.valueOf(callValue));
   }
 
   @AfterClass

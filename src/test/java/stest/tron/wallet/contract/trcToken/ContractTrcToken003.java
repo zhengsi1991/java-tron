@@ -266,7 +266,6 @@ public class ContractTrcToken003 {
 
     // deployer didn't have any Long.MAX_VALUE
     fakeTokenId = Long.toString(Long.MAX_VALUE);
-
     fakeTokenValue = 100L;
 
     response = PublicMethed

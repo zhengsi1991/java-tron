@@ -423,7 +423,7 @@ public class ContractTrcToken064 {
     String param = "\"" + Base58.encode58Check(receiveTokenAddress) + "\"";
 
     String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
-        "transferTokenTestValueMaxBigInteger(address)", param, false, callValue,
+        "transferTokenTestValue0IdBigInteger(address)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
 

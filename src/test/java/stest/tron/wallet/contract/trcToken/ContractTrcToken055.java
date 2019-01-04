@@ -332,7 +332,7 @@ public class ContractTrcToken055{
     PublicMethed
         .sendcoin(transferTokenContractAddress, 5000000, fromAddress, testKey002, blockingStubFull);
 
-    tokenId = Long.toString(100_0000);
+    tokenId = Long.toString(Long.MAX_VALUE);
     tokenValue = 0;
     callValue = 5;
 

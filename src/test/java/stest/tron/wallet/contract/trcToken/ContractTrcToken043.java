@@ -225,7 +225,6 @@ public class ContractTrcToken043 {
         0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     assetAccountId = testCreateAssetIssue(dev001Address, dev001Key);
-    assetAccountUser = testCreateAssetIssue(user001Address, user001Key);
 
     //before deploy, check account resource
     AccountResourceMessage accountResource = PublicMethed.getAccountResource(dev001Address,
@@ -418,7 +417,7 @@ public class ContractTrcToken043 {
     logger.info("before trigger, resultContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + receiveAssetBefore);
 
-    String tokenId = Long.toString(Long.MIN_VALUE);
+    String tokenId = Long.toString(100_0000);
     Long tokenValue = Long.valueOf(1);
     Long callValue = Long.valueOf(0);
 
@@ -429,6 +428,51 @@ public class ContractTrcToken043 {
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
+
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
+
+
+    tokenId = Long.toString(-1);
+    tokenValue = Long.valueOf(1);
+    callValue = Long.valueOf(0);
+
+    param = "\"" + Base58.encode58Check(receiveTokenAddress)
+        + "\",\"" + tokenValue + "\"," + tokenId;
+
+    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+        "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
+        1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
+        blockingStubFull);
+
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("BigInteger out of long range", infoById.get().getResMessage().toStringUtf8());
+
+
+    tokenId = Long.toString(Long.MIN_VALUE);
+    tokenValue = Long.valueOf(1);
+    callValue = Long.valueOf(0);
+
+    param = "\"" + Base58.encode58Check(receiveTokenAddress)
+        + "\",\"" + tokenValue + "\"," + tokenId;
+
+    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+        "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
+        1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
+        blockingStubFull);
+
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
+
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
@@ -450,12 +494,6 @@ public class ContractTrcToken043 {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
-    Assert.assertTrue(infoById.get().getResultValue() != 0);
-    Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
 
     long energyUsage = infoById.get().getReceipt().getEnergyUsage();
     long energyFee = infoById.get().getReceipt().getEnergyFee();

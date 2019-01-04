@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.ManagedChannel;
@@ -427,6 +429,12 @@ public class ContractTrcToken062 {
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
 
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
+
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
     long devEnergyUsageAfter = accountResource.getEnergyUsed();
@@ -444,61 +452,6 @@ public class ContractTrcToken062 {
     logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
     logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
-
-    TransactionInfo transactionInfo = infoById.get();
-    logger.info("the value: " +  getStrings(transactionInfo.getLogList().get(0).getData().toByteArray()));
-
-    List<String> retList = getStrings(transactionInfo.getLogList().get(0).getData().toByteArray());
-
-    Long msgId = ByteArray.toLong(ByteArray.fromHexString(retList.get(0)));
-    Long msgTokenValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(1)));
-    Long msgCallValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(2)));
-
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-    logger.info("msgCallValue: " + msgCallValue );
-
-    Assert.assertEquals("0", msgId.toString());
-    Assert.assertEquals(Long.valueOf(0), msgTokenValue);
-    Assert.assertEquals(callValue, msgCallValue);
-
-    long energyUsage = infoById.get().getReceipt().getEnergyUsage();
-    long energyFee = infoById.get().getReceipt().getEnergyFee();
-    long originEnergyUsage = infoById.get().getReceipt().getOriginEnergyUsage();
-
-    SmartContract smartContract = PublicMethed.getContract(infoById.get().getContractAddress()
-        .toByteArray(), blockingStubFull);
-
-    Long transferAssetAfter = getAssetIssueValue(transferTokenContractAddress,
-        assetAccountId, blockingStubFull);
-    logger.info("after trigger, transferTokenContractAddress has AssetId "
-        + assetAccountId.toStringUtf8() + ", transferAssetAfter is " + transferAssetAfter);
-
-    Long receiveAssetAfter = getAssetIssueValue(receiveTokenAddress,
-        assetAccountId, blockingStubFull);
-    logger.info("after trigger, resultContractAddress has AssetId "
-        + assetAccountId.toStringUtf8() + ", receiveAssetAfter is " + receiveAssetAfter);
-
-    long consumeURPercent = smartContract.getConsumeUserResourcePercent();
-    logger.info("ConsumeURPercent: " + consumeURPercent);
-
-//    Assert.assertEquals(originEnergyUsage, devEnergyUsageAfter - devEnergyUsageBefore);
-//    Assert.assertEquals(energyUsage, userEnergyUsageAfter - userEnergyUsageBefore);
-    Assert.assertEquals(energyFee + tokenValue, userBalanceBefore - userBalanceAfter);
-    Assert.assertEquals(receiveAssetAfter, receiveAssetBefore);
-    Assert.assertEquals(Long.valueOf(transferAssetBefore + 2), Long.valueOf(transferAssetAfter));
-
-//    Assert.assertEquals(1, infoById.get().getInternalTransactionsCount());
-//    Assert.assertEquals(1,
-//        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getCallValue());
-//    Assert.assertEquals(assetAccountId.toStringUtf8(),
-//        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getTokenId());
   }
 
 

@@ -451,7 +451,7 @@ public class ContractTrcToken071 {
         .getTransactionInfoById(triggerTxid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() != 0);
     Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
+    Assert.assertEquals("BigInteger out of long range", infoById.get().getResMessage().toStringUtf8());
 
     long energyUsage = infoById.get().getReceipt().getEnergyUsage();
     long energyFee = infoById.get().getReceipt().getEnergyFee();
