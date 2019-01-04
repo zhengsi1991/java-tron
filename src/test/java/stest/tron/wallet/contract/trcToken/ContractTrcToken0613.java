@@ -273,9 +273,9 @@ public class ContractTrcToken0613 {
         assetAccountId, blockingStubFull);
     logger.info("Contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contractAssetCount);
 
-    Assert.assertTrue(energyLimit > 0);
-    Assert.assertTrue(energyUsage > 0);
-    Assert.assertEquals(callValue, balanceBefore - balanceAfter);
+//    Assert.assertTrue(energyLimit > 0);
+//    Assert.assertTrue(energyUsage > 0);
+//    Assert.assertEquals(callValue, balanceBefore - balanceAfter);
     Assert.assertEquals(Long.valueOf(tokenValue), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
     Assert.assertEquals(Long.valueOf(100L + tokenValue), contractAssetCount);
 

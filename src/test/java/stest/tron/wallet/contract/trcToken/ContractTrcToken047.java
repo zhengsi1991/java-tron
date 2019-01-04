@@ -97,8 +97,8 @@ public class ContractTrcToken047 {
         dev001Address, blockingStubFull));
     Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 0,
         dev001Address, blockingStubFull));
-//    Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
-//        user001Address, blockingStubFull));
+    Assert.assertTrue(PublicMethed.unFreezeBalance(fromAddress, testKey002, 1,
+        user001Address, blockingStubFull));
   }
 
 
