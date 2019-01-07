@@ -1,6 +1,7 @@
 package stest.tron.wallet.contract.trcToken.version322;
 
 import static org.tron.api.GrpcAPI.Return.response_code.CONTRACT_VALIDATE_ERROR;
+import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -432,15 +433,16 @@ public class ContractTrcToken070 {
 //        1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
 //        blockingStubFull);
 //
-    GrpcAPI.Return response = PublicMethed.triggerContractAndGetResponse(transferTokenContractAddress,
+    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
         "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
 
-    Assert.assertFalse(response.getResult());
-    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !",
-        response.getMessage().toStringUtf8());
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
