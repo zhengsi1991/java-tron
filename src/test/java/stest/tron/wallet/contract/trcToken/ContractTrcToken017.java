@@ -405,15 +405,41 @@ public class ContractTrcToken017 {
     logger.info("before trigger, receiveTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + receiveAssetBefore);
 
-     Long fakeValue = transferAssetBefore + 100L;
+    String fackTokenId = Long.toString(Long.MAX_VALUE);
+    Long fakeValue = 1L;
 
     String param = "\"" + Base58.encode58Check(receiveTokenAddress)
-        + "\"," + assetAccountId.toStringUtf8() + ",\"" +  fakeValue + "\"";
+        + "\"," + fackTokenId + ",\"" +  fakeValue + "\"";
 
     String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
         "TransferTokenTo(address,trcToken,uint256)", param, false, 0,
         1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
         blockingStubFull);
+
+    Optional<TransactionInfo> infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
+
+
+    fackTokenId = Long.toString(Long.valueOf(assetAccountId.toStringUtf8()) + 10000);
+    fakeValue = 1L;
+
+    param = "\"" + Base58.encode58Check(receiveTokenAddress)
+        + "\"," + fackTokenId + ",\"" +  fakeValue + "\"";
+
+    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+        "TransferTokenTo(address,trcToken,uint256)", param, false, 0,
+        1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
+        blockingStubFull);
+
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
+
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     long devEnergyLimitAfter = accountResource.getEnergyLimit();
@@ -434,17 +460,6 @@ public class ContractTrcToken017 {
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-
-    Optional<Transaction> trsById = PublicMethed.getTransactionById(triggerTxid, blockingStubFull);
-    long feeLimit = trsById.get().getRawData().getFeeLimit();
-
-    Optional<TransactionInfo> infoById = PublicMethed
-        .getTransactionInfoById(triggerTxid, blockingStubFull);
-
-    Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
 
     long energyUsage = infoById.get().getReceipt().getEnergyUsage();
     long energyFee = infoById.get().getReceipt().getEnergyFee();

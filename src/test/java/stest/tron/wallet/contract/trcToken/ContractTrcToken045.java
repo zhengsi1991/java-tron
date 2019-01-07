@@ -226,7 +226,6 @@ public class ContractTrcToken045 {
         + "\"payable\",\"type\":\"constructor\"}]";
 
     String fakeTokenId = Long.toString(-1);
-
     GrpcAPI.Return response = PublicMethed
         .deployContractAndGetResponse(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
@@ -235,7 +234,31 @@ public class ContractTrcToken045 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !", response.getMessage().toStringUtf8());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    fakeTokenId = Long.toString(100_0000L);
+    response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "",
+            maxFeeLimit, 0L, 0, 10000,
+            fakeTokenId, 100, null, dev001Key,
+            dev001Address, blockingStubFull);
+
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
+
+    fakeTokenId = Long.toString(Long.MIN_VALUE);
+    response = PublicMethed
+        .deployContractAndGetResponse(contractName, abi, code, "",
+            maxFeeLimit, 0L, 0, 10000,
+            fakeTokenId, 100, null, dev001Key,
+            dev001Address, blockingStubFull);
+
+    Assert.assertFalse(response.getResult());
+    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
+    Assert.assertEquals("contract validate error : tokenId must > 1000000", response.getMessage().toStringUtf8());
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -249,7 +272,7 @@ public class ContractTrcToken045 {
 
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-    Assert.assertEquals("contract validate error : No asset !", response.getMessage().toStringUtf8());
+    Assert.assertEquals("contract validate error : invalid arguments with tokenValue = 100, tokenId = 0", response.getMessage().toStringUtf8());
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     energyLimit = accountResource.getEnergyLimit();

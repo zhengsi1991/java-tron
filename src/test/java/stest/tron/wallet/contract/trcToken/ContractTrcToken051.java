@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -188,6 +190,7 @@ public class ContractTrcToken051 {
     logger.info("beforeAssetIssueCount:" + beforeAssetIssueCount);
     logger.info("beforeAssetIssueContractAddress:" + beforeAssetIssueContractAddress);
     logger.info("beforeAssetIssueDev:" + beforeAssetIssueDev);
+
     String fakeTokenId = Long.toString(0L);
 
     String param = "\"" + Base58.encode58Check(dev001Address)
@@ -226,16 +229,16 @@ public class ContractTrcToken051 {
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    Assert.assertTrue(infoById.get().getResultValue() == 0);
-    Long fee = infoById.get().getFee();
-    Assert.assertEquals(beforeAssetIssueCount, afterAssetIssueCount);
-    Assert.assertTrue(
-        beforetransferTokenContractAddressBalance - 1 == aftertransferTokenContractAddressBalance);
-    Assert.assertTrue(beforeDevBalance + 1 == afterDevBalance);
+    Assert.assertFalse(infoById.get().getResultValue() == 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
+
+//    Assert.assertTrue(
+//        beforetransferTokenContractAddressBalance - 1 == aftertransferTokenContractAddressBalance);
+//    Assert.assertTrue(beforeDevBalance + 1 == afterDevBalance);
     Assert.assertEquals(beforeAssetIssueCount, afterAssetIssueCount);
     Assert.assertEquals(beforeAssetIssueContractAddress, afterAssetIssueContractAddress);
     Assert.assertEquals(beforeAssetIssueDev, afterAssetIssueDev);
-
   }
 
 
