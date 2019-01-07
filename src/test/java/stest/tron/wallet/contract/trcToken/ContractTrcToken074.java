@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -15,6 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI;
 import org.tron.api.GrpcAPI.AccountResourceMessage;
 import org.tron.api.GrpcAPI.AssetIssueList;
 import org.tron.api.WalletGrpc;
@@ -28,6 +31,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.needtoAnalyze.DebugUtils;
 
 @Slf4j
 public class ContractTrcToken074 {
@@ -298,99 +302,57 @@ public class ContractTrcToken074 {
     logger.info("before trigger, dev001Address has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + devAssetBefore);
 
-    tokenId = Long.toString(Long.MAX_VALUE);
+    tokenId = Long.toString(100_0000);
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    String triggerTxid= PublicMethed.triggerContract(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
 
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
-    long devEnergyLimitAfter = accountResource.getEnergyLimit();
-    long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
-
-    logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
-    logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
-    logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
-
-//    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
-    logger.info("The msg value: " + infoById.get().getLogList().get(0).getTopicsList());
-
-    Long msgTokenBalance = ByteArray
-        .toLong(infoById.get().getLogList().get(0).getTopicsList().get(1).toByteArray());
-    Long msgId = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(2).toByteArray());
-    Long msgTokenValue = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(3).toByteArray());
-
-    logger.info("msgTokenBalance: " + msgTokenBalance);
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-
-    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
 
     tokenId = Long.toString(0);
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid= PublicMethed.triggerContract(transferTokenContractAddress,
+        "getToken(trcToken)", tokenId, false, 0,
+        1000000000L, "0", 0, dev001Address, dev001Key,
+        blockingStubFull);
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
+
+
+    tokenId = Long.toString(-1);
+
+    triggerTxid= PublicMethed.triggerContract(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
-
-//    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
-    logger.info("The msg value: " + infoById.get().getLogList().get(0).getTopicsList());
-    msgTokenBalance = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(1).toByteArray());
-    msgId = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(2).toByteArray());
-    msgTokenValue = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(3).toByteArray());
-
-    logger.info("msgTokenBalance: " + msgTokenBalance);
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-
-    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
-
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
     tokenId = Long.toString(Long.MIN_VALUE);
 
-    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    triggerTxid= PublicMethed.triggerContract(transferTokenContractAddress,
         "getToken(trcToken)", tokenId, false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
-
-//    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
-    logger.info("The msg value: " + infoById.get().getLogList().get(0).getTopicsList());
-     msgTokenBalance = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(1).toByteArray());
-     msgId = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(2).toByteArray());
-     msgTokenValue = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(3).toByteArray());
-
-    logger.info("msgTokenBalance: " + msgTokenBalance);
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-
-    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
   }
 

@@ -206,10 +206,6 @@ public class ContractTrcToken0672 {
     logger.info("** trigger transfer token contract to contract address");
     triggerContract(transferTokenContractAddress, resultContractAddress, user001Address,
         user001Key);
-
-    logger.info("** trigger token balance for a contract address");
-    triggerTokenBalanceContract(transferTokenContractAddress, resultContractAddress,
-        user001Address, user001Key);
   }
 
   public void deployTransferTokenContract(byte[] dev001Address, String dev001Key) {
@@ -414,8 +410,8 @@ public class ContractTrcToken0672 {
     logger.info("before trigger, resultContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + receiveAssetBefore);
 
-//    String tokenId = Long.toString(Long.MIN_VALUE);
-    String tokenId = Long.toString(100_0000);
+    String tokenId = Long.toString(Long.MIN_VALUE);
+//    String tokenId = Long.toString(100_0000);
     Long tokenValue = Long.valueOf(0);
     Long callValue = Long.valueOf(0);
 
@@ -432,7 +428,7 @@ public class ContractTrcToken0672 {
 
     Assert.assertTrue(infoById.get().getResultValue() != 0);
     Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
     tokenId = Long.toString(100_0000);
     tokenValue = Long.valueOf(0);
@@ -470,7 +466,7 @@ public class ContractTrcToken0672 {
 
     Assert.assertTrue(infoById.get().getResultValue() != 0);
     Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
 
     tokenId = Long.toString(0);

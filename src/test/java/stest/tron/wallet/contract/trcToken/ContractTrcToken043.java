@@ -85,9 +85,9 @@ public class ContractTrcToken043 {
     PublicMethed.printAddress(dev001Key);
     PublicMethed.printAddress(user001Key);
 
-    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 1100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 5048_000_000L, fromAddress,
         testKey002, blockingStubFull));
-    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 1100_000_000L, fromAddress,
+    Assert.assertTrue(PublicMethed.sendcoin(user001Address, 4048_000_000L, fromAddress,
             testKey002, blockingStubFull));
   }
 
@@ -435,6 +435,36 @@ public class ContractTrcToken043 {
     Assert.assertEquals(FAILED, infoById.get().getResult());
     Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+        getFreezeBalanceCount(user001Address, user001Key, 50000L,
+            blockingStubFull, null), 0, 1,
+        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
+
+    tokenId = Long.toString(0);
+    tokenValue = Long.valueOf(1);
+    callValue = Long.valueOf(0);
+
+    param = "\"" + Base58.encode58Check(receiveTokenAddress)
+        + "\",\"" + tokenValue + "\"," + tokenId;
+
+    triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+        "transferTokenTest(address,uint256,trcToken)", param, false, callValue,
+        1000000000L, assetAccountId.toStringUtf8(), 2, user001Address, user001Key,
+        blockingStubFull);
+
+    infoById = PublicMethed
+        .getTransactionInfoById(triggerTxid, blockingStubFull);
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
+
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+        getFreezeBalanceCount(user001Address, user001Key, 50000L,
+            blockingStubFull, null), 0, 1,
+        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     tokenId = Long.toString(-1);
     tokenValue = Long.valueOf(1);
@@ -452,8 +482,14 @@ public class ContractTrcToken043 {
         .getTransactionInfoById(triggerTxid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() != 0);
     Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals("BigInteger out of long range", infoById.get().getResMessage().toStringUtf8());
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress,
+        getFreezeBalanceCount(user001Address, user001Key, 50000L,
+            blockingStubFull, null), 0, 1,
+        ByteString.copyFrom(user001Address), testKey002, blockingStubFull));
 
     tokenId = Long.toString(Long.MIN_VALUE);
     tokenValue = Long.valueOf(1);
@@ -471,36 +507,7 @@ public class ContractTrcToken043 {
         .getTransactionInfoById(triggerTxid, blockingStubFull);
     Assert.assertTrue(infoById.get().getResultValue() != 0);
     Assert.assertEquals(FAILED, infoById.get().getResult());
-    Assert.assertEquals("REVERT opcode executed", infoById.get().getResMessage().toStringUtf8());
-
-
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
-    long devEnergyLimitAfter = accountResource.getEnergyLimit();
-    long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
-
-    logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
-    logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
-    logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
-
-    accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
-    long userEnergyLimitAfter = accountResource.getEnergyLimit();
-    long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
-
-    logger.info("after trigger, userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
-    logger.info("after trigger, userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
-    logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    long energyUsage = infoById.get().getReceipt().getEnergyUsage();
-    long energyFee = infoById.get().getReceipt().getEnergyFee();
-    long originEnergyUsage = infoById.get().getReceipt().getOriginEnergyUsage();
-
-    SmartContract smartContract = PublicMethed.getContract(infoById.get().getContractAddress()
-        .toByteArray(), blockingStubFull);
+    Assert.assertEquals("validateForSmartContract failure, not valid token id", infoById.get().getResMessage().toStringUtf8());
 
     Long transferAssetAfter = getAssetIssueValue(transferTokenContractAddress,
         assetAccountId, blockingStubFull);
@@ -512,12 +519,9 @@ public class ContractTrcToken043 {
     logger.info("after trigger, resultContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", receiveAssetAfter is " + receiveAssetAfter);
 
-    long consumeURPercent = smartContract.getConsumeUserResourcePercent();
-    logger.info("ConsumeURPercent: " + consumeURPercent);
-
-    Assert.assertEquals(originEnergyUsage, devEnergyUsageAfter - devEnergyUsageBefore);
-    Assert.assertEquals(energyUsage, userEnergyUsageAfter - userEnergyUsageBefore);
-    Assert.assertEquals(energyFee, userBalanceBefore - userBalanceAfter);
+//    Assert.assertEquals(originEnergyUsage, devEnergyUsageAfter - devEnergyUsageBefore);
+//    Assert.assertEquals(energyUsage, userEnergyUsageAfter - userEnergyUsageBefore);
+//    Assert.assertEquals(energyFee, userBalanceBefore - userBalanceAfter);
     Assert.assertEquals(receiveAssetAfter, receiveAssetBefore);
     Assert.assertEquals(transferAssetBefore, transferAssetAfter);
 

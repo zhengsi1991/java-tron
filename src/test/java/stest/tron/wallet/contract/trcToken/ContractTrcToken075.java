@@ -1,5 +1,7 @@
 package stest.tron.wallet.contract.trcToken;
 
+import static org.tron.protos.Protocol.TransactionInfo.code.FAILED;
+
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -304,63 +306,23 @@ public class ContractTrcToken075 {
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
 
-    accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
-    long devEnergyLimitAfter = accountResource.getEnergyLimit();
-    long devEnergyUsageAfter = accountResource.getEnergyUsed();
-    long devBalanceAfter = PublicMethed.queryAccount(dev001Address, blockingStubFull).getBalance();
-
-    logger.info("after trigger, devEnergyLimitAfter is " + Long.toString(devEnergyLimitAfter));
-    logger.info("after trigger, devEnergyUsageAfter is " + Long.toString(devEnergyUsageAfter));
-    logger.info("after trigger, devBalanceAfter is " + Long.toString(devBalanceAfter));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("BigInteger out of long range", infoById.get().getResMessage().toStringUtf8());
 
-//    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
-    logger.info("The msg value: " + infoById.get().getLogList().get(0).getTopicsList());
-
-    Long msgTokenBalance = ByteArray
-        .toLong(infoById.get().getLogList().get(0).getTopicsList().get(1).toByteArray());
-    Long msgId = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(2).toByteArray());
-    Long msgTokenValue = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(3).toByteArray());
-
-    logger.info("msgTokenBalance: " + msgTokenBalance);
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-
-    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
 
     triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
         "getTokenLongMax()", "#", false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
 
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-
     infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
-    if (infoById.get().getResultValue() != 0) {
-      Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
-    }
-
-//    logger.info("The msg value: " +  getStrings(infoById.get().getContractResult(0).toByteArray()));
-    logger.info("The msg value: " + infoById.get().getLogList().get(0).getTopicsList());
-
-    msgTokenBalance = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(1).toByteArray());
-    msgId = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(2).toByteArray());
-    msgTokenValue = ByteArray.toLong(infoById.get().getLogList().get(0).getTopicsList().get(3).toByteArray());
-
-    logger.info("msgTokenBalance: " + msgTokenBalance);
-    logger.info("msgId: " + msgId );
-    logger.info("msgTokenValue: " + msgTokenValue );
-
-    Assert.assertEquals(Long.valueOf(0), msgTokenBalance);
-
+    Assert.assertTrue(infoById.get().getResultValue() != 0);
+    Assert.assertEquals(FAILED, infoById.get().getResult());
+    Assert.assertEquals("BigInteger out of long range", infoById.get().getResMessage().toStringUtf8());
 
 //    Assert.assertEquals(msgId.toString(), tokenId);
 //    Assert.assertEquals(Long.valueOf(msgTokenValue), Long.valueOf(tokenValue));
