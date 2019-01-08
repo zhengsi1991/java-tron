@@ -81,7 +81,7 @@ public class ApplicationImpl implements Application {
     SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd HH");
     Map<String,List<String>> map= new TreeMap<String, List<String>>();
 
-    long startNumber = 4900000;
+    long startNumber = 5200000;
     for (int i = 0; i < 10000; i ++ ) {
       List<BlockCapsule> value =  dbManager.getBlockStore().getLimitNumber(startNumber + i * 1000, 1000);
       if (value.size() == 0) break;
@@ -114,7 +114,11 @@ public class ApplicationImpl implements Application {
         }
       }
       for (String p : map2.keySet()) {
-        System.out.println("address: "+p + " value " +(1066 - map2.get(p)) );
+        int value = (1066 - map2.get(p));
+        if (value < 0) {
+          value = 0;
+        }
+        System.out.println("address: "+p + " value " + value);
       }
 
     }
