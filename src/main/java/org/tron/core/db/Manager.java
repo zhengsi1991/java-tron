@@ -1181,7 +1181,6 @@ public class Manager {
           }
 
           String rawLogData = ByteArray.toHexString(log.getData().toByteArray());
-          logger.error(event.getNonIndexedParameters().toString());
           List<Type> nonIndexedValues = FunctionReturnDecoder.decode(rawLogData, event.getNonIndexedParameters());
 
           List<Type> indexedValues = new ArrayList<>();
@@ -1255,7 +1254,7 @@ public class Manager {
       logger.error("data is already there!!!");
 
     } catch (Exception e) {
-      logger.error("sendEventLog Failed ");
+      logger.error("sendEventLog Failed {}",e);
       logger.error(Hex.toHexString(transactionInfoCapsule.getId()));
     }
   }
