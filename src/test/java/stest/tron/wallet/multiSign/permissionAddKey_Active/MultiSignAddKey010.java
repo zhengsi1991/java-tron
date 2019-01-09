@@ -97,7 +97,7 @@ public class MultiSignAddKey010 {
     String permission = "active";
     //1.integer.MIn
     //contract validate error : key weight should be greater than 0
-    Assert.assertTrue(PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test001Address, Integer.MIN_VALUE, testAddress, dev001Key,
             blockingStubFull));
 

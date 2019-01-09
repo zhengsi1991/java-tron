@@ -118,21 +118,21 @@ public class MultiSignAddKey015 {
     //前四个pass
     //最后一个由于数量满5，
     //contract validate error : number of keys in permission should not be greater than 5
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test002Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test003Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test004Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test005Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

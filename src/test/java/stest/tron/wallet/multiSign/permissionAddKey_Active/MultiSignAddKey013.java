@@ -89,21 +89,21 @@ public class MultiSignAddKey013 {
 
   @Test
   public void testMultiSignAddKey() {
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
 
     //4.非数字
     //java.lang.NumberFormatException: For input string: "AAA"
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey2(permission, test001Address, "AAA", testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

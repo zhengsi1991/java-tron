@@ -87,6 +87,7 @@ public class MultiSignAddKey004 {
 
   @Test
   public void testMultiSignAddKey() {
+    //permission is null
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull));
@@ -95,9 +96,9 @@ public class MultiSignAddKey004 {
             blockingStubFull));
 
     String permission = null;
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test002Address, 1, test001Address, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

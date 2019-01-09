@@ -119,8 +119,8 @@ public class MultiSignAddKey041 {
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : you have not set permission with the name owner
 
-    PublicMethed
-        .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull);
+    Assert.assertFalse(PublicMethed
+        .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

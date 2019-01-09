@@ -124,8 +124,8 @@ public class MultiSignAddKey044 {
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
     logger.info("-----------------");
-    PublicMethed
-        .permissionDeleteKey(permission, test002Address, testAddress, dev001Key, blockingStubFull);
+    Assert.assertFalse(PublicMethed
+        .permissionDeleteKey(permission, test002Address, testAddress, dev001Key, blockingStubFull));
 
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

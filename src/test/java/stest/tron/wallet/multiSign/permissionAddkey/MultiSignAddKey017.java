@@ -118,21 +118,21 @@ public class MultiSignAddKey017 {
     //7.integer.MAXLong+100,有错误
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : key weight should be greater than 0
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey1(permission, test001Address, Long.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test002Address, Long.MAX_VALUE + 100, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test003Address, Long.MAX_VALUE + 100, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test004Address, Long.MAX_VALUE + 100, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test005Address, Long.MAX_VALUE + 100, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

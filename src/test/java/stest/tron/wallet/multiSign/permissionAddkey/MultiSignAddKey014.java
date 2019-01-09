@@ -117,9 +117,9 @@ public class MultiSignAddKey014 {
 
     //5.空null
     //java.lang.NullPointerException
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test001Address, null, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

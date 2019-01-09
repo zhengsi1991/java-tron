@@ -130,10 +130,11 @@ public class MultiSignAddKey024 {
     logger.info("-------------------------");
     String[] permissionKeyString1 = new String[1];
     permissionKeyString1[0] = sendAccountKey;
-    PublicMethed
-        .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull);
-    PublicMethedForMutiSign.permissionUpdateKey(permission, testAddress, 1, testAddress, dev001Key,
-        blockingStubFull, permissionKeyString1);
+    Assert.assertTrue(PublicMethed
+        .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull));
+    Assert.assertFalse(PublicMethedForMutiSign
+        .permissionUpdateKey(permission, testAddress, 1, testAddress, dev001Key,
+            blockingStubFull, permissionKeyString1));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);

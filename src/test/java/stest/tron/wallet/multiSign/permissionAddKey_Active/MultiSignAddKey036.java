@@ -110,9 +110,9 @@ public class MultiSignAddKey036 {
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
 
@@ -123,8 +123,9 @@ public class MultiSignAddKey036 {
 
     List<Permission> permissionsListBefore = test001AddressAccountBefore.getPermissionsList();
     printPermissionList(permissionsListBefore);
-    PublicMethed.permissionDeleteKey(permission, test001Address, testAddress, dev001Key,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethed.permissionDeleteKey(permission, test001Address, testAddress, dev001Key,
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

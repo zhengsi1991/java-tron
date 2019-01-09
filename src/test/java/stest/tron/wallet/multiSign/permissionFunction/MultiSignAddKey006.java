@@ -103,9 +103,9 @@ public class MultiSignAddKey006 {
   public void testMultiSignAddKey() {
     //add one active ,sendcoin,delete the new added address,use the new added address to sign,broadcastTransaction.
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
     Assert.assertTrue(PublicMethed
@@ -118,9 +118,9 @@ public class MultiSignAddKey006 {
 
     Transaction transaction = PublicMethedForMutiSign
         .sendcoin2(test005Address, 100L, test001Address, dev001Key, blockingStubFull);
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
     printPermissionList(permissionsList1);
@@ -130,7 +130,7 @@ public class MultiSignAddKey006 {
     boolean broadcastResult = PublicMethedForMutiSign
         .broadcastTransaction(transaction1, blockingStubFull);
     logger.info("broadcastResult:" + broadcastResult);
-
+    Assert.assertFalse(broadcastResult);
 
   }
 
@@ -138,9 +138,9 @@ public class MultiSignAddKey006 {
   public void testMultiSignAddKey2() {
     //add one active ,sendcoin,use the new added address to sign,delete the new added address,broadcastTransaction.
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
     Assert.assertTrue(PublicMethed
@@ -159,12 +159,13 @@ public class MultiSignAddKey006 {
     printPermissionList(permissionsList1);
     Transaction transaction1 = PublicMethed
         .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     boolean broadcastResult = PublicMethedForMutiSign
         .broadcastTransaction(transaction1, blockingStubFull);
     logger.info("broadcastResult:" + broadcastResult);
+    Assert.assertFalse(broadcastResult);
 
 
   }

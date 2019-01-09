@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -105,13 +106,13 @@ public class MultiSignAddKey018 {
 
   @Test
   public void testMultiSignAddKey() {
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
 
@@ -134,18 +135,18 @@ public class MultiSignAddKey018 {
     permissionKeyString[0] = sendAccountKey2;
     permissionKeyString[1] = sendAccountKey;
 
-    PublicMethedForMutiSign
+    Assert.assertFalse(PublicMethedForMutiSign
         .permissionDeleteKey("active", test001Address, testAddress, dev001Key, blockingStubFull,
-            permissionKeyString);
+            permissionKeyString));
     Account test001AddressAccount2 = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList2 = test001AddressAccount2.getPermissionsList();
     printPermissionList(permissionsList2);
     String[] permissionKeyString1 = new String[1];
     permissionKeyString1[0] = sendAccountKey2;
-    PublicMethedForMutiSign
-        .permissionAddKey(permission, test001Address, Long.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull, permissionKeyString1);
+    Assert.assertFalse(PublicMethedForMutiSign
+        .permissionAddKey(permission, test004Address, Long.MAX_VALUE, testAddress, dev001Key,
+            blockingStubFull, permissionKeyString1));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

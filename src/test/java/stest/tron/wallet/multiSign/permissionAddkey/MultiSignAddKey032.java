@@ -109,9 +109,9 @@ public class MultiSignAddKey032 {
   @Test
   public void testMultiSignAddKey() {
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "owner";
     Assert.assertTrue(PublicMethed

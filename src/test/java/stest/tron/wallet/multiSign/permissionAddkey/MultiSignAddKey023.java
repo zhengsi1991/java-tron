@@ -124,8 +124,9 @@ public class MultiSignAddKey023 {
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : permission name should be owner or active
     String permission4 = "~`!@#$%^&*()_+-=<>,./:;[]{}/?";
-    PublicMethed.permissionUpdateKey(permission4, test001Address, 1, testAddress, dev001Key,
-        blockingStubFull);
+    Assert.assertFalse(
+        PublicMethed.permissionUpdateKey(permission4, test001Address, 1, testAddress, dev001Key,
+            blockingStubFull));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

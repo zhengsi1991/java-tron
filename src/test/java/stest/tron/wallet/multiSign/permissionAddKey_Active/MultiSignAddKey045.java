@@ -126,9 +126,9 @@ public class MultiSignAddKey045 {
     printPermissionList(permissionsList);
     logger.info("-----------------");
     String notExistAddress = "2323";
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionDeleteKey(permission, notExistAddress.getBytes(), testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

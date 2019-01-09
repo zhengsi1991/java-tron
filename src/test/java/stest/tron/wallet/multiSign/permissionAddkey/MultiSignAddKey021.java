@@ -106,10 +106,11 @@ public class MultiSignAddKey021 {
 
     String permission = "owner";
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     String permission2 = null;
+
     PublicMethed.permissionUpdateKey(permission2, test001Address, 1, testAddress, dev001Key,
         blockingStubFull);
 

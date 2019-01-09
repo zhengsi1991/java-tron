@@ -149,9 +149,9 @@ public class MultiSignAddKey002 {
     permissionKeyString[4] = sendAccountKey4;
 
     String permission = "owner";
-    PublicMethedForMutiSign
+    Assert.assertTrue(PublicMethedForMutiSign
         .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull,
-            permissionKeyString);
+            permissionKeyString));
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
     printPermissionList(permissionsList1);

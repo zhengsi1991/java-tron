@@ -20,6 +20,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 public class MultiSignAddKey019 {
   //weight
@@ -106,29 +107,35 @@ public class MultiSignAddKey019 {
 
   @Test
   public void testMultiSignAddKey() {
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
 
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));
-    PublicMethed.permissionUpdateKey(permission, test001Address, 2, testAddress, dev001Key,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethed.permissionUpdateKey(permission, test001Address, 2, testAddress, dev001Key,
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
-    Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
-            blockingStubFull));
+    String[] permissionKeyString = new String[1];
+    permissionKeyString[0] = sendAccountKey;
+    Assert.assertTrue(PublicMethedForMutiSign
+        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key, blockingStubFull,
+            permissionKeyString));
+//    Assert.assertTrue(PublicMethed
+//        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
+//            blockingStubFull));
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, test001Address, sendAccountKey,
             blockingStubFull));

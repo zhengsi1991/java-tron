@@ -20,6 +20,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 public class MultiSignAddKey001 {
 
@@ -87,6 +88,7 @@ public class MultiSignAddKey001 {
 
   @Test
   public void testMultiSignAddKey() {
+    //add active permission,use test002Address privateKey sign sendcoin
     PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull);
@@ -102,9 +104,11 @@ public class MultiSignAddKey001 {
     Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
-    Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, test001Address, dev001Key,
-            blockingStubFull));
+    String[] permissionKeyString = new String[1];
+    permissionKeyString[0] = sendAccountKey;
+    Assert.assertTrue(PublicMethedForMutiSign
+        .sendcoin(fromAddress, 1000000000L, test001Address, dev001Key, blockingStubFull,
+            permissionKeyString));
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, test002Address, sendAccountKey,
             blockingStubFull));

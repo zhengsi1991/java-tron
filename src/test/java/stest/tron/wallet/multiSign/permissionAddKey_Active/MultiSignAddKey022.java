@@ -97,22 +97,23 @@ public class MultiSignAddKey022 {
     //非字母"123"
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : permission name should be active or active
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     String permission2 = "123";
-    PublicMethed.permissionUpdateKey(permission2, test001Address, 1, testAddress, dev001Key,
-        blockingStubFull);
+    Assert.assertFalse(
+        PublicMethed.permissionUpdateKey(permission2, test001Address, 1, testAddress, dev001Key,
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

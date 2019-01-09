@@ -92,9 +92,9 @@ public class MultiSignAddKey008 {
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : address in key is invalidate
     String notExistAddress = "2323";
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, notExistAddress.getBytes(), 1, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

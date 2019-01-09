@@ -126,8 +126,9 @@ public class MultiSignAddKey025 {
     printPermissionList(permissionsListbefore);
     logger.info("-------------------------");
 
-    PublicMethed.permissionUpdateKey(permission, test001Address, 2, testAddress, dev001Key,
-        blockingStubFull);
+    Assert.assertTrue(
+        PublicMethed.permissionUpdateKey(permission, test001Address, 2, testAddress, dev001Key,
+            blockingStubFull));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);

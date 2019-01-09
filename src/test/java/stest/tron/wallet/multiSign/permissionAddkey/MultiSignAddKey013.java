@@ -101,9 +101,9 @@ public class MultiSignAddKey013 {
 
     //4.非数字
     //java.lang.NumberFormatException: For input string: "AAA"
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey2(permission, test001Address, "AAA", testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

@@ -146,19 +146,19 @@ public class MultiSignAddKey007 {
     permissionKeyString[3] = sendAccountKey4;
     permissionKeyString[4] = sendAccountKey3;
     String permission = "owner";
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionDeleteKey(permission, test002Address, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     Account test001AddressAccount2 = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList2 = test001AddressAccount2.getPermissionsList();
     printPermissionList(permissionsList2);
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test002Address, 2, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionUpdateKey(permission, test002Address, 3, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
     printPermissionList(permissionsList1);

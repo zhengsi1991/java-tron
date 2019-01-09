@@ -5,6 +5,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -104,9 +105,9 @@ public class MultiSignAddKey035 {
     ownerKeyString[0] = sendAccountKey2;
     ownerKeyString[1] = sendAccountKey;
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
     String i = "[{\"keys\":[{\"address\":\""
         + PublicMethed.getAddressString(sendAccountKey2)
         + "\",\"weight\":2},{\"address\":\""
@@ -117,26 +118,26 @@ public class MultiSignAddKey035 {
         + "\",\"weight\":3}],\"name\":\"active\",\"threshold\":5}]";
     PublicMethed.accountPermissionUpdate(i, testAddress, dev001Key, blockingStubFull);
     String permission = "active";
-    PublicMethed
-        .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull);
+//    Assert.assertTrue(PublicMethed
+//        .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
+//            blockingStubFull));
 
     Account test001AddressAccountbefore = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsListbefore = test001AddressAccountbefore.getPermissionsList();
     printPermissionList(permissionsListbefore);
     logger.info("-------------------------");
 
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionUpdateKey(permission, test001Address, 1, testAddress,
             dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
-    PublicMethed
-        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
-            blockingStubFull);
+//    Assert.assertTrue(PublicMethed
+//        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
+//            blockingStubFull));
 
   }
 

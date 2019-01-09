@@ -109,23 +109,23 @@ public class MultiSignAddKey033 {
   @Test
   public void testMultiSignAddKey() {
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "owner";
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey1(permission, test001Address, Long.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test002Address, Long.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test003Address, Long.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey1(permission, test004Address, Long.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccountbefore = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsListbefore = test001AddressAccountbefore.getPermissionsList();
@@ -134,9 +134,9 @@ public class MultiSignAddKey033 {
     //6.Integer.MAX_VALUE
     //pass
 
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionUpdateKey(permission, testAddress, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     //7.Integer.MAX_VALUE
     //contract validate error : sum of all keys weight should not be less that threshold
 
@@ -145,9 +145,9 @@ public class MultiSignAddKey033 {
     printPermissionList(permissionsList);
     logger.info("-------------------------");
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionUpdateKey(permission, test001Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,

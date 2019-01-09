@@ -98,7 +98,7 @@ public class MultiSignAddKey011 {
     //2.0
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : key weight should be greater than 0
-    Assert.assertTrue(PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test001Address, 0, testAddress, dev001Key,
             blockingStubFull));
 

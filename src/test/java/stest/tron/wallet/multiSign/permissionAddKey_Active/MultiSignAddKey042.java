@@ -21,6 +21,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
 public class MultiSignAddKey042 {
@@ -124,16 +125,21 @@ public class MultiSignAddKey042 {
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
     logger.info("-----------------");
-    PublicMethed
-        .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull);
+    Assert.assertTrue(PublicMethed
+        .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull));
 
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
     printPermissionList(permissionsList1);
-    Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
-            blockingStubFull));
+//    Assert.assertTrue(PublicMethed
+//        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
+//            blockingStubFull));
+    String[] permissionKeyString = new String[1];
+    permissionKeyString[0] = sendAccountKey;
+    Assert.assertTrue(PublicMethedForMutiSign
+        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key, blockingStubFull,
+            permissionKeyString));
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, test001Address, sendAccountKey,
             blockingStubFull));

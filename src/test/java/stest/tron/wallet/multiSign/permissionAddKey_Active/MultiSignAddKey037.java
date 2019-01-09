@@ -110,9 +110,9 @@ public class MultiSignAddKey037 {
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
 
@@ -128,8 +128,9 @@ public class MultiSignAddKey037 {
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : permission name should be owner or active
     String permission1 = "actives";
-    PublicMethed.permissionDeleteKey(permission1, test001Address, testAddress, dev001Key,
-        blockingStubFull);
+    Assert.assertFalse(
+        PublicMethed.permissionDeleteKey(permission1, test001Address, testAddress, dev001Key,
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

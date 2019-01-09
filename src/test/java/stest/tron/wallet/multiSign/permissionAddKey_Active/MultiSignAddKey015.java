@@ -20,6 +20,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 public class MultiSignAddKey015 {
 
@@ -105,41 +106,43 @@ public class MultiSignAddKey015 {
 
   @Test
   public void testMultiSignAddKey() {
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
     //7.integer.MAX
     //前四个pass
     //最后一个由于数量满5，
     //contract validate error : number of keys in permission should not be greater than 5
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test002Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test003Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test004Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
-    PublicMethed
+            blockingStubFull));
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test005Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
-    Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
-            blockingStubFull));
+    String[] permissionKeyString = new String[1];
+    permissionKeyString[0] = sendAccountKey;
+    Assert.assertTrue(PublicMethedForMutiSign
+        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key, blockingStubFull,
+            permissionKeyString));
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, test001Address, sendAccountKey,
             blockingStubFull));

@@ -98,9 +98,9 @@ public class MultiSignAddKey012 {
     //3.-1
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : key weight should be greater than 0
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test001Address, -1, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

@@ -134,8 +134,8 @@ public class MultiSignAddKey008 {
             + "\",\"weight\":2},"
             + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey4)
             + "\",\"weight\":2}]}]";
-    PublicMethed
-        .accountPermissionUpdate(accountPermissionJson, testAddress, dev001Key, blockingStubFull);
+    Assert.assertTrue(PublicMethed
+        .accountPermissionUpdate(accountPermissionJson, testAddress, dev001Key, blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
@@ -143,9 +143,9 @@ public class MultiSignAddKey008 {
 
     String permission = "owner";
 
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test005Address, 2, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();

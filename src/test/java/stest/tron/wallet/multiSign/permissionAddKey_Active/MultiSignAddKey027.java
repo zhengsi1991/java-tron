@@ -5,6 +5,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -108,9 +109,9 @@ public class MultiSignAddKey027 {
   @Test
   public void testMultiSignAddKey() {
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
     //4。不存在的地址
@@ -119,12 +120,15 @@ public class MultiSignAddKey027 {
 
     String notExistAddress = "2323";
 
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionUpdateKey(permission, notExistAddress.getBytes(), 2, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
+    Assert.assertTrue(PublicMethed
+        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
+            blockingStubFull));
 
   }
 

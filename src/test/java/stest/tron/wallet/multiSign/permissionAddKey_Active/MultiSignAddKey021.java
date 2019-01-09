@@ -96,19 +96,19 @@ public class MultiSignAddKey021 {
   public void testMultiSignAddKey() {
     //null
     //java.lang.NullPointerException
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "active";
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
     String permission2 = null;
     PublicMethed.permissionUpdateKey(permission2, test001Address, 1, testAddress, dev001Key,
         blockingStubFull);

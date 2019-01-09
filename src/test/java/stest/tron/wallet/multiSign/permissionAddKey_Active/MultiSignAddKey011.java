@@ -91,14 +91,14 @@ public class MultiSignAddKey011 {
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull));
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
     String permission = "active";
     //2.0
     //Code = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : key weight should be greater than 0
-    Assert.assertTrue(PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionAddKey(permission, test001Address, 0, testAddress, dev001Key,
             blockingStubFull));
 

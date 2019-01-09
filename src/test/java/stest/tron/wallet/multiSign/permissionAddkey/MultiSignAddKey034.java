@@ -109,14 +109,14 @@ public class MultiSignAddKey034 {
   @Test
   public void testMultiSignAddKey() {
 
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
-            blockingStubFull);
+            blockingStubFull));
 
     String permission = "owner";
-    PublicMethed
+    Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccountbefore = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsListbefore = test001AddressAccountbefore.getPermissionsList();
@@ -125,10 +125,10 @@ public class MultiSignAddKey034 {
     //8.Integer.MAX_VALUE+100
     //jCode = CONTRACT_VALIDATE_ERROR
     //Message = contract validate error : key weight should be greater than 0
-    PublicMethed
+    Assert.assertFalse(PublicMethed
         .permissionUpdateKey(permission, testAddress, Integer.MAX_VALUE + 100, testAddress,
             dev001Key,
-            blockingStubFull);
+            blockingStubFull));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
