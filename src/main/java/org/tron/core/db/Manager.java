@@ -609,21 +609,21 @@ public class Manager {
       TooBigTransactionException, TransactionExpirationException,
       ReceiptCheckErrException, VMIllegalException, TooBigTransactionResultException {
 
-    if (!trx.validateSignature()) {
-      throw new ValidateSignatureException("trans sig validate failed");
-    }
-
-    synchronized (this) {
-      if (!session.valid()) {
-        session.setValue(revokingStore.buildSession());
-      }
-
-      try (ISession tmpSession = revokingStore.buildSession()) {
-        processTransaction(trx, null);
-        pendingTransactions.add(trx);
-        tmpSession.merge();
-      }
-    }
+//    if (!trx.validateSignature()) {
+//      throw new ValidateSignatureException("trans sig validate failed");
+//    }
+//
+//    synchronized (this) {
+//      if (!session.valid()) {
+//        session.setValue(revokingStore.buildSession());
+//      }
+//
+//      try (ISession tmpSession = revokingStore.buildSession()) {
+//        processTransaction(trx, null);
+//        pendingTransactions.add(trx);
+//        tmpSession.merge();
+//      }
+//    }
     return true;
   }
 
@@ -647,7 +647,7 @@ public class Manager {
       khaosDb.pop();
       revokingStore.fastPop();
       logger.info("end to erase block:" + oldHeadBlock);
-      popedTransactions.addAll(oldHeadBlock.getTransactions());
+//      popedTransactions.addAll(oldHeadBlock.getTransactions());
 
     } catch (ItemNotFoundException | BadItemException e) {
       logger.warn(e.getMessage(), e);
@@ -678,7 +678,7 @@ public class Manager {
     processBlock(block);
     this.blockStore.put(block.getBlockId().getBytes(), block);
     this.blockIndexStore.put(block.getBlockId());
-    updateFork(block);
+//    updateFork(block);
     if (System.currentTimeMillis() - block.getTimeStamp() >= 60_000) {
       revokingStore.setMaxFlushCount(SnapshotManager.DEFAULT_MAX_FLUSH_COUNT);
     } else {
@@ -792,21 +792,21 @@ public class Manager {
     long start = System.currentTimeMillis();
     try (PendingManager pm = new PendingManager(this)) {
 
-      if (!block.generatedByMyself) {
-        if (!block.validateSignature()) {
-          logger.warn("The signature is not validated.");
-          throw new BadBlockException("The signature is not validated");
-        }
-
-        if (!block.calcMerkleRoot().equals(block.getMerkleRoot())) {
-          logger.warn(
-              "The merkle root doesn't match, Calc result is "
-                  + block.calcMerkleRoot()
-                  + " , the headers is "
-                  + block.getMerkleRoot());
-          throw new BadBlockException("The merkle hash is not validated");
-        }
-      }
+//      if (!block.generatedByMyself) {
+//        if (!block.validateSignature()) {
+//          logger.warn("The signature is not validated.");
+//          throw new BadBlockException("The signature is not validated");
+//        }
+//
+//        if (!block.calcMerkleRoot().equals(block.getMerkleRoot())) {
+//          logger.warn(
+//              "The merkle root doesn't match, Calc result is "
+//                  + block.calcMerkleRoot()
+//                  + " , the headers is "
+//                  + block.getMerkleRoot());
+//          throw new BadBlockException("The merkle hash is not validated");
+//        }
+//      }
 
       BlockCapsule newBlock = this.khaosDb.push(block);
 
@@ -888,27 +888,27 @@ public class Manager {
   }
 
   public void updateDynamicProperties(BlockCapsule block) {
-    long slot = 1;
-    if (block.getNum() != 1) {
-      slot = witnessController.getSlotAtTime(block.getTimeStamp());
-    }
-    for (int i = 1; i < slot; ++i) {
-      if (!witnessController.getScheduledWitness(i).equals(block.getWitnessAddress())) {
-        WitnessCapsule w =
-            this.witnessStore
-                .getUnchecked(StringUtil.createDbKey(witnessController.getScheduledWitness(i)));
-        w.setTotalMissed(w.getTotalMissed() + 1);
-        this.witnessStore.put(w.createDbKey(), w);
-        logger.info(
-            "{} miss a block. totalMissed = {}", w.createReadableString(), w.getTotalMissed());
-      }
-      this.dynamicPropertiesStore.applyBlock(false);
-    }
-    this.dynamicPropertiesStore.applyBlock(true);
-
-    if (slot <= 0) {
-      logger.warn("missedBlocks [" + slot + "] is illegal");
-    }
+//    long slot = 1;
+//    if (block.getNum() != 1) {
+//      slot = witnessController.getSlotAtTime(block.getTimeStamp());
+//    }
+//    for (int i = 1; i < slot; ++i) {
+//      if (!witnessController.getScheduledWitness(i).equals(block.getWitnessAddress())) {
+//        WitnessCapsule w =
+//            this.witnessStore
+//                .getUnchecked(StringUtil.createDbKey(witnessController.getScheduledWitness(i)));
+//        w.setTotalMissed(w.getTotalMissed() + 1);
+//        this.witnessStore.put(w.createDbKey(), w);
+//        logger.info(
+//            "{} miss a block. totalMissed = {}", w.createReadableString(), w.getTotalMissed());
+//      }
+//      this.dynamicPropertiesStore.applyBlock(false);
+//    }
+//    this.dynamicPropertiesStore.applyBlock(true);
+//
+//    if (slot <= 0) {
+//      logger.warn("missedBlocks [" + slot + "] is illegal");
+//    }
 
     logger.info("update head, num = {}", block.getNum());
     this.dynamicPropertiesStore.saveLatestBlockHeaderHash(block.getBlockId().getByteString());
@@ -1254,40 +1254,40 @@ public class Manager {
       ReceiptCheckErrException, VMIllegalException, TooBigTransactionResultException {
     // todo set revoking db max size.
 
-    if (witnessService != null) {
-      witnessService.processBlock(block);
-    }
+//    if (witnessService != null) {
+//      witnessService.processBlock(block);
+//    }
 
-    // checkWitness
-    if (!witnessController.validateWitnessSchedule(block)) {
-      throw new ValidateScheduleException("validateWitnessSchedule error");
-    }
+//    // checkWitness
+//    if (!witnessController.validateWitnessSchedule(block)) {
+//      throw new ValidateScheduleException("validateWitnessSchedule error");
+//    }
 
-    for (TransactionCapsule transactionCapsule : block.getTransactions()) {
-      transactionCapsule.setBlockNum(block.getNum());
-      if (block.generatedByMyself) {
-        transactionCapsule.setVerified(true);
-      }
-      processTransaction(transactionCapsule, block);
-    }
+//    for (TransactionCapsule transactionCapsule : block.getTransactions()) {
+//      transactionCapsule.setBlockNum(block.getNum());
+//      if (block.generatedByMyself) {
+//        transactionCapsule.setVerified(true);
+//      }
+//      processTransaction(transactionCapsule, block);
+//    }
 
-    boolean needMaint = needMaintenance(block.getTimeStamp());
-    if (needMaint) {
-      if (block.getNum() == 1) {
-        this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
-      } else {
-        this.processMaintenance(block);
-      }
-    }
-    if (getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 1) {
-      updateAdaptiveTotalEnergyLimit();
-    }
+//    boolean needMaint = needMaintenance(block.getTimeStamp());
+//    if (needMaint) {
+//      if (block.getNum() == 1) {
+//        this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
+//      } else {
+//        this.processMaintenance(block);
+//      }
+//    }
+//    if (getDynamicPropertiesStore().getAllowAdaptiveEnergy() == 1) {
+//      updateAdaptiveTotalEnergyLimit();
+//    }
     this.updateDynamicProperties(block);
-    this.updateSignedWitness(block);
+//    this.updateSignedWitness(block);
     this.updateLatestSolidifiedBlock();
-    this.updateTransHashCache(block);
-    updateMaintenanceState(needMaint);
-    updateRecentBlock(block);
+//    this.updateTransHashCache(block);
+//    updateMaintenanceState(needMaint);
+//    updateRecentBlock(block);
   }
 
   public void updateAdaptiveTotalEnergyLimit() {

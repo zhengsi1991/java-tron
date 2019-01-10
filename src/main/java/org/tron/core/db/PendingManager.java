@@ -17,7 +17,7 @@ public class PendingManager implements AutoCloseable {
   public PendingManager(Manager db) {
 
     this.dbManager = db;
-    tmpTransactions.addAll(db.getPendingTransactions());
+//    tmpTransactions.addAll(db.getPendingTransactions());
     db.getPendingTransactions().clear();
     db.getSession().reset();
   }
