@@ -5,12 +5,14 @@ import static org.tron.api.GrpcAPI.TransactionSignWeight.Result.response_code.EN
 import static org.tron.api.GrpcAPI.TransactionSignWeight.Result.response_code.NOT_ENOUGH_PERMISSION;
 import static org.tron.api.GrpcAPI.TransactionSignWeight.Result.response_code.PERMISSION_ERROR;
 
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
@@ -25,9 +27,11 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import org.tron.protos.Contract;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
@@ -35,6 +39,7 @@ import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 import stest.tron.wallet.common.client.utils.Sha256Hash;
+import stest.tron.wallet.myself.prepareToContribute.DebugUtils;
 
 @Slf4j
 public class addTransactionSignTest {
@@ -636,7 +641,6 @@ public class addTransactionSignTest {
     Assert.assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction1, blockingStubFull));
   }
 
-  //todo: error transaction???
   @Test
   public void test09BroadcastErrorTransaction() {
     List<String> ownerPermissionKeys = new ArrayList<>();
@@ -671,15 +675,16 @@ public class addTransactionSignTest {
     Assert.assertEquals(2, getPermissionCount(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getPermissionsList(), "owner"));
 
-    logger.info("** trigger a normal transaction");
-    Transaction transaction = PublicMethedForMutiSign
-        .sendcoin2(fromAddress, 1_000_000, ownerAddress, ownerKey, blockingStubFull);
-
+    logger.info("** trigger a fake transaction");
+    Transaction transaction = createFakeTransaction(ownerAddress, 1_000_000L, ownerAddress);
     Transaction transaction1 = PublicMethed
         .addTransactionSign(transaction, ownerKey, blockingStubFull);
 
+    logger.info("transaction hex string is " + ByteArray.toHexString(transaction1.toByteArray()));
     TransactionSignWeight txWeight = PublicMethed.getTransactionSignWeight(transaction1, blockingStubFull);
-    logger.info("TransactionSignWeight info : " + txWeight);
+    logger.info("Before broadcast permission TransactionSignWeight info :\n" + txWeight);
+    Assert.assertEquals(ENOUGH_PERMISSION, txWeight.getResult().getCode());
+    Assert.assertEquals(2, txWeight.getCurrentWeight());
 
     Assert.assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction1, blockingStubFull));
 
@@ -1096,6 +1101,55 @@ public class addTransactionSignTest {
     System.arraycopy(input, 0, inputCheck, 0, input.length);
     System.arraycopy(hash1, 0, inputCheck, input.length, 4);
     return Base58.encode(inputCheck);
+  }
+
+  public Protocol.Transaction createFakeTransaction(byte[] toAddrss, Long amount, byte[] fromAddress){
+
+    Contract.TransferContract contract = Contract.TransferContract.newBuilder()
+        .setOwnerAddress(ByteString.copyFrom(fromAddress))
+        .setToAddress(ByteString.copyFrom(toAddrss))
+        .setAmount(amount)
+        .build();
+    Protocol.Transaction transaction = createTransaction(contract, ContractType.TransferContract);
+
+    return transaction;
+  }
+
+  private Transaction setReference(Transaction transaction, long blockNum,
+      byte[] blockHash) {
+    byte[] refBlockNum = ByteArray.fromLong(blockNum);
+    Transaction.raw rawData = transaction.getRawData().toBuilder()
+        .setRefBlockHash(ByteString.copyFrom(blockHash))
+        .setRefBlockBytes(ByteString.copyFrom(refBlockNum))
+        .build();
+    return transaction.toBuilder().setRawData(rawData).build();
+  }
+
+  public Transaction setExpiration(Transaction transaction, long expiration) {
+    Transaction.raw rawData = transaction.getRawData().toBuilder().setExpiration(expiration)
+        .build();
+    return transaction.toBuilder().setRawData(rawData).build();
+  }
+
+  public Transaction createTransaction(com.google.protobuf.Message message,
+      ContractType contractType) {
+    Transaction.raw.Builder transactionBuilder = Transaction.raw.newBuilder().addContract(
+        Transaction.Contract.newBuilder().setType(contractType).setParameter(
+            Any.pack(message)).build());
+
+    Transaction transaction = Transaction.newBuilder().setRawData(transactionBuilder.build())
+        .build();
+
+    long time = System.currentTimeMillis();
+    AtomicLong count = new AtomicLong();
+    long gTime = count.incrementAndGet() + time;
+    String ref = "" + gTime;
+
+    transaction = setReference(transaction, gTime, ByteArray.fromString(ref));
+
+    transaction = setExpiration(transaction, gTime);
+
+    return transaction;
   }
 
 
