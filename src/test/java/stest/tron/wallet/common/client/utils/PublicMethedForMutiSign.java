@@ -1905,6 +1905,39 @@ public class PublicMethedForMutiSign {
     return broadcastTransaction(transaction, blockingStubFull);
   }
 
+  public static GrpcAPI.Return permissionAddKeyAndResponse(String permission, byte[] addAddress, Long weight,
+      byte[] owner, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull,
+      String[] permissionKeyString) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    ECKey ecKey = temKey;
+    Contract.PermissionAddKeyContract.Builder contractBuilder =
+        Contract.PermissionAddKeyContract.newBuilder();
+    contractBuilder.setOwnerAddress(ByteString.copyFrom(owner));
+    contractBuilder.setPermissionName(permission);
+    Key.Builder keyBuilder = Key.newBuilder();
+    keyBuilder.setAddress(ByteString.copyFrom(addAddress));
+    keyBuilder.setWeight(weight);
+    contractBuilder.setKey(keyBuilder.build());
+
+    Contract.PermissionAddKeyContract permissionAddKeyContract = contractBuilder.build();
+    TransactionExtention transactionExtention = blockingStubFull
+        .permissionAddKey(permissionAddKeyContract);
+    if (transactionExtention == null) {
+      return null;
+    }
+    Return ret = transactionExtention.getResult();
+
+    System.out.println("Code = " + ret.getCode());
+    System.out.println("Message = " + ret.getMessage().toStringUtf8());
+    return ret;
+  }
 
   public static Transaction permissionAddKeyWithoutSign(String permission, byte[] addAddress,
       Long weight,
@@ -2238,14 +2271,14 @@ public class PublicMethedForMutiSign {
       JSONObject permission = permissions.getJSONObject(j);
       String name = permission.getString("name");
       String parent = permission.getString("parent");
-      int threshold = Integer.parseInt(permission.getString("threshold"));
+      long threshold = Long.parseLong(permission.getString("threshold"));
       JSONArray keys = permission.getJSONArray("keys");
       List<Key> keyList = new ArrayList<>();
       for (int i = 0; i < keys.size(); i++) {
         Key.Builder keyBuilder = Key.newBuilder();
         JSONObject key = keys.getJSONObject(i);
         String address = key.getString("address");
-        int weight = key.getInteger("weight");
+        long weight = Long.parseLong(key.getString("weight"));
         keyBuilder.setAddress(ByteString.copyFrom(Wallet.decodeFromBase58Check(address)));
         keyBuilder.setWeight(weight);
         keyList.add(keyBuilder.build());
@@ -2364,7 +2397,91 @@ public class PublicMethedForMutiSign {
 
     return transaction;
   }
+  public static GrpcAPI.Return accountPermissionUpdateForResponse(String permissionJson, byte[] owner, String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull, String[] priKeys) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    ECKey ecKey = temKey;
 
+    Contract.AccountPermissionUpdateContract.Builder builder =
+        Contract.AccountPermissionUpdateContract.newBuilder();
+
+    JSONArray permissions = JSON.parseArray(permissionJson);
+    List<Permission> permissionList = new ArrayList<>();
+    for (int j = 0; j < permissions.size(); j++) {
+      Permission.Builder permissionBuilder = Permission.newBuilder();
+      JSONObject permission = permissions.getJSONObject(j);
+      String name = permission.getString("name");
+      String parent = permission.getString("parent");
+      long threshold = Long.parseLong(permission.getString("threshold"));
+      JSONArray keys = permission.getJSONArray("keys");
+      List<Key> keyList = new ArrayList<>();
+      for (int i = 0; i < keys.size(); i++) {
+        Key.Builder keyBuilder = Key.newBuilder();
+        JSONObject key = keys.getJSONObject(i);
+        String address = key.getString("address");
+        long weight = Long.parseLong(key.getString("weight"));
+        keyBuilder.setAddress(ByteString.copyFrom(Wallet.decodeFromBase58Check(address)));
+        keyBuilder.setWeight(weight);
+        keyList.add(keyBuilder.build());
+      }
+      permissionBuilder.setName(name);
+      if (!(name.equals("owner") && parent == null)) {
+        permissionBuilder.setParent(parent);
+      }
+      permissionBuilder.setThreshold(threshold);
+      permissionBuilder.addAllKeys(keyList);
+      permissionList.add(permissionBuilder.build());
+    }
+
+    builder.setOwnerAddress(ByteString.copyFrom(owner));
+    builder.addAllPermissions(permissionList);
+    Contract.AccountPermissionUpdateContract contract = builder.build();
+
+    TransactionExtention transactionExtention = blockingStubFull.accountPermissionUpdate(contract);
+    if (transactionExtention == null) {
+      return null;
+    }
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return ret;
+    }
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      System.out.println("Transaction is empty");
+      return ret;
+    }
+    System.out.println(
+        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+
+    transaction = signTransaction(transaction, blockingStubFull, priKeys);
+    int i = 10;
+    Return response = blockingStubFull.broadcastTransaction(transaction);
+    while (response.getResult() == false && response.getCode() == response_code.SERVER_BUSY
+        && i > 0) {
+      i--;
+      response = blockingStubFull.broadcastTransaction(transaction);
+      logger.info("repeat times = " + (11 - i));
+      try {
+        Thread.sleep(300);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    if (response.getResult() == false) {
+      logger.info("Code = " + response.getCode());
+      logger.info("Message = " + response.getMessage().toStringUtf8());
+    }
+    return response;
+  }
   public Transaction addTransactionSign(Transaction transaction, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
