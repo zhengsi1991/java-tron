@@ -115,8 +115,7 @@ public class MultiSignAddKey042 {
             blockingStubFull));
 
     String permission = "owner";
-    //2.添加别人之后，再删除自己self-address
-    //pass
+    //add other address，delete self-address
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));

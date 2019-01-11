@@ -85,11 +85,9 @@ public class MultiSignAddKey005 {
   }
 
 
-  @Test
+  @Test(enabled = false)
   public void testMultiSignAddKey() {
-    //add one address twice(active)
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : address TTu2A8hKGP4wJTymQ4WmdG7JSHPtKKPgRs is already in permission active
+    //add one address more time(active)
     PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull);
@@ -102,24 +100,24 @@ public class MultiSignAddKey005 {
     Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
-    Assert.assertTrue(PublicMethed
-        .permissionAddKey(permission, test002Address, 1, test001Address, dev001Key,
-            blockingStubFull));
 
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, test001Address, dev001Key,
             blockingStubFull));
+    while (true) {
+      Assert.assertFalse(PublicMethed
+          .permissionAddKey(permission, test002Address, 1, test001Address, dev001Key,
+              blockingStubFull));
+    }
 
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void testMultiSignAddKey2() {
-    //add one address twice(owner)
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : address TTu2A8hKGP4wJTymQ4WmdG7JSHPtKKPgRs is already in permission active
+    //add one address more time
     Assert.assertTrue(PublicMethed
-        .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
             blockingStubFull));
 
     String permission = "owner";
@@ -130,24 +128,24 @@ public class MultiSignAddKey005 {
     Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
-    Assert.assertFalse(PublicMethed
-        .permissionAddKey(permission, test002Address, 1, test001Address, dev001Key,
-            blockingStubFull));
     Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, test001Address, dev001Key,
+        .sendcoin(fromAddress, 1000000L, test001Address, dev001Key,
             blockingStubFull));
+    while (true) {
+      Assert.assertFalse(PublicMethed
+          .permissionAddKey(permission, test002Address, 1, test001Address, dev001Key,
+              blockingStubFull));
+    }
 
 
   }
 
 
-  @Test
+  @Test(enabled = false)
   public void testMultiSignAddKey3() {
-    //delete one address twice(active)
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : address is not in permission active
+    //delete one address more time(active)
     PublicMethed
-        .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
             blockingStubFull);
 
     String permission = "active";
@@ -159,25 +157,21 @@ public class MultiSignAddKey005 {
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
 
-    PublicMethed
-        .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
-            blockingStubFull);
-    PublicMethed
-        .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
-            blockingStubFull);
     Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, test001Address, dev001Key,
+        .sendcoin(fromAddress, 1000000L, test001Address, dev001Key,
             blockingStubFull));
+    while (true) {
+      PublicMethed
+          .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
+              blockingStubFull);
 
-
+    }
   }
 
 
-  @Test
+  @Test(enabled = false)
   public void testMultiSignAddKey4() {
-    //delete one address twice (owner)
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : ownerAddress account does not exist
+    //delete one address more time (owner)
     PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull);
@@ -191,20 +185,17 @@ public class MultiSignAddKey005 {
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
 
-    PublicMethed
-        .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
-            blockingStubFull);
-    PublicMethed
-        .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
-            blockingStubFull);
     Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
     printPermissionList(permissionsList1);
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, test001Address, dev001Key,
             blockingStubFull));
-
-
+    while (true) {
+      PublicMethed
+          .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
+              blockingStubFull);
+    }
   }
 
   /**

@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddkey;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -21,6 +24,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
 public class MultiSignAddKey044 {
@@ -115,8 +119,7 @@ public class MultiSignAddKey044 {
             blockingStubFull));
 
     String permission = "owner";
-    //3:不在permission keylist中的address
-    //contract validate error : address is not in permission owner
+    //not in permission keylist address
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));
@@ -124,9 +127,14 @@ public class MultiSignAddKey044 {
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
     logger.info("-----------------");
-    Assert.assertFalse(PublicMethed
-        .permissionDeleteKey(permission, test002Address, testAddress, dev001Key, blockingStubFull));
-
+    Return returnResult = PublicMethedForMutiSign
+        .permissionDeleteKey1(permission, test002Address, testAddress, dev001Key, blockingStubFull);
+    logger.info("returnResult:" + returnResult);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("contract validate error : address is not in permission owner"));
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();

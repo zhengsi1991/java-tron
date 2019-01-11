@@ -78,10 +78,9 @@ public class MultiSignAddKey007 {
   }
 
 
-  @Test
+  @Test(enabled = false)
   public void testMultiSignAddKey() {
-    //循环，删除一个，添加一个，修改一个
-//    while(true) {
+    //cycle delete address,add address，update address
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] testAddress = ecKey.getAddress();
     String dev001Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -111,57 +110,59 @@ public class MultiSignAddKey007 {
     Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
             blockingStubFull));
+    while (true) {
+      String accountPermissionJson =
+          "[{\"name\":\"owner\",\"threshold\":1,\"parent\":\"owner\",\"keys\":["
+              + "{\"address\":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey)
+              + "\",\"weight\":1},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
+              + "\",\"weight\":1},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+              + "\",\"weight\":1},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey4)
+              + "\",\"weight\":1}]},"
+              + "{\"parent\":\"owner\",\"name\":\"active\",\"threshold\":10,\"keys\":["
+              + "{\"address\":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":2},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey)
+              + "\",\"weight\":2},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
+              + "\",\"weight\":2},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+              + "\",\"weight\":2},"
+              + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey4)
+              + "\",\"weight\":2}]}]";
+      PublicMethed
+          .accountPermissionUpdate(accountPermissionJson, testAddress, dev001Key, blockingStubFull);
 
-    String accountPermissionJson =
-        "[{\"name\":\"owner\",\"threshold\":1,\"parent\":\"owner\",\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey4)
-            + "\",\"weight\":1}]},"
-            + "{\"parent\":\"owner\",\"name\":\"active\",\"threshold\":10,\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":2},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey)
-            + "\",\"weight\":2},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":2},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":2},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey4)
-            + "\",\"weight\":2}]}]";
-    PublicMethed
-        .accountPermissionUpdate(accountPermissionJson, testAddress, dev001Key, blockingStubFull);
+      Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
+      List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
+      printPermissionList(permissionsList);
+      String[] permissionKeyString = new String[5];
+      permissionKeyString[0] = dev001Key;
+      permissionKeyString[1] = sendAccountKey2;
+      permissionKeyString[2] = sendAccountKey;
+      permissionKeyString[3] = sendAccountKey4;
+      permissionKeyString[4] = sendAccountKey3;
+      String permission = "owner";
 
-    Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
-    List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
-    printPermissionList(permissionsList);
-    String[] permissionKeyString = new String[5];
-    permissionKeyString[0] = dev001Key;
-    permissionKeyString[1] = sendAccountKey2;
-    permissionKeyString[2] = sendAccountKey;
-    permissionKeyString[3] = sendAccountKey4;
-    permissionKeyString[4] = sendAccountKey3;
-    String permission = "owner";
-    Assert.assertTrue(PublicMethed
-        .permissionDeleteKey(permission, test002Address, testAddress, dev001Key,
-            blockingStubFull));
-    Account test001AddressAccount2 = PublicMethed.queryAccount(testAddress, blockingStubFull);
-    List<Permission> permissionsList2 = test001AddressAccount2.getPermissionsList();
-    printPermissionList(permissionsList2);
-    Assert.assertTrue(PublicMethed
-        .permissionAddKey(permission, test002Address, 2, testAddress, dev001Key,
-            blockingStubFull));
+      Assert.assertTrue(PublicMethed
+          .permissionDeleteKey(permission, test002Address, testAddress, dev001Key,
+              blockingStubFull));
+      Account test001AddressAccount2 = PublicMethed.queryAccount(testAddress, blockingStubFull);
+      List<Permission> permissionsList2 = test001AddressAccount2.getPermissionsList();
+      printPermissionList(permissionsList2);
+      Assert.assertTrue(PublicMethed
+          .permissionAddKey(permission, test002Address, 2, testAddress, dev001Key,
+              blockingStubFull));
 
-    Assert.assertTrue(PublicMethed
-        .permissionUpdateKey(permission, test002Address, 3, testAddress, dev001Key,
-            blockingStubFull));
-    Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
-    List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
-    printPermissionList(permissionsList1);
+      Assert.assertTrue(PublicMethed
+          .permissionUpdateKey(permission, test002Address, 3, testAddress, dev001Key,
+              blockingStubFull));
+      Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
+      List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
+      printPermissionList(permissionsList1);
+    }
 
     //}
   }

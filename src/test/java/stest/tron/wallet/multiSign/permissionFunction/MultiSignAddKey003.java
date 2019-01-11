@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionFunction;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -104,7 +107,7 @@ public class MultiSignAddKey003 {
 
   @Test
   public void testMultiSignAddKey() {
-    //第一次使用active list中的账户签名，第二次不使用active list中的账户签名 ，阈值为1
+    //first use active list address sign，second use not in active list address sign，threshold is 1
 
     Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
@@ -139,7 +142,7 @@ public class MultiSignAddKey003 {
 
   @Test
   public void testMultiSignAddKey2() {
-    //第一次不使用active list中的账户签名，第二次使用active list中的账户签名 ，阈值为1
+    //first use not in active list address sign，second use  active list address sign，threshold is 1
 
     Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
@@ -175,7 +178,7 @@ public class MultiSignAddKey003 {
 
   @Test
   public void testMultiSignAddKey3() {
-    //使用active list中的账户签名两次 ，阈值为1
+    //use  in active list two address sign ，threshold is 1
 
     Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
@@ -202,15 +205,13 @@ public class MultiSignAddKey003 {
         .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
     Transaction transaction2 = PublicMethed
         .addTransactionSign(transaction1, sendAccountKey, blockingStubFull);
-    logger
-        .info("结果：" + PublicMethedForMutiSign.broadcastTransaction(transaction2, blockingStubFull));
     Assert
         .assertTrue(PublicMethedForMutiSign.broadcastTransaction(transaction2, blockingStubFull));
   }
 
   @Test
   public void testMultiSignAddKey4() {
-    //使用active list中的账户签名，，阈值为2,failed
+    //use  in active list two address sign ，threshold is 2
 
     Assert.assertTrue(PublicMethed
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
@@ -240,6 +241,143 @@ public class MultiSignAddKey003 {
         .info("结果：" + PublicMethedForMutiSign.broadcastTransaction(transaction1, blockingStubFull));
     Assert
         .assertFalse(PublicMethedForMutiSign.broadcastTransaction(transaction1, blockingStubFull));
+  }
+
+
+  @Test
+  public void testMultiSignAddKey5() {
+    //first use  in active list address sign，second use not in active list address sign，threshold is 1
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(testAddress, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    String accountPermissionJson = "[{\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":4},{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey)
+        + "\",\"weight\":4}],\"name\":\"owner\",\"threshold\":4,\"parent\":\"owner\"},{\"parent\":\"owner\",\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2) + "\",\"weight\":1},{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey)
+        + "\",\"weight\":1}],\"name\":\"active\",\"threshold\":1}]";
+    PublicMethed
+        .accountPermissionUpdate(accountPermissionJson, testAddress, dev001Key, blockingStubFull);
+
+    Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
+    printPermissionList(permissionsList);
+    String[] permissionKeyString = new String[2];
+    permissionKeyString[0] = sendAccountKey2;
+    permissionKeyString[1] = sendAccountKey5;
+
+    Transaction transaction = PublicMethedForMutiSign
+        .permissionAddKeyWithoutSign("owner", test004Address, 2L, testAddress, dev001Key,
+            blockingStubFull, permissionKeyString);
+
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey, blockingStubFull);
+    Transaction transaction2 = PublicMethed
+        .addTransactionSign(transaction1, sendAccountKey4, blockingStubFull);
+    Return returnResult = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction2, blockingStubFull);
+    logger.info("returnResult.getCode().toString():" + returnResult.getCode().toString());
+    logger.info(
+        "returnResult.getMessage().toStringUtf8():" + returnResult.getMessage().toStringUtf8());
+
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("but it is not contained of permission"));
+  }
+
+  @Test
+  public void testMultiSignAddKey6() {
+    //first use not in active list address sign，second use in active list address sign，threshold is 1
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    String accountPermissionJson = "[{\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":4},{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey)
+        + "\",\"weight\":4}],\"name\":\"owner\",\"threshold\":4,\"parent\":\"owner\"},{\"parent\":\"owner\",\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2) + "\",\"weight\":1},{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey)
+        + "\",\"weight\":1}],\"name\":\"active\",\"threshold\":1}]";
+    PublicMethed
+        .accountPermissionUpdate(accountPermissionJson, testAddress, dev001Key, blockingStubFull);
+
+    Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
+    printPermissionList(permissionsList);
+
+    String[] permissionKeyString = new String[2];
+    permissionKeyString[0] = sendAccountKey5;
+    permissionKeyString[1] = sendAccountKey;
+
+    Transaction transaction = PublicMethedForMutiSign
+        .permissionAddKeyWithoutSign("owner", test004Address, 2L, testAddress, dev001Key,
+            blockingStubFull, permissionKeyString);
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey5, blockingStubFull);
+    Transaction transaction2 = PublicMethed
+        .addTransactionSign(transaction1, sendAccountKey, blockingStubFull);
+    Return returnResult = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction2, blockingStubFull);
+    logger.info("returnResult.getCode().toString():" + returnResult.getCode().toString());
+    logger.info(
+        "returnResult.getMessage().toStringUtf8():" + returnResult.getMessage().toStringUtf8());
+
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("but it is not contained of permission"));
+  }
+
+
+  @Test
+  public void testMultiSignAddKey7() {
+    //use  in active list two address sign ，threshold is 1
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    String accountPermissionJson = "[{\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":4},{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey)
+        + "\",\"weight\":4}],\"name\":\"owner\",\"threshold\":4,\"parent\":\"owner\"},{\"parent\":\"owner\",\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2) + "\",\"weight\":1},{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey)
+        + "\",\"weight\":1}],\"name\":\"active\",\"threshold\":1}]";
+    PublicMethed
+        .accountPermissionUpdate(accountPermissionJson, testAddress, dev001Key, blockingStubFull);
+
+    Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
+    printPermissionList(permissionsList);
+
+    String[] permissionKeyString = new String[2];
+    permissionKeyString[0] = sendAccountKey2;
+    permissionKeyString[1] = sendAccountKey;
+
+    Transaction transaction = PublicMethedForMutiSign
+        .permissionAddKeyWithoutSign("owner", test004Address, 2L, testAddress, dev001Key,
+            blockingStubFull, permissionKeyString);
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
+    Transaction transaction2 = PublicMethed
+        .addTransactionSign(transaction1, sendAccountKey, blockingStubFull);
+//    logger
+//        .info("结果：" + PublicMethedForMutiSign.broadcastTransaction(transaction2, blockingStubFull));
+    Assert
+        .assertTrue(PublicMethedForMutiSign.broadcastTransaction(transaction2, blockingStubFull));
+
   }
 
   /**

@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddKey_Active;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -8,6 +10,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -20,6 +23,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 public class MultiSignAddKey009 {
 
@@ -88,14 +92,19 @@ public class MultiSignAddKey009 {
         .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
             blockingStubFull);
     String permission = "active";
-    //4.不存在的地址,改一位
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : address in key is invalidate
-    String notExistAddress = "TT1smsmhxype64boboU8xTuNZVCKP1w6qA";
-    Assert.assertFalse(PublicMethed
-        .permissionAddKey(permission, notExistAddress.getBytes(), 1, testAddress, dev001Key,
-            blockingStubFull));
+    //notExistAddress
 
+    String notExistAddress = "TT1smsmhxype64boboU8xTuNZVCKP1w6qA";
+
+    Return returnResult = PublicMethedForMutiSign
+        .permissionAddKeyWithoutSign1(permission, notExistAddress.getBytes(), 1L, testAddress,
+            dev001Key,
+            blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("address in key is invalidate"));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);

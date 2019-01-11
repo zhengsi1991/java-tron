@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddKey_Active;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -8,6 +10,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -20,6 +23,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 public class MultiSignAddKey023 {
   //weight
@@ -107,11 +111,11 @@ public class MultiSignAddKey023 {
   @Test
   public void testMultiSignAddKey() {
     Assert.assertTrue(PublicMethed
-        .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
             blockingStubFull));
 
     Assert.assertTrue(PublicMethed
-        .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
+        .sendcoin(testAddress, 1000000L, fromAddress, testKey002,
             blockingStubFull));
 
     String permission = "active";
@@ -120,22 +124,26 @@ public class MultiSignAddKey023 {
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));
 
-    //"~`!@#$%^&*()_+-=<>,./:;[]{}/?"
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : permission name should be owner or active
+    //update permission is "~`!@#$%^&*()_+-=<>,./:;[]{}/?"
+
     String permission4 = "~`!@#$%^&*()_+-=<>,./:;[]{}/?";
-    Assert.assertFalse(
-        PublicMethed.permissionUpdateKey(permission4, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull));
+    Return returnResult = PublicMethedForMutiSign
+        .permissionUpdateKey2(permission4, test001Address, 1, testAddress, dev001Key,
+            blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("permission name should be owner or active"));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
     Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
+        .sendcoin(fromAddress, 1000000L, testAddress, dev001Key,
             blockingStubFull));
     Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, test001Address, sendAccountKey,
+        .sendcoin(fromAddress, 1000000L, test001Address, sendAccountKey,
             blockingStubFull));
 
   }

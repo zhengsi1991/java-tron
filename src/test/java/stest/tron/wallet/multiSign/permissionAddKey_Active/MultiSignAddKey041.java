@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddKey_Active;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -21,6 +24,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
 public class MultiSignAddKey041 {
@@ -115,13 +119,16 @@ public class MultiSignAddKey041 {
             blockingStubFull));
 
     String permission = "active";
-    //1.什么都没添加的时候删除自己self-address
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : you have not set permission with the name owner
+    //noaddress add ,delete self-address
 
-    Assert.assertFalse(PublicMethed
-        .permissionDeleteKey(permission, testAddress, testAddress, dev001Key, blockingStubFull));
-
+    Return returnResult = PublicMethedForMutiSign
+        .permissionDeleteKey1(permission, testAddress, testAddress, dev001Key, blockingStubFull);
+    logger.info("returnResult:" + returnResult);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("you have not set permission with the name active"));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);

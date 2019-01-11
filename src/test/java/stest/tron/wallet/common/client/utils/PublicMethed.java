@@ -3193,7 +3193,7 @@ public class PublicMethed {
     return response.getResult();
   }
 
-  public static boolean permissionUpdateKey1(String permission, byte[] updateAddress, Long weight,
+  public static Return permissionUpdateKey1(String permission, byte[] updateAddress, Long weight,
       byte[] owner, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
@@ -3211,6 +3211,66 @@ public class PublicMethed {
     Key.Builder keyBuilder = Key.newBuilder();
     keyBuilder.setAddress(ByteString.copyFrom(updateAddress));
     keyBuilder.setWeight(weight);
+    contractBuilder.setKey(keyBuilder.build());
+
+    Contract.PermissionUpdateKeyContract permissionUpdateKeyContract = contractBuilder.build();
+    TransactionExtention transactionExtention = blockingStubFull
+        .permissionUpdateKey(permissionUpdateKeyContract);
+    if (transactionExtention == null) {
+      return null;
+    }
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return null;
+    }
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      System.out.println("Transaction is empty");
+      return null;
+    }
+    System.out.println(
+        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+    transaction = signTransaction(ecKey, transaction);
+    int i = 10;
+    GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
+    while (response.getResult() == false && response.getCode() == response_code.SERVER_BUSY
+        && i > 0) {
+      i--;
+      response = blockingStubFull.broadcastTransaction(transaction);
+      logger.info("repeat times = " + (11 - i));
+      try {
+        Thread.sleep(300);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    if (response.getResult() == false) {
+      logger.info("Code = " + response.getCode());
+      logger.info("Message = " + response.getMessage().toStringUtf8());
+    }
+    return response;
+  }
+
+  public static boolean permissionUpdateKey2(String permission, byte[] updateAddress, String weight,
+      byte[] owner, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    ECKey ecKey = temKey;
+    Contract.PermissionUpdateKeyContract.Builder contractBuilder =
+        Contract.PermissionUpdateKeyContract.newBuilder();
+    contractBuilder.setOwnerAddress(ByteString.copyFrom(owner));
+    contractBuilder.setPermissionName(permission);
+    Key.Builder keyBuilder = Key.newBuilder();
+    keyBuilder.setAddress(ByteString.copyFrom(updateAddress));
+    keyBuilder.setWeight(Long.valueOf(weight));
     contractBuilder.setKey(keyBuilder.build());
 
     Contract.PermissionUpdateKeyContract permissionUpdateKeyContract = contractBuilder.build();
@@ -3253,7 +3313,8 @@ public class PublicMethed {
     return response.getResult();
   }
 
-  public static boolean permissionUpdateKey2(String permission, byte[] updateAddress, String weight,
+  public static Transaction permissionUpdateKey3(String permission, byte[] updateAddress,
+      String weight,
       byte[] owner, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
@@ -3271,6 +3332,49 @@ public class PublicMethed {
     Key.Builder keyBuilder = Key.newBuilder();
     keyBuilder.setAddress(ByteString.copyFrom(updateAddress));
     keyBuilder.setWeight(Long.valueOf(weight));
+    contractBuilder.setKey(keyBuilder.build());
+
+    Contract.PermissionUpdateKeyContract permissionUpdateKeyContract = contractBuilder.build();
+    TransactionExtention transactionExtention = blockingStubFull
+        .permissionUpdateKey(permissionUpdateKeyContract);
+    if (transactionExtention == null) {
+      return null;
+    }
+    Return ret = transactionExtention.getResult();
+    if (!ret.getResult()) {
+      System.out.println("Code = " + ret.getCode());
+      System.out.println("Message = " + ret.getMessage().toStringUtf8());
+      return null;
+    }
+    Transaction transaction = transactionExtention.getTransaction();
+    if (transaction == null || transaction.getRawData().getContractCount() == 0) {
+      System.out.println("Transaction is empty");
+      return null;
+    }
+    System.out.println(
+        "Receive txid = " + ByteArray.toHexString(transactionExtention.getTxid().toByteArray()));
+
+    return transaction;
+  }
+
+  public static boolean permissionUpdateKey4(String permission, byte[] updateAddress, Long weight,
+      byte[] owner, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    ECKey ecKey = temKey;
+    Contract.PermissionUpdateKeyContract.Builder contractBuilder =
+        Contract.PermissionUpdateKeyContract.newBuilder();
+    contractBuilder.setOwnerAddress(ByteString.copyFrom(owner));
+    contractBuilder.setPermissionName(permission);
+    Key.Builder keyBuilder = Key.newBuilder();
+    keyBuilder.setAddress(ByteString.copyFrom(updateAddress));
+    keyBuilder.setWeight(weight);
     contractBuilder.setKey(keyBuilder.build());
 
     Contract.PermissionUpdateKeyContract permissionUpdateKeyContract = contractBuilder.build();
@@ -3686,7 +3790,8 @@ public class PublicMethed {
     return response;
   }
 
-  public static GrpcAPI.Return triggerContractAndGetResponse(byte[] contractAddress, String method, String argsStr,
+  public static GrpcAPI.Return triggerContractAndGetResponse(byte[] contractAddress, String method,
+      String argsStr,
       Boolean isHex, long callValue, long feeLimit, String tokenId, long tokenValue,
       byte[] ownerAddress,
       String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {

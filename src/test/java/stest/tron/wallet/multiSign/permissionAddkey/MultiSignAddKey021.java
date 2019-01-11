@@ -22,7 +22,6 @@ import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 
 public class MultiSignAddKey021 {
-  //weight
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
@@ -94,8 +93,7 @@ public class MultiSignAddKey021 {
 
   @Test
   public void testMultiSignAddKey() {
-    //null
-    //java.lang.NullPointerException
+    //update permission is null
     PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull);
@@ -110,9 +108,12 @@ public class MultiSignAddKey021 {
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));
     String permission2 = null;
-
-    PublicMethed.permissionUpdateKey(permission2, test001Address, 1, testAddress, dev001Key,
-        blockingStubFull);
+    try {
+      PublicMethed.permissionUpdateKey(permission2, test001Address, 1, testAddress, dev001Key,
+          blockingStubFull);
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

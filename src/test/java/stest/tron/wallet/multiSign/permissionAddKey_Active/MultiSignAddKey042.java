@@ -116,8 +116,8 @@ public class MultiSignAddKey042 {
             blockingStubFull));
 
     String permission = "active";
-    //2.添加别人之后，再删除自己self-address
-    //pass
+    //add other address，delete self-address
+
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));
@@ -132,9 +132,7 @@ public class MultiSignAddKey042 {
 
     List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
     printPermissionList(permissionsList1);
-//    Assert.assertTrue(PublicMethed
-//        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
-//            blockingStubFull));
+
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = sendAccountKey;
     Assert.assertTrue(PublicMethedForMutiSign

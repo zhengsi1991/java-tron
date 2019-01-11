@@ -106,6 +106,7 @@ public class MultiSignAddKey036 {
 
   @Test
   public void testSendCoin() {
+    //delete
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull));
