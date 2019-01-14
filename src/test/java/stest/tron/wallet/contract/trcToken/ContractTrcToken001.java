@@ -180,11 +180,10 @@ public class ContractTrcToken001 {
     return assetAccountId;
   }
 
-
-  private List<String> getStrings(byte[] data){
+  private List<String> getStrings(byte[] data) {
     int index = 0;
     List<String> ret = new ArrayList<>();
-    while(index < data.length){
+    while (index < data.length) {
       ret.add(byte2HexStr(data, index, 32));
       index += 32;
     }
@@ -192,11 +191,10 @@ public class ContractTrcToken001 {
   }
 
   public static String byte2HexStr(byte[] b, int offset, int length) {
-    String stmp="";
     StringBuilder sb = new StringBuilder("");
-    for (int n= offset; n<offset + length && n < b.length; n++) {
-      stmp = Integer.toHexString(b[n] & 0xFF);
-      sb.append((stmp.length()==1)? "0"+stmp : stmp);
+    for (int n = offset; n < offset + length && n < b.length; n++) {
+      String stmp = Integer.toHexString(b[n] & 0xFF);
+      sb.append((stmp.length() == 1) ? "0" + stmp : stmp);
     }
     return sb.toString().toUpperCase().trim();
   }
@@ -208,8 +206,11 @@ public class ContractTrcToken001 {
             blockingStubFull, null), 0, 1,
         ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
+//    Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
+//        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+
     Assert.assertTrue(PublicMethed.freezeBalanceForReceiver(fromAddress, 10_000_000L,
-        0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
+    0, 0, ByteString.copyFrom(dev001Address), testKey002, blockingStubFull));
 
     assetAccountId = testCreateAssetIssue(dev001Address, dev001Key);
 

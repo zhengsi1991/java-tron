@@ -80,7 +80,6 @@ public class ContractTrcToken011 {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
 
     PublicMethed.printAddress(dev001Key);
-    PublicMethed.printAddress(user001Key);
 
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 5048_000_000L, fromAddress,
         testKey002, blockingStubFull));
@@ -275,18 +274,15 @@ public class ContractTrcToken011 {
         assetAccountId, blockingStubFull);
     logger.info("Contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contractAssetCount);
 
-//    Assert.assertTrue(energyLimit > 0);
-//    Assert.assertTrue(energyUsage > 0);
-//    Assert.assertEquals(balanceBefore, balanceAfter);
     Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
     Assert.assertEquals(Long.valueOf(200), contractAssetCount);
   }
 
 
-  private List<String> getStrings(byte[] data){
+  private List<String> getStrings(byte[] data) {
     int index = 0;
     List<String> ret = new ArrayList<>();
-    while(index < data.length){
+    while (index < data.length) {
       ret.add(byte2HexStr(data, index, 32));
       index += 32;
     }
@@ -294,11 +290,10 @@ public class ContractTrcToken011 {
   }
 
   public static String byte2HexStr(byte[] b, int offset, int length) {
-    String stmp="";
     StringBuilder sb = new StringBuilder("");
-    for (int n= offset; n<offset + length && n < b.length; n++) {
-      stmp = Integer.toHexString(b[n] & 0xFF);
-      sb.append((stmp.length()==1)? "0"+stmp : stmp);
+    for (int n = offset; n < offset + length && n < b.length; n++) {
+      String stmp = Integer.toHexString(b[n] & 0xFF);
+      sb.append((stmp.length() == 1) ? "0" + stmp : stmp);
     }
     return sb.toString().toUpperCase().trim();
   }
@@ -364,9 +359,6 @@ public class ContractTrcToken011 {
         assetAccountId, blockingStubFull);
     logger.info("Contract has AssetId: " + assetAccountId.toStringUtf8() + ", Count: " + contractAssetCount);
 
-//    Assert.assertTrue(energyLimit > 0);
-//    Assert.assertTrue(energyUsage > 0);
-//    Assert.assertEquals(balanceBefore, balanceAfter);
     Assert.assertEquals(Long.valueOf(100), Long.valueOf(devAssetCountBefore - devAssetCountAfter));
     Assert.assertEquals(Long.valueOf(100), contractAssetCount);
   }
@@ -441,8 +433,6 @@ public class ContractTrcToken011 {
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Optional<TransactionInfo> infoById = PublicMethed
         .getTransactionInfoById(triggerTxid, blockingStubFull);
@@ -500,7 +490,6 @@ public class ContractTrcToken011 {
 //    Assert.assertEquals(assetAccountId.toStringUtf8(),
 //        infoById.get().getInternalTransactions(0).getCallValueInfo(0).getTokenId());
   }
-
 
 
   public void triggerTokenBalanceContract(byte[] tokenBalanceContractAddress,
@@ -562,10 +551,6 @@ public class ContractTrcToken011 {
     if (infoById.get().getResultValue() != 0) {
       Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
     }
-
-    long energyUsage = infoById.get().getReceipt().getEnergyUsage();
-    long energyFee = infoById.get().getReceipt().getEnergyFee();
-    long originEnergyUsage = infoById.get().getReceipt().getOriginEnergyUsage();
 
     SmartContract smartContract = PublicMethed.getContract(infoById.get().getContractAddress()
         .toByteArray(), blockingStubFull);
