@@ -182,7 +182,8 @@ public class ContractTrcToken014 {
           1, 10000, start, end, 1, description, url, 100000L,
           100000L, 1L,1L, priKey, blockingStubFull));
 
-      Account getAssetIdFromThisAccount = PublicMethed.queryAccount(accountAddress,blockingStubFull);
+      Account getAssetIdFromThisAccount = PublicMethed.queryAccount(
+          accountAddress,blockingStubFull);
       assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
 
       logger.info("The token name: " + tokenName);
