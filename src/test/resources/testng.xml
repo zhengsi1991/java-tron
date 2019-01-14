@@ -10,7 +10,8 @@
    <packages>
      <package name="stest.tron.wallet.contract.trcToken">
      </package>
-
+     <package name="stest.tron.wallet.contract.originEnergyLimit">
+     </package>
      </packages>
    </test>
 
