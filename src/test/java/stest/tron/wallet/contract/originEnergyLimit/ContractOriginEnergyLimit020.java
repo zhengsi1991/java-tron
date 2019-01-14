@@ -66,9 +66,9 @@ public class ContractOriginEnergyLimit020 {
     WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
     final String testKey001 = Configuration.getByPath("testng.conf")
         .getString("foundationAccount.key1");
-    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(freezeAddress, 5000000000000000L,
-        0, 1, testKey001, blockingStubFull));
+//    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
+//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(freezeAddress, 5000000000000000L,
+//        0, 1, testKey001, blockingStubFull));
   }
 
   @AfterSuite

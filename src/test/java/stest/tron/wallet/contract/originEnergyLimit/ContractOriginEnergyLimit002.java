@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -25,6 +26,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.utils.DebugUtils;
 
 @Slf4j
 public class ContractOriginEnergyLimit002 {
@@ -60,28 +62,32 @@ public class ContractOriginEnergyLimit002 {
     Wallet wallet = new Wallet();
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     // get energy
-//    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-//        .usePlaintext(true).build();
-//    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-//    final String testKey001 = Configuration.getByPath("testng.conf")
-//        .getString("foundationAccount.key1");
-//    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
-//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(freezeAddress, 5000000000000000L,
-//        0, 1, testKey001, blockingStubFull));
+    channelFull = ManagedChannelBuilder.forTarget(fullnode)
+        .usePlaintext(true).build();
+    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    final String testKey001 = Configuration.getByPath("testng.conf")
+        .getString("foundationAccount.key1");
+    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
+    if (PublicMethed.queryAccount(freezeAddress, blockingStubFull).getBalance() > 10_000_000L) {
+      Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(freezeAddress,
+          PublicMethed.queryAccount(freezeAddress,
+              blockingStubFull).getBalance() - 10_000_000,
+          0, 1, testKey001, blockingStubFull));
+    }
   }
 
-//  @AfterSuite
-//  public void afterSuite() {
-//    // unfreeze energy
-//    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-//        .usePlaintext(true).build();
-//    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-//    final String testKey001 = Configuration.getByPath("testng.conf")
-//        .getString("foundationAccount.key1");
-//    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
-////    Assert.assertTrue(PublicMethed.unFreezeBalance(freezeAddress, testKey001, 1,
-////        null, blockingStubFull));
-//  }
+  @AfterSuite
+  public void afterSuite() {
+    // unfreeze energy
+    channelFull = ManagedChannelBuilder.forTarget(fullnode)
+        .usePlaintext(true).build();
+    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
+    final String testKey001 = Configuration.getByPath("testng.conf")
+        .getString("foundationAccount.key1");
+    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
+    Assert.assertTrue(PublicMethed.unFreezeBalance(freezeAddress, testKey001, 1,
+        null, blockingStubFull));
+  }
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -351,10 +357,15 @@ public class ContractOriginEnergyLimit002 {
     logger.info("devMax: " + devMax);
     logger.info("==================================");
 
+    DebugUtils.printAccountResourceDetail(dev001Address, blockingStubFull);
+
     String param = "\"" + 0 + "\"";
     String triggerTxid = PublicMethed
         .triggerContract(contractAddress, "findArgsByIndexTest(uint256)",
         param, false, 0, triggerFeeLimit, user001Address, user001Key, blockingStubFull);
+
+    DebugUtils.printAccountResourceDetail(dev001Address, blockingStubFull);
+    DebugUtils.printTransactioninfobyIdDetails(deployTxid, blockingStubFull, null);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     devEnergyLimitAfter = accountResource.getEnergyLimit();

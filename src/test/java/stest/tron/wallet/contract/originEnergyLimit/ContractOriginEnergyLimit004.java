@@ -25,6 +25,7 @@ import org.tron.protos.Protocol.TransactionInfo;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.myself.utils.DebugUtils;
 
 @Slf4j
 public class ContractOriginEnergyLimit004 {
@@ -59,29 +60,7 @@ public class ContractOriginEnergyLimit004 {
   public void beforeSuite() {
     Wallet wallet = new Wallet();
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
-    // get energy
-//    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-//        .usePlaintext(true).build();
-//    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-//    final String testKey001 = Configuration.getByPath("testng.conf")
-//        .getString("foundationAccount.key1");
-//    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
-//    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(freezeAddress, 5000000000000000L,
-//        0, 1, testKey001, blockingStubFull));
   }
-
-//  @AfterSuite
-//  public void afterSuite() {
-//    // unfreeze energy
-//    channelFull = ManagedChannelBuilder.forTarget(fullnode)
-//        .usePlaintext(true).build();
-//    WalletGrpc.WalletBlockingStub blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
-//    final String testKey001 = Configuration.getByPath("testng.conf")
-//        .getString("foundationAccount.key1");
-//    final byte[] freezeAddress = PublicMethed.getFinalAddress(testKey001);
-//    Assert.assertTrue(PublicMethed.unFreezeBalance(freezeAddress, testKey001, 1,
-//        null, blockingStubFull));
-//  }
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -116,7 +95,7 @@ public class ContractOriginEnergyLimit004 {
     long balance = info.getBalance();
     long energyLimit = resourceInfo.getEnergyLimit();
     long userAvaliableFrozenEnergy = getAvailableFrozenEnergy(userAddress);
-    return balance/100 + userAvaliableFrozenEnergy;
+    return balance / 100 + userAvaliableFrozenEnergy;
   }
 
   public long getFeeLimit(String txid) {
@@ -125,11 +104,9 @@ public class ContractOriginEnergyLimit004 {
   }
 
   public long getUserMax(byte[] userAddress, long feelimit) {
-    Account info = PublicMethed.queryAccount(userAddress, blockingStubFull);
-//    logger.info("User feeLimit: " + getFeeLimit(txid)*10000);
-    logger.info("User feeLimit: " + feelimit/100);
+    logger.info("User feeLimit: " + feelimit / 100);
     logger.info("User UserAvaliableEnergy: " + getUserAvailableEnergy(userAddress));
-    return Math.min(feelimit/100, getUserAvailableEnergy(userAddress));
+    return Math.min(feelimit / 100, getUserAvailableEnergy(userAddress));
   }
 
   public long getOriginalEnergyLimit(byte[] contractAddress) {
@@ -144,12 +121,13 @@ public class ContractOriginEnergyLimit004 {
 
   public long getDevMax(byte[] devAddress, byte[] userAddress, long feeLimit,
       byte[] contractAddress) {
-    long devMax = Math.min(getAvailableFrozenEnergy(devAddress), getOriginalEnergyLimit(contractAddress));
+    long devMax = Math.min(getAvailableFrozenEnergy(devAddress),
+        getOriginalEnergyLimit(contractAddress));
     long p = getConsumeUserResourcePercent(contractAddress);
     if (p != 0) {
       logger.info("p: " + p);
-      devMax = Math.min(devMax, getUserMax(userAddress, feeLimit)*(100-p)/p);
-      logger.info("Dev byUserPercent: " + getUserMax(userAddress, feeLimit)*(100-p)/p);
+      devMax = Math.min(devMax, getUserMax(userAddress, feeLimit) * (100 - p) / p);
+      logger.info("Dev byUserPercent: " + getUserMax(userAddress, feeLimit) * (100 - p) / p);
     }
     logger.info("Dev AvaliableFrozenEnergy: " + getAvailableFrozenEnergy(devAddress));
     logger.info("Dev OriginalEnergyLimit: " + getOriginalEnergyLimit(contractAddress));
@@ -158,7 +136,7 @@ public class ContractOriginEnergyLimit004 {
 
   public static long getFreezeBalanceCount(byte[] accountAddress, String ecKey, Long targetEnergy,
       WalletGrpc.WalletBlockingStub blockingStubFull, String msg) {
-    if(msg != null) {
+    if (msg != null) {
       logger.info(msg);
     }
     AccountResourceMessage resourceInfo = PublicMethed.getAccountResource(accountAddress,
@@ -192,16 +170,16 @@ public class ContractOriginEnergyLimit004 {
     }
 
     // totalEnergyLimit / (totalEnergyWeight + needBalance) = needEnergy / needBalance
-    BigInteger totalEnergyWeightBI = BigInteger.valueOf(totalEnergyWeight);
-    long needBalance = totalEnergyWeightBI.multiply(BigInteger.valueOf(1_000_000))
+    BigInteger totalEnergyWeightBig = BigInteger.valueOf(totalEnergyWeight);
+    long needBalance = totalEnergyWeightBig.multiply(BigInteger.valueOf(1_000_000))
         .multiply(BigInteger.valueOf(targetEnergy))
         .divide(BigInteger.valueOf(totalEnergyLimit - targetEnergy)).longValue();
 
-    logger.info("[Debug]getFreezeBalanceCount, needBalance: " + needBalance);
+    logger.info("getFreezeBalanceCount, needBalance: " + needBalance);
 
     if (needBalance < 1000000L) {
       needBalance = 1000000L;
-      logger.info("[Debug]getFreezeBalanceCount, needBalance less than 1 TRX, modify to: " + needBalance);
+      logger.info("getFreezeBalanceCount, needBalance less than 1 TRX, modify to: " + needBalance);
     }
     return needBalance;
   }
@@ -210,7 +188,6 @@ public class ContractOriginEnergyLimit004 {
   @Test(enabled = true)
   public void testOriginEnergyLimit() {
 
-
     // A2B1
 
     //dev balance and Energy
@@ -218,27 +195,27 @@ public class ContractOriginEnergyLimit004 {
     long devTargetEnergy = 70000;
 
     // deploy contract parameters
-    long deployFeeLimit = maxFeeLimit;
-    long consumeUserResourcePercent = 0;
-    long originEnergyLimit = 1000;
+    final long deployFeeLimit = maxFeeLimit;
+    final long consumeUserResourcePercent = 0;
+    final long originEnergyLimit = 1000;
 
     //dev balance and Energy
-    long devTriggerTargetBalance = 0;
-    long devTriggerTargetEnergy = 592;
+    final long devTriggerTargetBalance = 0;
+    final long devTriggerTargetEnergy = 592;
 
     // user balance and Energy
-    long userTargetBalance = 0;
-    long userTargetEnergy = 2000L;
+    final long userTargetBalance = 0;
+    final long userTargetEnergy = 2000L;
 
     // trigger contract parameter, maxFeeLimit 10000000
-    long triggerFeeLimit = maxFeeLimit;
-    boolean expectRet = true;
+    final long triggerFeeLimit = maxFeeLimit;
+    final boolean expectRet = true;
 
     // count dev energy, balance
-    long devFreezeBalanceSUN = getFreezeBalanceCount(dev001Address, dev001Key,
+    long devFreezeBalanceSun = getFreezeBalanceCount(dev001Address, dev001Key,
         devTargetEnergy, blockingStubFull,null);
 
-    long devNeedBalance = devTargetBalance + devFreezeBalanceSUN;
+    long devNeedBalance = devTargetBalance + devFreezeBalanceSun;
 
     logger.info("need balance:" + devNeedBalance);
 
@@ -247,7 +224,7 @@ public class ContractOriginEnergyLimit004 {
         testKey002, blockingStubFull));
 
     // get energy
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSUN,
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun,
         3, 1, dev001Key, blockingStubFull));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -266,7 +243,7 @@ public class ContractOriginEnergyLimit004 {
     String code = "608060405234801561001057600080fd5b50d3801561001d57600080fd5b50d2801561002a57600080fd5b5061014e8061003a6000396000f3006080604052600436106100405763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663329000b58114610045575b600080fd5b34801561005157600080fd5b50d3801561005e57600080fd5b50d2801561006b57600080fd5b50610077600435610089565b60408051918252519081900360200190f35b604080516003808252608082019092526000916060919060208201838038833901905050905060018160008151811015156100c057fe5b602090810290910101528051600290829060019081106100dc57fe5b602090810290910101528051600390829060029081106100f857fe5b60209081029091010152805181908490811061011057fe5b906020019060200201519150509190505600a165627a7a723058206503efa46ed431a2604563d7764b4b9e6ca03238259cb133c878592fc43a4b670029";
     String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"i\",\"type\":\"uint256\"}],\"name\":\"findArgsByIndexTest\",\"outputs\":[{\"name\":\"z\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
-    String deployTxid = PublicMethed
+    final String deployTxid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             deployFeeLimit, 0L, consumeUserResourcePercent, originEnergyLimit, "0",
             0, null, dev001Key, dev001Address, blockingStubFull);
@@ -297,17 +274,17 @@ public class ContractOriginEnergyLimit004 {
     Assert.assertEquals(devBalanceBefore, devBalanceAfter);
 
     // count dev energy, balance
-    devFreezeBalanceSUN = getFreezeBalanceCount(dev001Address, dev001Key,
+    devFreezeBalanceSun = getFreezeBalanceCount(dev001Address, dev001Key,
         devTriggerTargetEnergy, blockingStubFull, null);
 
-    devNeedBalance = devTriggerTargetBalance + devFreezeBalanceSUN;
+    devNeedBalance = devTriggerTargetBalance + devFreezeBalanceSun;
     logger.info("dev need  balance:" + devNeedBalance);
 
     // count user energy, balance
-    long userFreezeBalanceSUN = getFreezeBalanceCount(user001Address, user001Key,
+    long userFreezeBalanceSun = getFreezeBalanceCount(user001Address, user001Key,
         userTargetEnergy, blockingStubFull,null);
 
-    long userNeedBalance = userTargetBalance + userFreezeBalanceSUN;
+    long userNeedBalance = userTargetBalance + userFreezeBalanceSun;
 
     logger.info("User need  balance:" + userNeedBalance);
 
@@ -318,9 +295,9 @@ public class ContractOriginEnergyLimit004 {
         testKey002, blockingStubFull));
 
     // get energy
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSUN,
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(dev001Address, devFreezeBalanceSun,
         3, 1, dev001Key, blockingStubFull));
-    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(user001Address, userFreezeBalanceSUN,
+    Assert.assertTrue(PublicMethed.freezeBalanceGetEnergy(user001Address, userFreezeBalanceSun,
         3, 1, user001Key, blockingStubFull));
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
@@ -328,17 +305,22 @@ public class ContractOriginEnergyLimit004 {
     devEnergyUsageBefore = accountResource.getEnergyUsed();
     devBalanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
 
-    logger.info("before trigger, dev devEnergyLimitBefore is " + Long.toString(devEnergyLimitBefore));
-    logger.info("before trigger, dev devEnergyUsageBefore is " + Long.toString(devEnergyUsageBefore));
+    logger.info("before trigger, dev devEnergyLimitBefore is "
+        + Long.toString(devEnergyLimitBefore));
+    logger.info("before trigger, dev devEnergyUsageBefore is "
+        + Long.toString(devEnergyUsageBefore));
     logger.info("before trigger, dev devBalanceBefore is " + Long.toString(devBalanceBefore));
 
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitBefore = accountResource.getEnergyLimit();
     long userEnergyUsageBefore = accountResource.getEnergyUsed();
-    long userBalanceBefore = PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
+    long userBalanceBefore = PublicMethed.queryAccount(
+        user001Address, blockingStubFull).getBalance();
 
-    logger.info("before trigger, user userEnergyLimitBefore is " + Long.toString(userEnergyLimitBefore));
-    logger.info("before trigger, user userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
+    logger.info("before trigger, user userEnergyLimitBefore is "
+        + Long.toString(userEnergyLimitBefore));
+    logger.info("before trigger, user userEnergyUsageBefore is "
+        + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, user userBalanceBefore is " + Long.toString(userBalanceBefore));
 
     logger.info("==================================");
@@ -350,9 +332,10 @@ public class ContractOriginEnergyLimit004 {
     logger.info("==================================");
 
     String param = "\"" + 0 + "\"";
-    String triggerTxid = PublicMethed
+    final String triggerTxid = PublicMethed
         .triggerContract(contractAddress, "findArgsByIndexTest(uint256)",
-        param, false, 0, triggerFeeLimit, user001Address, user001Key, blockingStubFull);
+        param, false, 0, triggerFeeLimit,
+            user001Address, user001Key, blockingStubFull);
 
     accountResource = PublicMethed.getAccountResource(dev001Address, blockingStubFull);
     devEnergyLimitAfter = accountResource.getEnergyLimit();
@@ -366,10 +349,13 @@ public class ContractOriginEnergyLimit004 {
     accountResource = PublicMethed.getAccountResource(user001Address, blockingStubFull);
     long userEnergyLimitAfter = accountResource.getEnergyLimit();
     long userEnergyUsageAfter = accountResource.getEnergyUsed();
-    long userBalanceAfter = PublicMethed.queryAccount(user001Address, blockingStubFull).getBalance();
+    long userBalanceAfter = PublicMethed.queryAccount(user001Address,
+        blockingStubFull).getBalance();
 
-    logger.info("after trigger, user userEnergyLimitAfter is " + Long.toString(userEnergyLimitAfter));
-    logger.info("after trigger, user userEnergyUsageAfter is " + Long.toString(userEnergyUsageAfter));
+    logger.info("after trigger, user userEnergyLimitAfter is "
+        + Long.toString(userEnergyLimitAfter));
+    logger.info("after trigger, user userEnergyUsageAfter is "
+        + Long.toString(userEnergyUsageAfter));
     logger.info("after trigger, user userBalanceAfter is " + Long.toString(userBalanceAfter));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -399,12 +385,12 @@ public class ContractOriginEnergyLimit004 {
     logger.info("netFee: " + netFee);
 
     smartContract = PublicMethed.getContract(contractAddress, blockingStubFull);
-    long consumeURPercent = smartContract.getConsumeUserResourcePercent();
-    logger.info("ConsumeURPercent: " + consumeURPercent);
+    long consumeUserPercent = smartContract.getConsumeUserResourcePercent();
+    logger.info("ConsumeURPercent: " + consumeUserPercent);
 
-    long devExpectCost = energyTotalUsage*(100 - consumeURPercent)/100;
+    long devExpectCost = energyTotalUsage * (100 - consumeUserPercent) / 100;
     long userExpectCost = energyTotalUsage - devExpectCost;
-    long totalCost = devExpectCost + userExpectCost;
+    final long totalCost = devExpectCost + userExpectCost;
 
     logger.info("devExpectCost: " + devExpectCost);
     logger.info("userExpectCost: " + userExpectCost);
@@ -412,9 +398,12 @@ public class ContractOriginEnergyLimit004 {
     Assert.assertTrue(devEnergyLimitAfter > 0);
     Assert.assertEquals(devBalanceBefore, devBalanceAfter);
 
+    // dev original is the dev max expense A2B1
+    Assert.assertEquals(getOriginalEnergyLimit(contractAddress), devMax);
+
     // DEV is enough to pay
     Assert.assertEquals(originEnergyUsage, devExpectCost);
-    Assert.assertEquals(devEnergyUsageAfter,devExpectCost + devEnergyUsageBefore);
+    //    Assert.assertEquals(devEnergyUsageAfter,devExpectCost + devEnergyUsageBefore);
     // User Energy is enough to pay");
     Assert.assertEquals(energyUsage, userExpectCost);
     Assert.assertEquals(userBalanceBefore, userBalanceAfter);

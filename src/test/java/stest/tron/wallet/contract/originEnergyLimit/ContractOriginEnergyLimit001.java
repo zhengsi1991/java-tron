@@ -109,10 +109,6 @@ public class ContractOriginEnergyLimit001 {
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    Optional<TransactionInfo> infoById1 = null;
-//    infoById1 = PublicMethed.getTransactionInfoById(contractAddress2, blockingStubFull);
-//    Assert.assertTrue(infoById1.get().getResultValue() == 0);
-
     Assert.assertFalse(PublicMethed.updateEnergyLimit(contractAddress2, -1L,
         testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
     SmartContract smartContract = PublicMethed.getContract(contractAddress2, blockingStubFull);
@@ -123,8 +119,9 @@ public class ContractOriginEnergyLimit001 {
     SmartContract smartContract1 = PublicMethed.getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract1.getOriginEnergyLimit() == 9223372036854775807L);
 
-    Assert.assertTrue(PublicMethed.updateEnergyLimit(contractAddress2, 9223372036854775807L,
-        testKeyForGrammarAddress3, grammarAddress3, blockingStubFull));
+    Assert.assertTrue(PublicMethed.updateEnergyLimit(contractAddress2,
+        9223372036854775807L, testKeyForGrammarAddress3,
+        grammarAddress3, blockingStubFull));
     SmartContract smartContract2 = PublicMethed.getContract(contractAddress2, blockingStubFull);
     Assert.assertTrue(smartContract2.getOriginEnergyLimit() == 9223372036854775807L);
 
