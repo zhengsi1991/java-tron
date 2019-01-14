@@ -8,42 +8,41 @@
 
  <test name="account,transfer">
    <packages>
-     <package name="stest.tron.wallet.transfer">
+     <package name="stest.tron.wallet.contract.trcToken">
      </package>
-     <package name="stest.tron.wallet.account">
-     </package>
+
      </packages>
    </test>
 
-   <test name="exchangeandtoken,mutisign">
-     <packages>
-       <package name="stest.tron.wallet.exchangeandtoken">
-       </package>
-       <package name="stest.tron.wallet.mutisign">
-       </package>
-     </packages>
-   </test>
+   <!--<test name="exchangeandtoken,mutisign">-->
+     <!--<packages>-->
+       <!--<package name="stest.tron.wallet.exchangeandtoken">-->
+       <!--</package>-->
+       <!--<package name="stest.tron.wallet.mutisign">-->
+       <!--</package>-->
+     <!--</packages>-->
+   <!--</test>-->
 
-   <test name="Contract linkage,block,node">
-     <packages>
-       <package name="stest.tron.wallet.contract.linkage">
-       </package>
-       <package name="stest.tron.wallet.block">
-       </package>
-       <package name="stest.tron.wallet.node">
-       </package>
-     </packages>
-   </test>
+   <!--<test name="Contract linkage,block,node">-->
+     <!--<packages>-->
+       <!--<package name="stest.tron.wallet.contract.linkage">-->
+       <!--</package>-->
+       <!--<package name="stest.tron.wallet.block">-->
+       <!--</package>-->
+       <!--<package name="stest.tron.wallet.node">-->
+       <!--</package>-->
+     <!--</packages>-->
+   <!--</test>-->
 
-    <test name="contract scenario,committee,witness">
-      <packages>
-          <package name="stest.tron.wallet.contract.scenario">
-          </package>
-          <package name="stest.tron.wallet.committee">
-          </package>
-          <package name="stest.tron.wallet.witness">
-          </package>
-      </packages>
-    </test>
+    <!--<test name="contract scenario,committee,witness">-->
+      <!--<packages>-->
+          <!--<package name="stest.tron.wallet.contract.scenario">-->
+          <!--</package>-->
+          <!--<package name="stest.tron.wallet.committee">-->
+          <!--</package>-->
+          <!--<package name="stest.tron.wallet.witness">-->
+          <!--</package>-->
+      <!--</packages>-->
+    <!--</test>-->
 
 </suite>
