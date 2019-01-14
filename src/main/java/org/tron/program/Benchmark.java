@@ -59,10 +59,11 @@ public class Benchmark {
         LongSummaryStatistics summary = stats.stream().mapToLong(l -> l).summaryStatistics();
 
         System.out.println("\n=== Results ===");
-        System.out.println("Number of blocks: " + n);
-        System.out.println("Average block get time: " + summary.getAverage() / 1000.0 + " [μs]");
-        System.out.println("Minimum block get time: " + summary.getMin() / 1000.0 + " [μs]");
-        System.out.println("Maximum block get time: " + summary.getMax() / 1000.0 + " [μs]");
+        System.out.println("Number of blocks to read: " + n);
+        System.out.println("Database size:            " + dbManager.getHead().getNum() + "[blocks]");
+        System.out.println("Average block get time:   " + summary.getAverage() / 1000.0 + " [μs]");
+        System.out.println("Minimum block get time:   " + summary.getMin() / 1000.0 + " [μs]");
+        System.out.println("Maximum block get time:   " + summary.getMax() / 1000.0 + " [μs]");
         System.out.println("Histogram:");
 
         final long grouping = 10;
