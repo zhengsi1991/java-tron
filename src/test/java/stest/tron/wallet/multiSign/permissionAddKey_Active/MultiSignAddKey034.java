@@ -122,9 +122,8 @@ public class MultiSignAddKey034 {
     List<Permission> permissionsListbefore = test001AddressAccountbefore.getPermissionsList();
     printPermissionList(permissionsListbefore);
     logger.info("-------------------------");
-    //8.Integer.MAX_VALUE+100
-    //jCode = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : key weight should be greater than 0
+    //weight=Integer.MAX_VALUE+100
+
     Assert.assertFalse(PublicMethed
         .permissionUpdateKey(permission, testAddress, Integer.MAX_VALUE + 100, testAddress,
             dev001Key,

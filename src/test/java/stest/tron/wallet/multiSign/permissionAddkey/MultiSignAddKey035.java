@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddkey;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -21,6 +24,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
 public class MultiSignAddKey035 {
@@ -89,7 +93,6 @@ public class MultiSignAddKey035 {
   @Test
   public void testMultiSignAddKey() {
     //sum(weight) < threadhold
-    //sum of all keys weight should not be less that threshold
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] testAddress = ecKey.getAddress();
     String dev001Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -118,26 +121,25 @@ public class MultiSignAddKey035 {
         + "\",\"weight\":3}],\"name\":\"active\",\"threshold\":5}]";
     PublicMethed.accountPermissionUpdate(i, testAddress, dev001Key, blockingStubFull);
     String permission = "owner";
-    Assert.assertTrue(PublicMethed
-        .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull));
 
     Account test001AddressAccountbefore = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsListbefore = test001AddressAccountbefore.getPermissionsList();
     printPermissionList(permissionsListbefore);
     logger.info("-------------------------");
 
-    Assert.assertTrue(PublicMethed
-        .permissionUpdateKey(permission, test001Address, 1, testAddress,
+    Return returnResult = PublicMethedForMutiSign
+        .permissionUpdateKey2(permission, test001Address, 1, testAddress,
             dev001Key,
-            blockingStubFull));
-
+            blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("sum of all keys weight should not be less that threshold"));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
-    PublicMethed
-        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
-            blockingStubFull);
+
 
   }
 

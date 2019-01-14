@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddKey_Active;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -21,6 +24,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
 public class MultiSignAddKey027 {
@@ -114,15 +118,18 @@ public class MultiSignAddKey027 {
             blockingStubFull));
 
     String permission = "active";
-    //4。不存在的地址
-    // Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : you have not set owner permission
+    //address is notExistAddress
 
     String notExistAddress = "2323";
 
-    Assert.assertFalse(PublicMethed
-        .permissionUpdateKey(permission, notExistAddress.getBytes(), 2, testAddress, dev001Key,
-            blockingStubFull));
+    Return returnResult = PublicMethedForMutiSign
+        .permissionUpdateKey2(permission, notExistAddress.getBytes(), 2, testAddress, dev001Key,
+            blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("you have not set owner permission"));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);

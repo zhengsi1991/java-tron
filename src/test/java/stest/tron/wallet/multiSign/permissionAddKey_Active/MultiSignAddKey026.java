@@ -114,7 +114,7 @@ public class MultiSignAddKey026 {
             blockingStubFull));
 
     String permission = "active";
-    //3改selfaddress
+    //address is selfaddress
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));

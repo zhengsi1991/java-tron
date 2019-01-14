@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddKey_Active;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -8,6 +10,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -116,16 +119,16 @@ public class MultiSignAddKey018 {
 
     String permission = "active";
 
-    //原来有active，又添加一个.integer.MAXLong
+    //Add weight is Long.MAX_VALUE
 
     String i = "[{\"keys\":[{\"address\":\""
         + PublicMethed.getAddressString(sendAccountKey2)
         + "\",\"weight\":4},{\"address\":\""
         + PublicMethed.getAddressString(sendAccountKey)
         + "\",\"weight\":4}],\"name\":\"owner\",\"threshold\":4,\"parent\":\"owner\"},{\"parent\":\"owner\",\"keys\":[{\"address\":\""
-        + PublicMethed.getAddressString(sendAccountKey2) + "\",\"weight\":2},{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2) + "\",\"weight\":4},{\"address\":\""
         + PublicMethed.getAddressString(sendAccountKey)
-        + "\",\"weight\":3}],\"name\":\"active\",\"threshold\":5}]";
+        + "\",\"weight\":4}],\"name\":\"active\",\"threshold\":4}]";
     PublicMethed.accountPermissionUpdate(i, testAddress, dev001Key, blockingStubFull);
     Account test001AddressAccount1 = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
@@ -135,18 +138,23 @@ public class MultiSignAddKey018 {
     permissionKeyString[0] = sendAccountKey2;
     permissionKeyString[1] = sendAccountKey;
 
-    Assert.assertFalse(PublicMethedForMutiSign
+    Assert.assertTrue(PublicMethedForMutiSign
         .permissionDeleteKey("active", test001Address, testAddress, dev001Key, blockingStubFull,
             permissionKeyString));
     Account test001AddressAccount2 = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList2 = test001AddressAccount2.getPermissionsList();
     printPermissionList(permissionsList2);
-    String[] permissionKeyString1 = new String[1];
-    permissionKeyString1[0] = sendAccountKey2;
-    Assert.assertFalse(PublicMethedForMutiSign
-        .permissionAddKey(permission, test004Address, Long.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull, permissionKeyString1));
+
+    Return returnResult = PublicMethedForMutiSign
+        .permissionAddKeyWithoutSign1(permission, test004Address, Long.MAX_VALUE, testAddress,
+            dev001Key,
+            blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("long overflow"));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

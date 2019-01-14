@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddKey_Active;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -8,6 +10,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -107,18 +110,16 @@ public class MultiSignAddKey015 {
   @Test
   public void testMultiSignAddKey() {
     Assert.assertTrue(PublicMethed
-        .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
             blockingStubFull));
 
     Assert.assertTrue(PublicMethed
-        .sendcoin(testAddress, 1000000000L, fromAddress, testKey002,
+        .sendcoin(testAddress, 1000000L, fromAddress, testKey002,
             blockingStubFull));
 
     String permission = "active";
-    //7.integer.MAX
-    //前四个pass
-    //最后一个由于数量满5，
-    //contract validate error : number of keys in permission should not be greater than 5
+    //weight is Integer.MAX
+
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, Integer.MAX_VALUE, testAddress, dev001Key,
             blockingStubFull));
@@ -131,9 +132,16 @@ public class MultiSignAddKey015 {
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test004Address, Integer.MAX_VALUE, testAddress, dev001Key,
             blockingStubFull));
-    Assert.assertFalse(PublicMethed
-        .permissionAddKey(permission, test005Address, Integer.MAX_VALUE, testAddress, dev001Key,
-            blockingStubFull));
+
+    Return returnResult = PublicMethedForMutiSign
+        .permissionAddKeyWithoutSign2(permission, test005Address, Integer.MAX_VALUE, testAddress,
+            dev001Key,
+            blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("number of keys in permission should not be greater than 5"));
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
@@ -141,10 +149,10 @@ public class MultiSignAddKey015 {
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = sendAccountKey;
     Assert.assertTrue(PublicMethedForMutiSign
-        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key, blockingStubFull,
+        .sendcoin(fromAddress, 1000000L, testAddress, dev001Key, blockingStubFull,
             permissionKeyString));
     Assert.assertTrue(PublicMethed
-        .sendcoin(fromAddress, 1000000000L, test001Address, sendAccountKey,
+        .sendcoin(fromAddress, 1000000L, test001Address, sendAccountKey,
             blockingStubFull));
 
   }

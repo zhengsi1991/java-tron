@@ -1,4 +1,4 @@
-package stest.tron.wallet.contract.originEnergyLimit;
+package stest.tron.wallet.myself;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;

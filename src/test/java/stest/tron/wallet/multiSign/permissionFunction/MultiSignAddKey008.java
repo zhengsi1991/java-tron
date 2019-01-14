@@ -80,9 +80,7 @@ public class MultiSignAddKey008 {
 
   @Test
   public void testMultiSignAddKey() {
-    //先加5个，再加一个,不在里面的
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : number of keys in permission should not be greater than 5
+    //add address ,number =5,add a other address
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] testAddress = ecKey.getAddress();
     String dev001Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -155,9 +153,7 @@ public class MultiSignAddKey008 {
 
   @Test
   public void testMultiSignAddKey2() {
-    //先加5个，再加一个,在里面的
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : address TPiBiwiqqNyPRN7dTZf3UVA9s2DCvsfhCN is already in permission owner
+    //add address ,number =5,add a (in the list) address
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] testAddress = ecKey.getAddress();
     String dev001Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -231,9 +227,8 @@ public class MultiSignAddKey008 {
 
   @Test
   public void testMultiSignAddKey3() {
-    //先加5个，再加一个,不在里面的
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : number of keys in permission should not be greater than 5
+    //add address ,number =5,add a other address (active)
+
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] testAddress = ecKey.getAddress();
     String dev001Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());
@@ -307,9 +302,7 @@ public class MultiSignAddKey008 {
 
   @Test
   public void testMultiSignAddKey4() {
-    //先加5个，再加一个,在里面的
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : address TDNYWH9uH69v348LvuaYw834aujZiYDYZx is already in permission active
+    //add address ,number =5,add a (in the active list) address
     ECKey ecKey = new ECKey(Utils.getRandom());
     byte[] testAddress = ecKey.getAddress();
     String dev001Key = ByteArray.toHexString(ecKey.getPrivKeyBytes());

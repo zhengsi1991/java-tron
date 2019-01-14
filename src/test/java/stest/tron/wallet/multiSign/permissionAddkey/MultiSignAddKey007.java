@@ -20,6 +20,7 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 public class MultiSignAddKey007 {
 
@@ -93,6 +94,13 @@ public class MultiSignAddKey007 {
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, testAddress, 1, testAddress, dev001Key,
             blockingStubFull));
+
+    String[] permissionKeyString1 = new String[1];
+    permissionKeyString1[0] = dev001Key;
+    Assert.assertTrue(PublicMethedForMutiSign
+        .permissionUpdateKey(permission, testAddress, 2, testAddress, dev001Key,
+            blockingStubFull,
+            permissionKeyString1));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();

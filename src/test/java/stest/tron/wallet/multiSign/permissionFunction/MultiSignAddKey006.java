@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionFunction;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -127,11 +130,13 @@ public class MultiSignAddKey006 {
     Transaction transaction1 = PublicMethed
         .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
 
-    boolean broadcastResult = PublicMethedForMutiSign
-        .broadcastTransaction(transaction1, blockingStubFull);
-    logger.info("broadcastResult:" + broadcastResult);
-    Assert.assertFalse(broadcastResult);
-
+    Return returnResult = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("but it is not contained of permission."));
   }
 
   @Test
@@ -162,10 +167,121 @@ public class MultiSignAddKey006 {
     Assert.assertTrue(PublicMethed
         .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
             blockingStubFull));
-    boolean broadcastResult = PublicMethedForMutiSign
-        .broadcastTransaction(transaction1, blockingStubFull);
-    logger.info("broadcastResult:" + broadcastResult);
-    Assert.assertFalse(broadcastResult);
+    Return returnResult = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+    logger.info("returnResult.getCode().toString():" + returnResult.getCode().toString());
+    logger.info(
+        "returnResult.getMessage().toStringUtf8():" + returnResult.getMessage().toStringUtf8());
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("but it is not contained of permission."));
+
+
+  }
+
+  @Test
+  public void testMultiSignAddKey3() {
+    //add one owner ,sendcoin,delete the new added address,use the new added address to sign,broadcastTransaction.
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    String permission = "owner";
+    Assert.assertTrue(PublicMethed
+        .permissionAddKey(permission, test002Address, 1, test001Address, dev001Key,
+            blockingStubFull));
+
+    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
+    printPermissionList(permissionsList);
+    String[] permissionKeyString = new String[5];
+    permissionKeyString[0] = dev001Key;
+    permissionKeyString[1] = sendAccountKey2;
+
+    String accountPermissionJson1 = "[{\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":4}],\"name\":\"owner\",\"threshold\":4,\"parent\":\"owner\"},{\"parent\":\"owner\",\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(dev001Key)
+        + "\",\"weight\":1}],\"name\":\"active\",\"threshold\":1}]";
+
+    Transaction transaction = PublicMethedForMutiSign
+        .accountPermissionUpdate1(accountPermissionJson1, test001Address, dev001Key,
+            blockingStubFull,
+            permissionKeyString);
+
+    Assert.assertTrue(PublicMethed
+        .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
+            blockingStubFull));
+    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
+    printPermissionList(permissionsList1);
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
+
+    Return returnResult = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+    logger.info("returnResult.getCode().toString():" + returnResult.getCode().toString());
+    logger.info(
+        "returnResult.getMessage().toStringUtf8():" + returnResult.getMessage().toStringUtf8());
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("but it is not contained of permission."));
+
+  }
+
+  @Test
+  public void testMultiSignAddKey4() {
+    //add one active ,sendcoin,use the new added address to sign,delete the new added address,broadcastTransaction.
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    String permission = "active";
+    Assert.assertTrue(PublicMethed
+        .permissionAddKey(permission, test002Address, 1, test001Address, dev001Key,
+            blockingStubFull));
+
+    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
+    printPermissionList(permissionsList);
+    String[] permissionKeyString = new String[5];
+    permissionKeyString[0] = dev001Key;
+    permissionKeyString[1] = sendAccountKey2;
+    String accountPermissionJson1 = "[{\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":4}],\"name\":\"owner\",\"threshold\":4,\"parent\":\"owner\"},{\"parent\":\"owner\",\"keys\":[{\"address\":\""
+        + PublicMethed.getAddressString(dev001Key)
+        + "\",\"weight\":1}],\"name\":\"active\",\"threshold\":1}]";
+
+    Transaction transaction = PublicMethedForMutiSign
+        .accountPermissionUpdate1(accountPermissionJson1, test001Address, dev001Key,
+            blockingStubFull,
+            permissionKeyString);
+
+    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList1 = test001AddressAccount1.getPermissionsList();
+    printPermissionList(permissionsList1);
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
+    Assert.assertTrue(PublicMethed
+        .permissionDeleteKey(permission, test002Address, test001Address, dev001Key,
+            blockingStubFull));
+    Return returnResult = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+    logger.info("returnResult.getCode().toString():" + returnResult.getCode().toString());
+    logger.info(
+        "returnResult.getMessage().toStringUtf8():" + returnResult.getMessage().toStringUtf8());
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("but it is not contained of permission."));
 
 
   }

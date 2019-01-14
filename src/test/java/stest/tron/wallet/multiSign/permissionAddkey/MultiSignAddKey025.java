@@ -116,8 +116,7 @@ public class MultiSignAddKey025 {
             blockingStubFull);
 
     String permission = "owner";
-    //1.permission keylist address
-    //pass
+    //address is in permission keylist
     Assert.assertTrue(PublicMethed
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));

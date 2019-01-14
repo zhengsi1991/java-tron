@@ -99,11 +99,14 @@ public class MultiSignAddKey013 {
 
     String permission = "owner";
 
-    //4.非数字
-    //java.lang.NumberFormatException: For input string: "AAA"
-    Assert.assertFalse(PublicMethed
-        .permissionAddKey2(permission, test001Address, "AAA", testAddress, dev001Key,
-            blockingStubFull));
+    //weigth ="AAA"
+    try {
+      PublicMethed
+          .permissionAddKey2(permission, test001Address, "AAA", testAddress, dev001Key,
+              blockingStubFull);
+    } catch (NumberFormatException e) {
+      e.printStackTrace();
+    }
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

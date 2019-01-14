@@ -1,5 +1,7 @@
 package stest.tron.wallet.multiSign.permissionAddkey;
 
+import static org.hamcrest.core.StringContains.containsString;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -8,6 +10,7 @@ import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.tron.api.GrpcAPI.Return;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
 import org.tron.common.crypto.ECKey;
@@ -20,9 +23,9 @@ import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 public class MultiSignAddKey022 {
-  //weight
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
@@ -94,9 +97,7 @@ public class MultiSignAddKey022 {
 
   @Test
   public void testMultiSignAddKey() {
-    //非字母"123"
-    //Code = CONTRACT_VALIDATE_ERROR
-    //Message = contract validate error : permission name should be owner or active
+    //update permission is "123"
     PublicMethed
         .sendcoin(test001Address, 1000000000L, fromAddress, testKey002,
             blockingStubFull);
@@ -111,9 +112,15 @@ public class MultiSignAddKey022 {
         .permissionAddKey(permission, test001Address, 1, testAddress, dev001Key,
             blockingStubFull));
     String permission2 = "123";
-    Assert.assertFalse(
-        PublicMethed.permissionUpdateKey(permission2, test001Address, 1, testAddress, dev001Key,
-            blockingStubFull));
+
+    Return returnResult = PublicMethedForMutiSign
+        .permissionUpdateKey2(permission2, test001Address, 1, testAddress, dev001Key,
+            blockingStubFull);
+    Assert
+        .assertThat(returnResult.getCode().toString(), containsString("CONTRACT_VALIDATE_ERROR"));
+    Assert
+        .assertThat(returnResult.getMessage().toStringUtf8(),
+            containsString("permission name should be owner or active"));
 
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
 

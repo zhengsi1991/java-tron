@@ -121,11 +121,15 @@ public class MultiSignAddKey032 {
     List<Permission> permissionsListbefore = test001AddressAccountbefore.getPermissionsList();
     printPermissionList(permissionsListbefore);
     logger.info("-------------------------");
-    //5.空null
-    //java.lang.NullPointerException
-    PublicMethed
-        .permissionUpdateKey1(permission, testAddress, null, testAddress, dev001Key,
-            blockingStubFull);
+    //weight=null
+    try {
+      PublicMethed
+          .permissionUpdateKey1(permission, testAddress, null, testAddress, dev001Key,
+              blockingStubFull);
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);

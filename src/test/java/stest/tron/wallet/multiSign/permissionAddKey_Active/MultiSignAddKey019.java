@@ -133,9 +133,7 @@ public class MultiSignAddKey019 {
     Assert.assertTrue(PublicMethedForMutiSign
         .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key, blockingStubFull,
             permissionKeyString));
-//    Assert.assertTrue(PublicMethed
-//        .sendcoin(fromAddress, 1000000000L, testAddress, dev001Key,
-//            blockingStubFull));
+
     Assert.assertTrue(PublicMethed
         .sendcoin(fromAddress, 1000000000L, test001Address, sendAccountKey,
             blockingStubFull));

@@ -121,11 +121,15 @@ public class MultiSignAddKey031 {
     List<Permission> permissionsListbefore = test001AddressAccountbefore.getPermissionsList();
     printPermissionList(permissionsListbefore);
     logger.info("-------------------------");
-    //4.非数字"AAA"
-    //java.lang.NumberFormatException: For input string: "AAA"
-    PublicMethed
-        .permissionUpdateKey2(permission, testAddress, "AAA", testAddress, dev001Key,
-            blockingStubFull);
+
+    //weight="AAA"
+    try {
+      PublicMethed
+          .permissionUpdateKey2(permission, testAddress, "AAA", testAddress, dev001Key,
+              blockingStubFull);
+    } catch (NumberFormatException e) {
+      e.printStackTrace();
+    }
     Account test001AddressAccount = PublicMethed.queryAccount(testAddress, blockingStubFull);
     List<Permission> permissionsList = test001AddressAccount.getPermissionsList();
     printPermissionList(permissionsList);
