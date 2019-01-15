@@ -1033,10 +1033,11 @@ public class Manager {
       ownerAddressSet.clear();
       ownerAddressSet.addAll(result);
     }
-    logger.info("pushBlock block number:{}, cost/txs:{}/{}",
+    logger.info("pushBlock block number:{}, cost/txs:{}/{} {}",
         block.getNum(),
         System.currentTimeMillis() - start,
-        block.getTransactions().size());
+        block.getTransactions().size(),
+        pendingTransactions.size() + repushTransactions.size());
   }
 
   public void updateDynamicProperties(BlockCapsule block) {
