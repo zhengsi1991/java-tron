@@ -69,20 +69,17 @@ public class ContractOriginEnergyLimit001 {
         .usePlaintext(true)
         .build();
     blockingStubFull1 = WalletGrpc.newBlockingStub(channelFull1);
-
-    logger.info(Long.toString(PublicMethed.queryAccount(testNetAccountKey, blockingStubFull)
-        .getBalance()));
-
   }
 
 
   //Origin_energy_limit001,028,029
   @Test(enabled = true)
   public void testOrigin_energy_limit001() {
-
     Assert.assertTrue(PublicMethed
         .sendcoin(grammarAddress3, 100000000000L, testNetAccountAddress, testNetAccountKey,
             blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     String contractName = "aContract";
     String code = Configuration.getByPath("testng.conf")
         .getString("code.code_OriginEnergyLimit001");

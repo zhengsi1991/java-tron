@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -3216,6 +3217,78 @@ public class PublicMethed {
       logger.info("Message = " + response.getMessage().toStringUtf8());
     }
     return response.getResult();
+  }
+
+  public static long getFreezeBalanceCount(byte[] accountAddress, String ecKey, Long targetEnergy,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    AccountResourceMessage resourceInfo = getAccountResource(accountAddress,
+        blockingStubFull);
+
+    Account info = queryAccount(accountAddress, blockingStubFull);
+
+    Account getAccount = queryAccount(ecKey, blockingStubFull);
+
+    long balance = info.getBalance();
+    long frozenBalance = info.getAccountResource().getFrozenBalanceForEnergy().getFrozenBalance();
+    long totalEnergyLimit = resourceInfo.getTotalEnergyLimit();
+    long totalEnergyWeight = resourceInfo.getTotalEnergyWeight();
+    long energyUsed = resourceInfo.getEnergyUsed();
+    long energyLimit = resourceInfo.getEnergyLimit();
+
+    if (energyUsed > energyLimit) {
+      targetEnergy = energyUsed - energyLimit + targetEnergy;
+    }
+
+    if (totalEnergyWeight == 0) {
+      return 1000_000L;
+    }
+
+    // totalEnergyLimit / (totalEnergyWeight + needBalance) = needEnergy / needBalance
+    BigInteger totalEnergyWeightBI = BigInteger.valueOf(totalEnergyWeight);
+    long needBalance = totalEnergyWeightBI.multiply(BigInteger.valueOf(1_000_000))
+        .multiply(BigInteger.valueOf(targetEnergy))
+        .divide(BigInteger.valueOf(totalEnergyLimit - targetEnergy)).longValue();
+
+    logger.info("getFreezeBalanceCount, needBalance: " + needBalance);
+
+    if (needBalance < 1000000L) {
+      needBalance = 1000000L;
+      logger.info(
+          "getFreezeBalanceCount, needBalance less than 1 TRX, modify to: " + needBalance);
+    }
+    return needBalance;
+  }
+
+  public static Long getAssetIssueValue(byte[] accountAddress, ByteString assetIssueId,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Long assetIssueCount = 0L;
+    Account contractAccount = queryAccount(accountAddress, blockingStubFull);
+    Map<String, Long> createAssetIssueMap = contractAccount.getAssetV2Map();
+    for (Map.Entry<String, Long> entry : createAssetIssueMap.entrySet()) {
+      if (assetIssueId.toStringUtf8().equals(entry.getKey())) {
+        assetIssueCount = entry.getValue();
+      }
+    }
+    return assetIssueCount;
+  }
+
+  public static List<String> getStrings(byte[] data) {
+    int index = 0;
+    List<String> ret = new ArrayList<>();
+    while (index < data.length) {
+      ret.add(byte2HexStr(data, index, 32));
+      index += 32;
+    }
+    return ret;
+  }
+
+  public static String byte2HexStr(byte[] b, int offset, int length) {
+    StringBuilder sBuilder = new StringBuilder();
+    for (int n = offset; n < offset + length && n < b.length; n++) {
+      String stmp = Integer.toHexString(b[n] & 0xFF);
+      sBuilder.append((stmp.length() == 1) ? "0" + stmp : stmp);
+    }
+    return sBuilder.toString().toUpperCase().trim();
   }
 
 
