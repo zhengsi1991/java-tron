@@ -72,6 +72,13 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
 
   @Override
   public void processTrigger() {
+    transactionLogTrigger.getInternalTrananctionList().forEach(
+        transactionLogTrigger -> {
+          if (transactionLogTrigger.getTokenInfo().isEmpty()) {
+            System.out.println("transaction token info"+transactionLogTrigger);
+          }
+        }
+    );
     EventPluginLoader.getInstance().postTransactionTrigger(transactionLogTrigger);
   }
 }
