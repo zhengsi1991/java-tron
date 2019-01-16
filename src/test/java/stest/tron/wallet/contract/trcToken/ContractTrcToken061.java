@@ -59,6 +59,9 @@ public class ContractTrcToken061 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -103,7 +106,8 @@ public class ContractTrcToken061 {
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
     long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    Long devAssetCountBefore = PublicMethed.getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
+    Long devAssetCountBefore = PublicMethed.getAssetIssueValue(dev001Address,
+        assetAccountId, blockingStubFull);
 
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
@@ -112,9 +116,10 @@ public class ContractTrcToken061 {
         + devAssetCountBefore);
 
     String contractName = "transferTokenContract";
-    String code = "6080604052d3600055d2600155346002556101418061001f6000396000f3006080604052600436106100565763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166305c24200811461005b5780633be9ece71461008157806371dc08ce146100aa575b600080fd5b6100636100b2565b60408051938452602084019290925282820152519081900360600190f35b6100a873ffffffffffffffffffffffffffffffffffffffff600435166024356044356100c0565b005b61006361010d565b600054600154600254909192565b60405173ffffffffffffffffffffffffffffffffffffffff84169082156108fc029083908590600081818185878a8ad0945050505050158015610107573d6000803e3d6000fd5b50505050565bd3d2349091925600a165627a7a72305820a2fb39541e90eda9a2f5f9e7905ef98e66e60dd4b38e00b05de418da3154e7570029";
-    String abi = "[{\"constant\":false,\"inputs\":[],\"name\":\"getResultInCon\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"},{\"name\":\"id\",\"type\":\"trcToken\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TransferTokenTo\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"msgTokenValueAndTokenIdTest\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"}]\n";
-
+    String code = Configuration.getByPath("testng.conf")
+        .getString("code.code_ContractTrcToken061_transferTokenContract");
+    String abi = Configuration.getByPath("testng.conf")
+        .getString("abi.abi_ContractTrcToken061_transferTokenContract");
     String tokenId = Long.toString(Long.MAX_VALUE);
     long tokenValue = 0;
     long callValue = 10;
@@ -141,7 +146,8 @@ public class ContractTrcToken061 {
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    Long devAssetCountAfter = PublicMethed.getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
+    Long devAssetCountAfter = PublicMethed.getAssetIssueValue(dev001Address,
+        assetAccountId, blockingStubFull);
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
@@ -163,8 +169,8 @@ public class ContractTrcToken061 {
 
     // get and verify the msg.value and msg.id
 
-    Long transferAssetBefore = PublicMethed.getAssetIssueValue(transferTokenContractAddress, assetAccountId,
-        blockingStubFull);
+    Long transferAssetBefore = PublicMethed.getAssetIssueValue(transferTokenContractAddress,
+        assetAccountId, blockingStubFull);
     logger.info("before trigger, transferTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + transferAssetBefore);
 
@@ -180,9 +186,11 @@ public class ContractTrcToken061 {
       Assert.fail("transaction failed with message: " + infoById.get().getResMessage());
     }
 
-    logger.info("The msg value: " + PublicMethed.getStrings(infoById.get().getContractResult(0).toByteArray()));
+    logger.info("The msg value: " + PublicMethed.getStrings(infoById.get()
+        .getContractResult(0).toByteArray()));
 
-    List<String> retList = PublicMethed.getStrings(infoById.get().getContractResult(0).toByteArray());
+    List<String> retList = PublicMethed.getStrings(infoById.get()
+        .getContractResult(0).toByteArray());
 
     Long msgId = ByteArray.toLong(ByteArray.fromHexString(retList.get(0)));
     Long msgTokenValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(1)));
@@ -203,6 +211,9 @@ public class ContractTrcToken061 {
         dev001Address, blockingStubFull);
   }
 
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {

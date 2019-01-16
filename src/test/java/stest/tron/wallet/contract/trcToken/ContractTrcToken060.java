@@ -59,6 +59,9 @@ public class ContractTrcToken060 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
@@ -110,9 +113,10 @@ public class ContractTrcToken060 {
         + devAssetCountBefore);
 
     String contractName = "transferTokenContract";
-    String code = "6080604052d3600055d2600155346002556101418061001f6000396000f3006080604052600436106100565763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166305c24200811461005b5780633be9ece71461008157806371dc08ce146100aa575b600080fd5b6100636100b2565b60408051938452602084019290925282820152519081900360600190f35b6100a873ffffffffffffffffffffffffffffffffffffffff600435166024356044356100c0565b005b61006361010d565b600054600154600254909192565b60405173ffffffffffffffffffffffffffffffffffffffff84169082156108fc029083908590600081818185878a8ad0945050505050158015610107573d6000803e3d6000fd5b50505050565bd3d2349091925600a165627a7a72305820a2fb39541e90eda9a2f5f9e7905ef98e66e60dd4b38e00b05de418da3154e7570029";
-    String abi = "[{\"constant\":false,\"inputs\":[],\"name\":\"getResultInCon\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"},{\"name\":\"id\",\"type\":\"trcToken\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TransferTokenTo\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"msgTokenValueAndTokenIdTest\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"}]\n";
-
+    String code = Configuration.getByPath("testng.conf")
+        .getString("code.code_ContractTrcToken060_transferTokenContract");
+    String abi = Configuration.getByPath("testng.conf")
+        .getString("abi.abi_ContractTrcToken060_transferTokenContract");
     String tokenId = assetAccountId.toStringUtf8();
     long tokenValue = 0;
     long callValue = 5;
@@ -176,7 +180,7 @@ public class ContractTrcToken060 {
     logger.info("before trigger, transferTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + transferAssetBefore);
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
         "getResultInCon()", "#", false, 0,
         1000000000L, "0", 0, dev001Address, dev001Key,
         blockingStubFull);
@@ -200,7 +204,8 @@ public class ContractTrcToken060 {
     logger.info("The msg value: " + PublicMethed.getStrings(infoById.get()
         .getContractResult(0).toByteArray()));
 
-    List<String> retList = PublicMethed.getStrings(infoById.get().getContractResult(0).toByteArray());
+    List<String> retList = PublicMethed.getStrings(infoById.get()
+        .getContractResult(0).toByteArray());
 
     Long msgId = ByteArray.toLong(ByteArray.fromHexString(retList.get(0)));
     Long msgTokenValue = ByteArray.toLong(ByteArray.fromHexString(retList.get(1)));
@@ -221,6 +226,9 @@ public class ContractTrcToken060 {
         dev001Address, blockingStubFull);
   }
 
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {

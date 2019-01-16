@@ -63,6 +63,9 @@ public class ContractTrcToken055 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -75,7 +78,9 @@ public class ContractTrcToken055 {
     PublicMethed.printAddress(user001Key);
   }
 
-
+  /**
+   * constructor.
+   */
   @Test
   public void deployTransferTokenContract() {
     Assert.assertTrue(PublicMethed.sendcoin(dev001Address, 1100_000_000L, fromAddress,
@@ -120,9 +125,10 @@ public class ContractTrcToken055 {
         + ", devAssetCountBefore: " + devAssetCountBefore);
 
     String contractName = "transferTokenContract";
-    String code = "6080604052610118806100136000396000f30060806040526004361060485763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416633be9ece78114604d57806371dc08ce146074575b600080fd5b607273ffffffffffffffffffffffffffffffffffffffff600435166024356044356098565b005b607a60e4565b60408051938452602084019290925282820152519081900360600190f35b60405173ffffffffffffffffffffffffffffffffffffffff84169082156108fc029083908590600081818185878a8ad094505050505015801560de573d6000803e3d6000fd5b50505050565bd3d2349091925600a165627a7a72305820b8d4f8ea5443a03d615ea5dfe7a7435498522f9c7abeb25583d953ee2d20be4a0029";
-    String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"},{\"name\":\"id\",\"type\":\"trcToken\"},{\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TransferTokenTo\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"msgTokenValueAndTokenIdTest\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"}]";
-
+    String code = Configuration.getByPath("testng.conf")
+        .getString("code.code_ContractTrcToken055_transferTokenContract");
+    String abi = Configuration.getByPath("testng.conf")
+        .getString("abi.abi_ContractTrcToken055_transferTokenContract");
     String tokenId = assetAccountId.toStringUtf8();
     long tokenValue = 100;
     long callValue = 0;
@@ -211,7 +217,7 @@ public class ContractTrcToken055 {
     tokenValue = 0;
     callValue = 5;
 
-    String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
+    final String triggerTxid = PublicMethed.triggerContract(transferTokenContractAddress,
         "msgTokenValueAndTokenIdTest()", "#", false, callValue,
         1000000000L, tokenId, tokenValue, user001Address, user001Key,
         blockingStubFull);
@@ -268,6 +274,9 @@ public class ContractTrcToken055 {
         user001Address, blockingStubFull);
   }
 
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {

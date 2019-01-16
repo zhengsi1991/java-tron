@@ -67,6 +67,9 @@ public class ContractTrcToken062 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
   @BeforeClass(enabled = true)
   public void beforeClass() {
 
@@ -125,17 +128,20 @@ public class ContractTrcToken062 {
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
     long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    Long devAssetCountBefore = PublicMethed.getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
+    Long devAssetCountBefore = PublicMethed.getAssetIssueValue(dev001Address,
+        assetAccountId, blockingStubFull);
 
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
     logger.info("before balanceBefore is " + Long.toString(balanceBefore));
-    logger.info("before AssetId: " + assetAccountId.toStringUtf8() + ", devAssetCountBefore: " + devAssetCountBefore);
+    logger.info("before AssetId: " + assetAccountId.toStringUtf8() + ", devAssetCountBefore: "
+        + devAssetCountBefore);
 
     String contractName = "transferTokenContract";
-    String code = "6080604052610343806100136000396000f3006080604052600436106100985763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663144401f6811461009a5780631ea31431146100b45780632c5c6641146100c8578063544051aa146100dc578063584d4262146100f057806371dc08ce1461011657806393bc91fd14610137578063a730416e1461014b578063acea104514610162575b005b610098600160a060020a0360043516602435604435610176565b610098600160a060020a03600435166101b6565b610098600160a060020a03600435166101f1565b610098600160a060020a0360043516610231565b610104600160a060020a0360043516610270565b60408051918252519081900360200190f35b61011e610281565b6040805192835260208301919091528051918290030190f35b610098600160a060020a0360043516610287565b610104600160a060020a03600435166024356102c7565b610098600160a060020a03600435166102d8565b604051600160a060020a0384169083156108fc029084908490600081818185878a8ad09450505050501580156101b0573d6000803e3d6000fd5b50505050565b604051600160a060020a038216906000906000199082908181818181878a82d09450505050501580156101ed573d6000803e3d6000fd5b5050565b604051600160a060020a0382169060009067800000000000000090620f4241908381818185878a84d09450505050501580156101ed573d6000803e3d6000fd5b604051600160a060020a03821690600090600190680200000000000f4241908381818185878a84d09450505050501580156101ed573d6000803e3d6000fd5b600160a060020a0316620f4241d190565bd3d29091565b604051600160a060020a03821690600090677fffffffffffffff90620f4241908381818185878a84d09450505050501580156101ed573d6000803e3d6000fd5b600160a060020a039190911690d190565b604051600160a060020a038216906108fc90600090678000000000000001908281818185828a8ad09450505050501580156101ed573d6000803e3d6000fd00a165627a7a72305820716217ff39873b1f852cdc214cfb38a4c2337d18fbd1128b69b2866f7f24ae1c0029";
-    String abi = "[{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"},{\"name\":\"tokenValue\",\"type\":\"uint256\"},{\"name\":\"id\",\"type\":\"trcToken\"}],\"name\":\"transferTokenTest\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"}],\"name\":\"transferTokenTestValueMaxBigInteger\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"}],\"name\":\"transferTokenTestValueOverBigInteger\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"}],\"name\":\"transferTokenTestValueRandomIdBigInteger\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"accountAddress\",\"type\":\"address\"}],\"name\":\"getTokenBalanceTest\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"msgTokenValueAndTokenIdTest\",\"outputs\":[{\"name\":\"\",\"type\":\"trcToken\"},{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"}],\"name\":\"transferTokenTestValueMaxLong\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"},{\"name\":\"tokenId\",\"type\":\"trcToken\"}],\"name\":\"getTokenBalnce\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"toAddress\",\"type\":\"address\"}],\"name\":\"transferTokenTestValue0IdBigInteger\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"}]";
-
+    String code = Configuration.getByPath("testng.conf")
+        .getString("code.code_ContractTrcToken062_transferTokenContract");
+    String abi = Configuration.getByPath("testng.conf")
+        .getString("abi.abi_ContractTrcToken062_transferTokenContract");
     String transferTokenTxid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "",
             maxFeeLimit, 0L, 0, 10000,
@@ -161,7 +167,8 @@ public class ContractTrcToken062 {
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    Long devAssetCountAfter = PublicMethed.getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
+    Long devAssetCountAfter = PublicMethed.getAssetIssueValue(dev001Address,
+        assetAccountId, blockingStubFull);
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
@@ -192,7 +199,8 @@ public class ContractTrcToken062 {
     long energyLimit = accountResource.getEnergyLimit();
     long energyUsage = accountResource.getEnergyUsed();
     long balanceBefore = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    Long devAssetCountBefore = PublicMethed.getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
+    Long devAssetCountBefore = PublicMethed.getAssetIssueValue(dev001Address,
+        assetAccountId, blockingStubFull);
 
     logger.info("before energyLimit is " + Long.toString(energyLimit));
     logger.info("before energyUsage is " + Long.toString(energyUsage));
@@ -201,8 +209,11 @@ public class ContractTrcToken062 {
         + devAssetCountBefore);
 
     String contractName = "resultContract";
-    String code = "608060405260658060116000396000f30060806040819052d38152d260a0523460c0527fd1ed7a3c020c4f5939654147940a147a8e4e638fa1e8f5664b5efbd1e1f3c4a690606090a10000a165627a7a72305820ea1e6d9606638e6c9e72dcdcc749561b826ec85713c003fae9d4700a2919040f0029";
-    String abi = "[{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"name\":\"\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"log\",\"type\":\"event\"}]";
+    String code = Configuration.getByPath("testng.conf")
+        .getString("code.code_ContractTrcToken062_recieveTokenContract");
+    String abi = Configuration.getByPath("testng.conf")
+        .getString("abi.abi_ContractTrcToken062_recieveTokenContract");
+
     String recieveTokenTxid = PublicMethed
         .deployContractAndGetTransactionInfoById(contractName, abi, code, "", maxFeeLimit,
             0L, 100, 1000, assetAccountId.toStringUtf8(),
@@ -227,7 +238,8 @@ public class ContractTrcToken062 {
     energyLimit = accountResource.getEnergyLimit();
     energyUsage = accountResource.getEnergyUsed();
     long balanceAfter = PublicMethed.queryAccount(dev001Key, blockingStubFull).getBalance();
-    Long devAssetCountAfter = PublicMethed.getAssetIssueValue(dev001Address, assetAccountId, blockingStubFull);
+    Long devAssetCountAfter = PublicMethed.getAssetIssueValue(dev001Address,
+        assetAccountId, blockingStubFull);
 
     logger.info("after energyLimit is " + Long.toString(energyLimit));
     logger.info("after energyUsage is " + Long.toString(energyUsage));
@@ -275,8 +287,8 @@ public class ContractTrcToken062 {
     logger.info("before trigger, userEnergyUsageBefore is " + Long.toString(userEnergyUsageBefore));
     logger.info("before trigger, userBalanceBefore is " + Long.toString(userBalanceBefore));
 
-    Long transferAssetBefore = PublicMethed.getAssetIssueValue(transferTokenContractAddress, assetAccountId,
-        blockingStubFull);
+    Long transferAssetBefore = PublicMethed.getAssetIssueValue(transferTokenContractAddress,
+        assetAccountId, blockingStubFull);
     logger.info("before trigger, transferTokenContractAddress has AssetId "
         + assetAccountId.toStringUtf8() + ", Count is " + transferAssetBefore);
 
@@ -349,7 +361,9 @@ public class ContractTrcToken062 {
     logger.info("after trigger, userBalanceAfter is " + Long.toString(userBalanceAfter));
   }
 
-
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {
