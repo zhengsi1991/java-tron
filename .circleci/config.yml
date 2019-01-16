@@ -10,9 +10,8 @@ jobs:
     working_directory: ~/java-tron
     steps:
     - checkout
-
     - run: sudo sh tron.sh
-    - run: "./gradlew build"
-    - run: "./gradlew jacocoTestReport"
+    - run: ./gradlew build
+    - run: ./gradlew jacocoTestReport
     - run: sudo bash deploy.sh
 
