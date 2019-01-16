@@ -573,7 +573,7 @@ public class Manager {
   public void initCacheTxs() {
     logger.info("begin to init txs cache.");
     int dbVersion = Args.getInstance().getStorage().getDbVersion();
-    if (dbVersion != 2) {
+    if (dbVersion != 2 || transactionCache == null) {
       return;
     }
     long start = System.currentTimeMillis();
