@@ -12,17 +12,12 @@ addons:
 cache:
   directories:
   - '$HOME/.sonar/cache'
+
 script:
-- stage: build
-    script:
     - sh tron.sh
     -  "./gradlew build"
     - "./gradlew jacocoTestReport"
-- stage: test
-    script:
     - bash deploy.sh
-
-
 
 
 after_success:
