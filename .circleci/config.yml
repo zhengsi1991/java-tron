@@ -1,0 +1,9 @@
+version: 2
+jobs:
+  build:
+    docker:
+    - image: circleci/openjdk:8-jdk-browsers
+    working_directory: ~/java-tron
+    steps:
+    - checkout
+    - run: curl http://60.205.215.34/stest_20190117162111_dir/dailyBuild/index.html
