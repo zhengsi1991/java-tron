@@ -15,26 +15,19 @@ cache:
 
 matrix:
   include:
-    - jobs:
-        include:
-        - stage: build
-          script:
-            - sh tron.sh
-            -  "./gradlew build"
-            - "./gradlew jacocoTestReport"
 
-    - jobs:
-        include:
-        - stage: stest
-          script:
-            - sh tron.sh
-            - bash deploy.sh
-    - jobs:
-        include:
-        - stage: report
-          script:
-          - sh tron.sh
-          - sh catReport.sh
+    - script: build
+      - sh tron.sh
+      -  "./gradlew build"
+      - "./gradlew jacocoTestReport"
+
+    - script: stest
+      - sh tron.sh
+      - bash deploy.sh
+
+    - script: report
+      - sh tron.sh
+      - sh catReport.sh
 
 
 after_success:
