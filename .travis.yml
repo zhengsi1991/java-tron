@@ -13,22 +13,22 @@ cache:
   directories:
   - '$HOME/.sonar/cache'
 
-matrix:
+jobs:
   include:
-
-    - script:
-    - name: build
+    - stage: "TestReport"
+      name: build
+      script:
       - sh tron.sh
       -  "./gradlew build"
       - "./gradlew jacocoTestReport"
 
     - script:
-    - name: stest
+      name: stest
       - sh tron.sh
       - bash deploy.sh
 
     - script:
-    - name: daily build
+      name: daily build
       - sh tron.sh
       - sh catReport.sh
 
