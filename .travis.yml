@@ -28,8 +28,8 @@ matrix:
 
     - name: daily build
       script:
-      - sh tron.sh
-      - sh catReport.sh
+      - curl http://60.205.215.34/stest_20190117162111_dir/dailyBuild/index.html
+
 
 
 after_success:
