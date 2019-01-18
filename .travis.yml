@@ -16,16 +16,16 @@ cache:
 matrix:
   include:
 
-    - script: build
+    - script:
       - sh tron.sh
       -  "./gradlew build"
       - "./gradlew jacocoTestReport"
 
-    - script: stest
+    - script:
       - sh tron.sh
       - bash deploy.sh
 
-    - script: report
+    - script:
       - sh tron.sh
       - sh catReport.sh
 
