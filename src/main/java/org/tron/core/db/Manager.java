@@ -920,7 +920,7 @@ public class Manager {
     boolean flag = false;
     List<WitnessCapsule> witnesses = witnessStore.getAllWitnesses();
     for (WitnessCapsule witness: witnesses){
-      if (witness.getAddress().equals(block.getBlockId().getByteString())) {
+      if (witness.getAddress().equals(block.getWitnessAddress())) {
         flag = true;
         break;
       }
