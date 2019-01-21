@@ -914,7 +914,7 @@ public class Manager {
   }
 
   public boolean validBlock(BlockCapsule block) throws ValidateSignatureException {
-    if (!block.validateSignature()) {
+    if (!block.validateSignature(this)) {
       return false;
     }
     boolean flag = false;
