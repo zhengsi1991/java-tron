@@ -14,9 +14,12 @@ import org.tron.core.exception.NonCommonBlockException;
 import org.tron.core.exception.StoreException;
 import org.tron.core.exception.TronException;
 import org.tron.core.exception.UnLinkedBlockException;
+import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.net.message.MessageTypes;
 
 public interface NodeDelegate {
+
+  boolean validBlock(BlockCapsule block) throws ValidateSignatureException;
 
   LinkedList<Sha256Hash> handleBlock(BlockCapsule block, boolean syncMode)
       throws BadBlockException, UnLinkedBlockException, InterruptedException, NonCommonBlockException;

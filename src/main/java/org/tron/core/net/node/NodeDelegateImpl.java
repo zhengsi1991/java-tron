@@ -55,6 +55,11 @@ public class NodeDelegateImpl implements NodeDelegate {
   }
 
   @Override
+  public boolean validBlock(BlockCapsule block) throws ValidateSignatureException {
+    return dbManager.validBlock(block);
+  }
+
+  @Override
   public synchronized LinkedList<Sha256Hash> handleBlock(BlockCapsule block, boolean syncMode)
       throws BadBlockException, UnLinkedBlockException, InterruptedException, NonCommonBlockException {
 

@@ -59,6 +59,7 @@ import org.tron.core.exception.StoreException;
 import org.tron.core.exception.TraitorPeerException;
 import org.tron.core.exception.TronException;
 import org.tron.core.exception.UnLinkedBlockException;
+import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.net.message.BlockMessage;
 import org.tron.core.net.message.ChainInventoryMessage;
 import org.tron.core.net.message.FetchInvDataMessage;
@@ -88,6 +89,8 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
 
   @Autowired
   private WitnessProductBlockService witnessProductBlockService;
+
+  private boolean centerForward = Args.getInstance().isCenterForward();
 
   private MessageCount trxCount = new MessageCount();
 
@@ -638,6 +641,9 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
 
 
   private void onHandleInventoryMessage(PeerConnection peer, InventoryMessage msg) {
+    if (centerForward && msg.getInventoryType().equals(InventoryType.TRX)) {
+      return;
+    }
     int count = peer.getNodeStatistics().messageStatistics.tronInTrxInventoryElement.getCount(10);
     if (count > 10_000) {
       logger.warn("Inventory count {} from Peer {} is overload.", count, peer.getInetAddress());
@@ -751,6 +757,11 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
     synchronized (freshBlockId) {
       if (!freshBlockId.contains(block.getBlockId())) {
         try {
+          boolean flag = false;
+          if (centerForward && del.validBlock(block)){
+            flag = true;
+            broadcast(new BlockMessage(block));
+          }
           witnessProductBlockService.validWitnessProductTwoBlock(block);
           LinkedList<Sha256Hash> trxIds = null;
           trxIds = del.handleBlock(block, false);
@@ -762,9 +773,11 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
               .filter(p -> p.getAdvObjSpreadToUs().containsKey(block.getBlockId()))
               .forEach(p -> updateBlockWeBothHave(p, block));
 
-          broadcast(new BlockMessage(block));
+          if (!flag) {
+            broadcast(new BlockMessage(block));
+          }
 
-        } catch (BadBlockException e) {
+        } catch (BadBlockException | ValidateSignatureException e) {
           logger.error("We get a bad block {}, from {}, reason is {} ",
               block.getBlockId().getString(), peer.getNode().getHost(), e.getMessage());
           disconnectPeer(peer, ReasonCode.BAD_BLOCK);

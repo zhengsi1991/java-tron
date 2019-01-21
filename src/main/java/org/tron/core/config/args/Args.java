@@ -407,6 +407,10 @@ public class Args {
   @Getter
   private FilterQuery eventFilter;
 
+  @Getter
+  @Parameter(names = {"--center-forward"})
+  private boolean centerForward = false;
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
