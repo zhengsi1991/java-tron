@@ -758,7 +758,9 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
       if (!freshBlockId.contains(block.getBlockId())) {
         try {
           boolean flag = false;
-          if (centerForward && del.validBlock(block)){
+          boolean valid = del.validBlock(block);
+          logger.info("### {} {}", centerForward, valid);
+          if (centerForward && valid){
             flag = true;
             broadcast(new BlockMessage(block));
           }
