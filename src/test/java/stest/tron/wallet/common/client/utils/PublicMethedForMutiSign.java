@@ -33,6 +33,7 @@ import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
 import org.tron.core.Wallet;
+import org.tron.core.exception.CancelException;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.CreateSmartContract.Builder;
@@ -2395,6 +2396,57 @@ public class PublicMethedForMutiSign {
     transaction = transactionBuilderSigned.build();
     return transaction;
   }
+
+  public static Transaction setPermissionId(Transaction transaction, int permission_id) throws CancelException {
+    if (transaction.getSignatureCount() != 0
+        || transaction.getRawData().getContract(0).getPermissionId() != 0) {
+      return transaction;
+    }
+    if (permission_id < 0) {
+      throw new CancelException("User cancelled");
+    }
+    if (permission_id != 0) {
+      Transaction.raw.Builder raw = transaction.getRawData().toBuilder();
+      Transaction.Contract.Builder contract = raw.getContract(0).toBuilder()
+          .setPermissionId(permission_id);
+      raw.clearContract();
+      raw.addContract(contract);
+      transaction = transaction.toBuilder().setRawData(raw).build();
+    }
+    return transaction;
+  }
+
+  /**
+   * constructor.
+   */
+  public Transaction addTransactionSignWithPermissionId(Transaction transaction, String priKey, int permissionId,
+      WalletGrpc.WalletBlockingStub blockingStubFull) {
+    Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
+    ECKey temKey = null;
+    try {
+      BigInteger priK = new BigInteger(priKey, 16);
+      temKey = ECKey.fromPrivate(priK);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    ECKey ecKey = temKey;
+
+    Transaction.Builder transactionBuilderSigned = transaction.toBuilder();
+    byte[] hash = Sha256Hash.hash(transaction.getRawData().toByteArray());
+
+    try {
+      transaction = setPermissionId(transaction, permissionId);
+    } catch (CancelException e) {
+      e.printStackTrace();
+    }
+
+    ECDSASignature signature = ecKey.sign(hash);
+    ByteString bsSign = ByteString.copyFrom(signature.toByteArray());
+    transactionBuilderSigned.addSignature(bsSign);
+    transaction = transactionBuilderSigned.build();
+    return transaction;
+  }
+
 
 
   private static Transaction signTransaction(Transaction transaction,
