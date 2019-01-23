@@ -1,4 +1,4 @@
-package stest.tron.wallet.account;
+package stest.tron.wallet.manual;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
@@ -67,6 +67,9 @@ public class WalletTestAccount014 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKey002);
@@ -86,7 +89,7 @@ public class WalletTestAccount014 {
     blockingStubSoliInFull = WalletSolidityGrpc.newBlockingStub(channelSoliInFull);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Query freeNetUsage in 50061")
   public void fullAndSoliMerged1ForFreeNetUsage() {
     //Create account014
     ecKey1 = new ECKey(Utils.getRandom());
@@ -108,6 +111,7 @@ public class WalletTestAccount014 {
     Assert.assertTrue(PublicMethed.sendcoin(account014SecondAddress,5000000L,
         account014Address,account014Key,
         blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account account014 = PublicMethed.queryAccount(account014Address, blockingStubFull);
     final long freeNetUsageInFullnode = account014.getFreeNetUsage();
     final long createTimeInFullnode = account014.getCreateTime();
@@ -142,7 +146,7 @@ public class WalletTestAccount014 {
     Assert.assertTrue(lastCustomeFreeTimeInSoliInFull != 0);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Query net usage in 50061")
   public void fullAndSoliMerged2ForNetUsage() {
 
     Assert.assertTrue(PublicMethed.freezeBalance(account014Address,1000000L,3,
@@ -164,7 +168,7 @@ public class WalletTestAccount014 {
         3,1,ByteString.copyFrom(
         account014Address),account014SecondKey,blockingStubFull));
 
-
+    PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSoliInFull);
     Account account014 = PublicMethed.queryAccount(account014Address, blockingStubFull);
     final long lastCustomeTimeInFullnode = account014.getLatestConsumeTime();
     final long netUsageInFullnode = account014.getNetUsage();
@@ -227,9 +231,9 @@ public class WalletTestAccount014 {
 
   }
 
-
-
-
+  /**
+   * constructor.
+   */
   @AfterClass
   public void shutdown() throws InterruptedException {
     if (channelFull != null) {

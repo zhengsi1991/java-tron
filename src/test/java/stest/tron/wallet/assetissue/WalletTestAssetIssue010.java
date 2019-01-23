@@ -82,6 +82,10 @@ public class WalletTestAssetIssue010 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
     channelFull = ManagedChannelBuilder.forTarget(fullnode)
@@ -90,7 +94,7 @@ public class WalletTestAssetIssue010 {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Update asset issue")
   public void testUpdateAssetIssue() {
     ecKey = new ECKey(Utils.getRandom());
     asset010Address = ecKey.getAddress();
@@ -99,9 +103,11 @@ public class WalletTestAssetIssue010 {
 
     Assert.assertTrue(PublicMethed
         .sendcoin(asset010Address, sendAmount, fromAddress, testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed
         .freezeBalance(asset010Address, 200000000L, 3, testKeyForAssetIssue010,
             blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
     Assert.assertTrue(PublicMethed.createAssetIssue(asset010Address, name, totalSupply, 1, 1,
@@ -109,12 +115,14 @@ public class WalletTestAssetIssue010 {
         1L, 1L, testKeyForAssetIssue010, blockingStubFull));
 
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethed.queryAccount(testKeyForAssetIssue010,blockingStubFull);
     ByteString assetAccountId = getAssetIdFromThisAccount.getAssetIssuedID();
 
     //Query the description and url,freeAssetNetLimit and publicFreeAssetNetLimit
-    GrpcAPI.BytesMessage request = GrpcAPI.BytesMessage.newBuilder().setValue(assetAccountId).build();
+    GrpcAPI.BytesMessage request = GrpcAPI.BytesMessage.newBuilder()
+            .setValue(assetAccountId).build();
     Contract.AssetIssueContract assetIssueByName = blockingStubFull.getAssetIssueByName(request);
 
     Assert.assertTrue(
@@ -128,6 +136,7 @@ public class WalletTestAssetIssue010 {
         .updateAsset(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
             updateFreeAssetNetLimit,
             updatePublicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //After update asset issue ,query the description and url,
     // freeAssetNetLimit and publicFreeAssetNetLimit
@@ -141,8 +150,8 @@ public class WalletTestAssetIssue010 {
         .assertTrue(assetIssueByName.getPublicFreeAssetNetLimit() == updatePublicFreeAssetNetLimit);
   }
 
-  @Test(enabled = true)
-  public void testUpdateAssetIssueExcption() {
+  @Test(enabled = true,description = "Update asset issue with exception condition")
+  public void testUpdateAssetIssueException() {
     //Test update asset issue for wrong parameter
     //publicFreeAssetNetLimit is -1
     Assert.assertFalse(PublicMethed
@@ -154,6 +163,7 @@ public class WalletTestAssetIssue010 {
         .updateAsset(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(),
             updateFreeAssetNetLimit,
             0, testKeyForAssetIssue010, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     //FreeAssetNetLimit is -1
     Assert.assertFalse(PublicMethed
         .updateAsset(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(), -1,
@@ -162,6 +172,7 @@ public class WalletTestAssetIssue010 {
     Assert.assertTrue(PublicMethed
         .updateAsset(asset010Address, updateDescription.getBytes(), updateUrl.getBytes(), 0,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     //Description is null
     Assert.assertTrue(PublicMethed
         .updateAsset(asset010Address, "".getBytes(), updateUrl.getBytes(), freeAssetNetLimit,
@@ -181,6 +192,9 @@ public class WalletTestAssetIssue010 {
             freeAssetNetLimit,
             publicFreeAssetNetLimit, testKeyForAssetIssue010, blockingStubFull));
   }
+  /**
+   * constructor.
+   */
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -188,6 +202,9 @@ public class WalletTestAssetIssue010 {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
+  /**
+   * constructor.
+   */
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
       Integer icoNum, Long startTime, Long endTime,
@@ -241,6 +258,9 @@ public class WalletTestAssetIssue010 {
       return false;
     }
   }
+  /**
+   * constructor.
+   */
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -265,12 +285,18 @@ public class WalletTestAssetIssue010 {
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();
   }
+  /**
+   * constructor.
+   */
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
+  /**
+   * constructor.
+   */
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -287,6 +313,9 @@ public class WalletTestAssetIssue010 {
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
+  /**
+   * constructor.
+   */
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -323,6 +352,9 @@ public class WalletTestAssetIssue010 {
     }
 
   }
+  /**
+   * constructor.
+   */
 
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
@@ -361,6 +393,9 @@ public class WalletTestAssetIssue010 {
     }
   }
 
+  /**
+   * constructor.
+   */
 
   public boolean participateAssetIssue(byte[] to, byte[] assertName, long amount, byte[] from,
       String priKey) {

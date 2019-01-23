@@ -70,6 +70,9 @@ public class WalletTestWitness003 {
     Wallet wallet = new Wallet();
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
+  /**
+   * constructor.
+   */
 
   @BeforeClass
   public void beforeClass() {
@@ -84,12 +87,12 @@ public class WalletTestWitness003 {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Invaild account to apply create witness")
   public void testInvaildToApplyBecomeWitness() {
     Assert.assertFalse(createWitness(INVAILD_ADDRESS, createUrl, testKey002));
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Create witness")
   public void testCreateWitness() {
     //If you are already is witness, apply failed
     //createWitness(fromAddress, createUrl, testKey002);
@@ -111,7 +114,7 @@ public class WalletTestWitness003 {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Update witness")
   public void testUpdateWitness() {
     GrpcAPI.WitnessList witnesslist = blockingStubFull
         .listWitnesses(GrpcAPI.EmptyMessage.newBuilder().build());
@@ -130,6 +133,9 @@ public class WalletTestWitness003 {
 
 
   }
+  /**
+   * constructor.
+   */
 
   @AfterClass
   public void shutdown() throws InterruptedException {
@@ -138,6 +144,9 @@ public class WalletTestWitness003 {
     }
   }
 
+  /**
+   * constructor.
+   */
 
   public Boolean createWitness(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
@@ -166,6 +175,9 @@ public class WalletTestWitness003 {
     }
 
   }
+  /**
+   * constructor.
+   */
 
   public Boolean updateWitness(byte[] owner, byte[] url, String priKey) {
     ECKey temKey = null;
@@ -198,6 +210,9 @@ public class WalletTestWitness003 {
 
   }
 
+  /**
+   * constructor.
+   */
 
   public Boolean sendcoin(byte[] to, long amount, byte[] owner, String priKey) {
 
@@ -233,6 +248,9 @@ public class WalletTestWitness003 {
     }
   }
 
+  /**
+   * constructor.
+   */
 
   public Account queryAccount(String priKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -265,12 +283,18 @@ public class WalletTestWitness003 {
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();
   }
+  /**
+   * constructor.
+   */
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
+  /**
+   * constructor.
+   */
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();

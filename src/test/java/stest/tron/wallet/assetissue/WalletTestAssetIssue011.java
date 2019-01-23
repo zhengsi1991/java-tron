@@ -66,6 +66,10 @@ public class WalletTestAssetIssue011 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
     PublicMethed.printAddress(testKeyForAssetIssue011);
@@ -77,7 +81,7 @@ public class WalletTestAssetIssue011 {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Transfer asset to create account")
   public void testTransferAssetCreateAccount() {
     //get account
     ecKey1 = new ECKey(Utils.getRandom());
@@ -91,15 +95,18 @@ public class WalletTestAssetIssue011 {
 
     Assert.assertTrue(PublicMethed
         .sendcoin(asset011Address, sendAmount, fromAddress, testKey002, blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Assert.assertTrue(PublicMethed
         .freezeBalance(asset011Address, 100000000L, 3, testKeyForAssetIssue011,
             blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
     Assert.assertTrue(PublicMethed
         .createAssetIssue(asset011Address, name, totalSupply, 1, 1, start, end, 1, description,
             url, freeAssetNetLimit, publicFreeAssetNetLimit, 1L, 1L, testKeyForAssetIssue011,
             blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethed.queryAccount(asset011Address,blockingStubFull);
@@ -110,7 +117,7 @@ public class WalletTestAssetIssue011 {
     Assert.assertTrue(PublicMethed
         .transferAsset(transferAssetCreateAddress, assetAccountId.toByteArray(), 1L,
             asset011Address, testKeyForAssetIssue011, blockingStubFull));
-
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Account queryTransferAssetAccount = PublicMethed
         .queryAccount(transferAssetCreateKey, blockingStubFull);
     Assert.assertTrue(queryTransferAssetAccount.getAssetV2Count() == 1);
@@ -123,6 +130,9 @@ public class WalletTestAssetIssue011 {
 
   }
 
+  /**
+   * constructor.
+   */
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {

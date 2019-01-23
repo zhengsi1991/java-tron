@@ -68,6 +68,10 @@ public class WalletTestAssetIssue008 {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
 
+  /**
+   * constructor.
+   */
+
   @BeforeClass(enabled = true)
   public void beforeClass() {
     logger.info(ByteArray.toHexString(ecKey.getPrivKeyBytes()));
@@ -83,18 +87,18 @@ public class WalletTestAssetIssue008 {
   }
 
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Get asset issue list from Solidity")
   public void testGetAllAssetIssueFromSolidity() {
-    Assert.assertTrue(PublicMethed.freezeBalance(fromAddress,10000000,3,testKey002,
-        blockingStubFull));
     Assert.assertTrue(PublicMethed.sendcoin(queryAssetIssueFromSoliAddress,2048000000,fromAddress,
         testKey002,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     Long start = System.currentTimeMillis() + 2000;
     Long end = System.currentTimeMillis() + 1000000000;
     //Create a new AssetIssue success.
     Assert.assertTrue(PublicMethed.createAssetIssue(queryAssetIssueFromSoliAddress, name,
         totalSupply, 1, 100, start, end, 1, description, url, 10000L,
         10000L,1L,1L,queryAssetIssueKey,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     GrpcAPI.AssetIssueList assetIssueList = blockingStubSolidity
         .getAssetIssueList(GrpcAPI.EmptyMessage.newBuilder().build());
     logger.info(Long.toString(assetIssueList.getAssetIssueCount()));
@@ -109,26 +113,7 @@ public class WalletTestAssetIssue008 {
       Block currentBlock = blockingStubFull.getNowBlock(GrpcAPI.EmptyMessage.newBuilder().build());
       logger.info("fullnode block num is " + Long.toString(currentBlock.getBlockHeader()
           .getRawData().getNumber()));
-      Block solidityCurrentBlock = blockingStubSolidity.getNowBlock(GrpcAPI
-          .EmptyMessage.newBuilder().build());
-      Integer wait = 0;
-      while (solidityCurrentBlock.getBlockHeader().getRawData().getNumber()
-          < currentBlock.getBlockHeader().getRawData().getNumber() + 1 && wait < 10) {
-        try {
-          Thread.sleep(3000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        logger.info("Solidity didn't synchronize the fullnode block,please wait");
-        solidityCurrentBlock = blockingStubSolidity.getNowBlock(GrpcAPI.EmptyMessage.newBuilder()
-            .build());
-        wait++;
-        logger.info("soliditynode block num is " + Long.toString(solidityCurrentBlock
-            .getBlockHeader().getRawData().getNumber()));
-        if (wait == 9) {
-          logger.info("Didn't syn,skip to next case.");
-        }
-      }
+      PublicMethed.waitSolidityNodeSynFullNodeData(blockingStubFull,blockingStubSolidity);
     }
 
     assetIssueList = blockingStubSolidity
@@ -143,6 +128,9 @@ public class WalletTestAssetIssue008 {
     }
 
   }
+  /**
+   * constructor.
+   */
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -153,6 +141,9 @@ public class WalletTestAssetIssue008 {
       channelSolidity.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
+  /**
+   * constructor.
+   */
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -177,12 +168,18 @@ public class WalletTestAssetIssue008 {
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();
   }
+  /**
+   * constructor.
+   */
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
+  /**
+   * constructor.
+   */
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -199,6 +196,9 @@ public class WalletTestAssetIssue008 {
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
+  /**
+   * constructor.
+   */
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -235,6 +235,9 @@ public class WalletTestAssetIssue008 {
     }
 
   }
+  /**
+   * constructor.
+   */
 
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;

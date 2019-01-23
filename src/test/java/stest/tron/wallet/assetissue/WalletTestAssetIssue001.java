@@ -67,6 +67,9 @@ public class WalletTestAssetIssue001 {
     Wallet wallet = new Wallet();
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
   }
+  /**
+   * constructor.
+   */
 
   @BeforeClass(enabled = true)
   public void beforeClass() {
@@ -76,7 +79,7 @@ public class WalletTestAssetIssue001 {
     blockingStubFull = WalletGrpc.newBlockingStub(channelFull);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = true,description = "Transfer asset use Bandwitch")
   public void testTransferAssetBandwitchDecreaseWithin10Second() {
     //get account
     ecKey = new ECKey(Utils.getRandom());
@@ -87,13 +90,15 @@ public class WalletTestAssetIssue001 {
 
     Assert.assertTrue(PublicMethed.sendcoin(noBandwitchAddress, 2048000000, fromAddress,
         testKey002, blockingStubFull));
-    Long start = System.currentTimeMillis() + 2000;
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    Long start = System.currentTimeMillis() + 5000;
     Long end = System.currentTimeMillis() + 1000000000;
 
     //Create a new AssetIssue success.
     Assert.assertTrue(PublicMethed.createAssetIssue(noBandwitchAddress, name, totalSupply, 1,
         100, start, end, 1, description, url, 10000L,10000L,
         1L,1L,noBandwitch,blockingStubFull));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     Account getAssetIdFromThisAccount;
     getAssetIdFromThisAccount = PublicMethed.queryAccount(noBandwitch,blockingStubFull);
@@ -102,6 +107,7 @@ public class WalletTestAssetIssue001 {
 
     Assert.assertTrue(transferAsset(toAddress, assetAccountId.toByteArray(), 100L,
         noBandwitchAddress, noBandwitch));
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     //Transfer Asset failed when transfer to yourself
     Assert.assertFalse(transferAsset(toAddress, assetAccountId.toByteArray(), 100L,
@@ -129,6 +135,9 @@ public class WalletTestAssetIssue001 {
 
 
   }
+  /**
+   * constructor.
+   */
 
   @AfterClass(enabled = true)
   public void shutdown() throws InterruptedException {
@@ -136,6 +145,9 @@ public class WalletTestAssetIssue001 {
       channelFull.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
   }
+  /**
+   * constructor.
+   */
 
   public Boolean createAssetIssue(byte[] address, String name, Long totalSupply, Integer trxNum,
       Integer icoNum, Long startTime, Long endTime,
@@ -182,6 +194,9 @@ public class WalletTestAssetIssue001 {
       return false;
     }
   }
+  /**
+   * constructor.
+   */
 
   public Account queryAccount(ECKey ecKey, WalletGrpc.WalletBlockingStub blockingStubFull) {
     byte[] address;
@@ -206,12 +221,18 @@ public class WalletTestAssetIssue001 {
   public byte[] getAddress(ECKey ecKey) {
     return ecKey.getAddress();
   }
+  /**
+   * constructor.
+   */
 
   public Account grpcQueryAccount(byte[] address, WalletGrpc.WalletBlockingStub blockingStubFull) {
     ByteString addressBs = ByteString.copyFrom(address);
     Account request = Account.newBuilder().setAddress(addressBs).build();
     return blockingStubFull.getAccount(request);
   }
+  /**
+   * constructor.
+   */
 
   public Block getBlock(long blockNum, WalletGrpc.WalletBlockingStub blockingStubFull) {
     NumberMessage.Builder builder = NumberMessage.newBuilder();
@@ -228,6 +249,9 @@ public class WalletTestAssetIssue001 {
     transaction = TransactionUtils.setTimestamp(transaction);
     return TransactionUtils.sign(transaction, ecKey);
   }
+  /**
+   * constructor.
+   */
 
   public boolean transferAsset(byte[] to, byte[] assertName, long amount, byte[] address,
       String priKey) {
@@ -266,6 +290,9 @@ public class WalletTestAssetIssue001 {
     }
 
   }
+  /**
+   * constructor.
+   */
 
   public boolean unFreezeAsset(byte[] addRess, String priKey) {
     byte[] address = addRess;
