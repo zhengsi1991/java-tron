@@ -1932,6 +1932,9 @@ public class PublicMethedForMutiSign {
       TransactionSignWeight weight = blockingStubFull.getTransactionSignWeight(transaction);
       if (weight.getResult().getCode()
               == TransactionSignWeight.Result.response_code.ENOUGH_PERMISSION) {
+        System.out
+                .println("current transaction hex string is " + ByteArray
+                        .toHexString(transaction.toByteArray()));
         break;
       }
       if (weight.getResult().getCode()

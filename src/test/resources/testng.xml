@@ -6,10 +6,11 @@
     <listener class-name="stest.tron.wallet.common.client.utils.RetryListener"/>
   </listeners>
     <test name="contract scenario,committee,witness">
-      <packages>
-          <package name="stest.tron.wallet.committee.WalletTestCommittee003">
-          </package>
-      </packages>
+
+ <classes>
+                      <class name="stest.tron.wallet.committee.WalletTestCommittee003"/>
+                    </classes>
+
     </test>
 
 </suite>

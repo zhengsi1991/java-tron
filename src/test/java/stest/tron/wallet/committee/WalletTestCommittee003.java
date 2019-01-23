@@ -15,12 +15,15 @@ import org.tron.api.GrpcAPI.EmptyMessage;
 import org.tron.api.GrpcAPI.ProposalList;
 import org.tron.api.WalletGrpc;
 import org.tron.api.WalletSolidityGrpc;
+import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
+import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 
 @Slf4j
@@ -81,16 +84,14 @@ public class WalletTestCommittee003 {
   }
 
   @Test(enabled = true)
-  public void testApproveProposal() {
-    PublicMethed.sendcoin(witness001Address,1000000L,
-        toAddress,testKey003,blockingStubFull);
-    PublicMethed.sendcoin(witness002Address,1000000L,
-        toAddress,testKey003,blockingStubFull);
+  public void test1ApproveProposal() {
 
     HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
     proposalMap.put(20L, 1L);
-    Assert.assertTrue(PublicMethed.createProposal(witness001Address,witnessKey001,
-        proposalMap,blockingStubFull));
+    PublicMethed.createProposal(witness001Address,witnessKey001,
+        proposalMap,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
     //Get proposal list
     ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
@@ -98,57 +99,120 @@ public class WalletTestCommittee003 {
     final Integer proposalId = listProposals.get().getProposalsCount();
     logger.info(Integer.toString(proposalId));
 
-    Assert.assertTrue(PublicMethed.approveProposal(witness002Address,witnessKey002,proposalId,
-        true,blockingStubFull));
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    //Get proposal list after approve
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals =  Optional.ofNullable(proposalList);
-    logger.info(Integer.toString(listProposals.get().getProposals(0).getApprovalsCount()));
-    Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 1);
-    //logger.info(Base58.encode58Check(witness002Address));
-    //logger.info(Base58.encode58Check(listProposals.get().getProposals(0).
-    // getApprovalsList().get(0).toByteArray()));
-    Assert.assertTrue(Base58.encode58Check(witness002Address).equals(Base58.encode58Check(
-        listProposals.get().getProposals(0).getApprovalsList().get(0).toByteArray())));
-
-    //Failed to approve proposal when you already approval this proposal
-    Assert.assertFalse(PublicMethed.approveProposal(witness002Address,witnessKey002,proposalId,
-        true,blockingStubFull));
-
-    //Success to change the option from true to false.
-    Assert.assertTrue(PublicMethed.approveProposal(witness002Address,witnessKey002,proposalId,
-        false,blockingStubFull));
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals =  Optional.ofNullable(proposalList);
-    Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 0);
-
-    //Failed to approvel proposal when you already approval this proposal
-    Assert.assertFalse(PublicMethed.approveProposal(witness002Address,witnessKey002,proposalId,
-        false,blockingStubFull));
-
-
-    //Non witness can't approval proposal
-    Assert.assertFalse(PublicMethed.approveProposal(toAddress,testKey003,proposalId,
-        true,blockingStubFull));
 
     //Muti approval
-    Assert.assertTrue(PublicMethed.approveProposal(witness001Address,witnessKey001,proposalId,
-        true,blockingStubFull));
-    Assert.assertTrue(PublicMethed.approveProposal(witness002Address,witnessKey002,proposalId,
-        true,blockingStubFull));
-    Assert.assertTrue(PublicMethed.approveProposal(witness003Address,witnessKey003,proposalId,
-        true,blockingStubFull));
-    Assert.assertTrue(PublicMethed.approveProposal(witness004Address,witnessKey004,proposalId,
-        true,blockingStubFull));
-    Assert.assertTrue(PublicMethed.approveProposal(witness005Address,witnessKey005,proposalId,
-        true,blockingStubFull));
-    proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
-    listProposals =  Optional.ofNullable(proposalList);
-    Assert.assertTrue(listProposals.get().getProposals(0).getApprovalsCount() == 2);
+    PublicMethed.approveProposal(witness001Address,witnessKey001,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness002Address,witnessKey002,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness003Address,witnessKey003,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness004Address,witnessKey004,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness005Address,witnessKey005,proposalId,
+            true,blockingStubFull);
+
+
 
 
   }
+  @Test(enabled = true)
+  public void test2ApproveProposal() {
+
+    HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
+    proposalMap.put(20L, 1L);
+    PublicMethed.createProposal(witness001Address,witnessKey001,
+            proposalMap,blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    //Get proposal list
+    ProposalList proposalList = blockingStubFull.listProposals(EmptyMessage.newBuilder().build());
+    Optional<ProposalList> listProposals =  Optional.ofNullable(proposalList);
+    final Integer proposalId = listProposals.get().getProposalsCount();
+    logger.info(Integer.toString(proposalId));
+
+
+    //Muti approval
+    PublicMethed.approveProposal(witness001Address,witnessKey001,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness002Address,witnessKey002,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness003Address,witnessKey003,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness004Address,witnessKey004,proposalId,
+            true,blockingStubFull);
+    PublicMethed.approveProposal(witness005Address,witnessKey005,proposalId,
+            true,blockingStubFull);
+
+    try {
+      Thread.sleep(900000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+  @Test(enabled = true)
+  public void test3MultiSignPreparation() {
+    //TYtZeP1Xnho7LKcgeNsTY2Xg3LTpjfF6G5
+    //41FB6A0BA726411CFC24CD066852B3FB8EB1381EFE
+    String ownerKey = "795D7F7A3120132695DFB8977CC3B7ACC9770C125EB69037F19DCA55B075C4AE";
+    byte[] ownerAddress = PublicMethed.getFinalAddress(ownerKey);
+
+
+   PublicMethed.sendcoin(ownerAddress,9968981537400L,witness002Address,witnessKey002,
+          blockingStubFull);
+   PublicMethed.waitProduceNextBlock(blockingStubFull);
+   PublicMethed.waitProduceNextBlock(blockingStubFull);
+   PublicMethed.waitProduceNextBlock(blockingStubFull);
+
+    String manager1Key = "ff5d867c4434ac17d264afc6696e15365832d5e8000f75733ebb336d66df148d";
+    String[] permissionKeyString = new String[3];
+    permissionKeyString[0] = manager1Key;
+
+    String manager2Key = "2925e186bb1e88988855f11ebf20ea3a6e19ed92328b0ffb576122e769d45b68";
+    permissionKeyString[1] = manager2Key;
+
+    permissionKeyString[2] = ownerKey;
+
+    String[] ownerKeyString = new String[1];
+    ownerKeyString[0] = ownerKey;
+
+    String accountPermissionJson =
+            "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":3,\"keys\":["
+                    + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey) + "\",\"weight\":1},"
+                    + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
+                    + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}]},"
+                    + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
+                    + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
+                    + "\"keys\":["
+                    + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
+                    + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"
+                    + "]}]}";
+    logger.info(accountPermissionJson);
+    PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,ownerAddress,ownerKey,
+            blockingStubFull,ownerKeyString);
+
+
+//permissionKeyString[0] = ownerKey;
+
+    String[] ownerKeyString1 = new String[3];
+    ownerKeyString1[0] = ownerKey;
+    ownerKeyString1[1] = manager1Key;
+    ownerKeyString1[2] = manager2Key;
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+    PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,ownerAddress,ownerKey,
+            blockingStubFull,ownerKeyString);
+//    PublicMethedForMutiSign.sendcoin(
+//            witness001Address,4000000L,ownerAddress,ownerKey,blockingStubFull,permissionKeyString);
+//
+//    PublicMethedForMutiSign.triggerContract()
+
+  }
+
+
   /**
    * constructor.
    */
