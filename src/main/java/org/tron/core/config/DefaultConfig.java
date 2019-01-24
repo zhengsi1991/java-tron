@@ -16,6 +16,8 @@ import org.tron.core.db.TransactionCache;
 import org.tron.core.db.api.IndexHelper;
 import org.tron.core.db.backup.BackupRocksDBAspect;
 import org.tron.core.db.backup.NeedBeanCondition;
+import org.tron.core.db.datacheck.DataCheckAspect;
+import org.tron.core.db.datacheck.NeedDataCheckCondition;
 import org.tron.core.db2.core.SnapshotManager;
 import org.tron.core.services.interfaceOnSolidity.RpcApiServiceOnSolidity;
 import org.tron.core.services.interfaceOnSolidity.http.solidity.HttpApiOnSolidityService;
@@ -103,5 +105,11 @@ public class DefaultConfig {
   @Conditional(NeedBeanCondition.class)
   public BackupRocksDBAspect backupRocksDBAspect() {
     return new BackupRocksDBAspect();
+  }
+
+  @Bean
+  @Conditional(NeedDataCheckCondition.class)
+  public DataCheckAspect dataCheckAspect() {
+    return new DataCheckAspect();
   }
 }

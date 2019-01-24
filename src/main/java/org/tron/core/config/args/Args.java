@@ -431,6 +431,9 @@ public class Args {
   @Getter
   private DBSettings rocksDBCustomSettings;
 
+  @Getter
+  private long dataCheckPoint;
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -866,6 +869,7 @@ public class Args {
     initRocksDbBackupProperty(config);
     initRocksDbSettings(config);
 
+    initDataCheckPoint(config);
     logConfig();
   }
 
@@ -1204,6 +1208,12 @@ public class Args {
         ? config.getInt("node.backup.port") : 10001;
     INSTANCE.backupMembers = config.hasPath("node.backup.members")
         ? config.getStringList("node.backup.members") : new ArrayList<>();
+  }
+
+  private static void initDataCheckPoint(Config config) {
+    INSTANCE.dataCheckPoint =
+        config.hasPath("storage.db.datacheckpoint") ? config.getLong("storage.db.datacheckpoint")
+            : 0;
   }
 
   private static void logConfig() {

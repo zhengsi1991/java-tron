@@ -45,8 +45,17 @@
     <appender-ref ref="FILE"/>
   </appender>
 
+  <appender name="datacheck" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>./logs/datacheck.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>./logs/datacheck-%d{yyyy-MM-dd}.log</fileNamePattern>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
   <root level="INFO">
-    <!--<appender-ref ref="STDOUT"/>-->
     <appender-ref ref="ASYNC"/>
   </root>
 
@@ -62,6 +71,10 @@
   <logger name="DB" level="INFO"/>
   <logger name="capsule" level="INFO"/>
   <logger name="VM" level="INFO"/>
+
+  <logger name="org.tron.core.db.datacheck" level="INFO" additivity="false">
+     <appender-ref ref="datacheck"/>
+  </logger>
 
 </configuration>
 

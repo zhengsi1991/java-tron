@@ -44,6 +44,8 @@ public abstract class AbstractRevokingStore implements RevokingDatabase {
   private AtomicInteger maxSize = new AtomicInteger(DEFAULT_STACK_MAX_SIZE);
   private WriteOptionsWrapper writeOptionsWrapper = WriteOptionsWrapper.getInstance()
       .sync(Args.getInstance().getStorage().isDbSync());
+
+  @Getter
   private List<LevelDbDataSourceImpl> dbs = new ArrayList<>();
 
   @Override
