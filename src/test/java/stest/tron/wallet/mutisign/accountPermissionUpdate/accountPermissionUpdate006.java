@@ -614,27 +614,19 @@ public class accountPermissionUpdate006 {
     ownerPermissionKeys.add(ownerKey);
 
     logger.info("** update owner and active permission to two address");
-    String accountPermissionJson =
-        "{\"owner_permission\":{\"type\":9223372036854775808,\"permission_name\":\"\","
-            + "\"threshold\":1,\"keys\":["
+     String accountPermissionJson =
+        "{\"owner_permission\":{\"type\":9223372036854775808,\"permission_name\":\"Owner\","
+            + "\"threshold\":2,\"keys\":["
             + "{\"address\":\"" + PublicMethed.getAddressString(tmpKey02)
-            + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,"
+            + "\",\"weight\":2}]},"
+            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
+            + "\"threshold\":1,"
             + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
             + "\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(witnessKey001) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(tmpKey02) + "\",\"weight\":1}"
+            + "{\"address\":\"" + PublicMethed.getAddressString(witnessKey001) + "\",\"weight\":9223372036854775806},"
+            + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey) + "\",\"weight\":1}"
             + "]}]}";
 
-//    GrpcAPI.Return response = PublicMethed.accountPermissionUpdateForResponse(
-//        accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
-//
-//    Assert.assertFalse(response.getResult());
-//    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-//    Assert.assertEquals("contract validate error : owner permission type is error",
-//        response.getMessage().toStringUtf8());
-
-    // for debug
     Assert.assertTrue(PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
@@ -647,7 +639,6 @@ public class accountPermissionUpdate006 {
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
-
 
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
@@ -762,7 +753,8 @@ public class accountPermissionUpdate006 {
     logger.info("** update owner and active permission to two address");
     String accountPermissionJson = "{\"owner_permission\":{\"type\":0.1,"
         + "\"permission_name\":\"owner\",\"threshold\": 1,\"keys\":["
-        + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey) + "\",\"weight\":9223372036854775806},"
+        + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey)
+        + "\",\"weight\":9223372036854775806},"
         + "{\"address\":\"" + PublicMethed.getAddressString(tmpKey02) + "\",\"weight\":1}]},"
         + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":3,"
         + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
@@ -770,14 +762,6 @@ public class accountPermissionUpdate006 {
         + "{\"address\":\"" + PublicMethed.getAddressString(witnessKey001) + "\",\"weight\":3},"
         + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey) + "\",\"weight\":1}"
         + "]}]}";
-
-//    GrpcAPI.Return response = PublicMethed.accountPermissionUpdateForResponse(
-//        accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
-//
-//    Assert.assertFalse(response.getResult());
-//    Assert.assertEquals(CONTRACT_VALIDATE_ERROR, response.getCode());
-//    Assert.assertEquals("contract validate error : owner permission type is error",
-//        response.getMessage().toStringUtf8());
 
     // for debug
     Assert.assertTrue(PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,
@@ -787,7 +771,8 @@ public class accountPermissionUpdate006 {
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(tmpKey02);
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(
+        PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(2, PublicMethed.queryAccount(ownerAddress,

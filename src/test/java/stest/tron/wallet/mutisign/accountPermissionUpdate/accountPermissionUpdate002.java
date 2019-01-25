@@ -508,6 +508,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold12() {
     // theshold = Long.MAX_VALUE  > sum(weight)
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
