@@ -303,17 +303,9 @@ public class accountPermissionUpdate011 {
     ECKey ecKey1 = new ECKey(Utils.getRandom());
     byte[] ownerAddress = ecKey1.getAddress();
     String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
     PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     List<String> ownerPermissionKeys = new ArrayList<>();
     List<String> activePermissionKeys = new ArrayList<>();

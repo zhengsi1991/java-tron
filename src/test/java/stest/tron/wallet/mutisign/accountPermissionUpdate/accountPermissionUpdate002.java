@@ -92,6 +92,20 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold01() {
     // theshold = Integer.MIN_VALUE
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
     List<String> ownerPermissionKeys = new ArrayList<>();
 
@@ -126,6 +140,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold02() {
     // theshold = 0
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
@@ -160,6 +189,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold03() {
     // theshold = -1
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
@@ -194,6 +238,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold04() {
     // theshold = long.min
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
@@ -226,6 +285,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold05() {
     // theshold = long.min - 1000020
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
@@ -261,6 +335,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold06() {
     // theshold = long.min - 1
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
@@ -440,7 +529,7 @@ public class accountPermissionUpdate002 {
     }
     PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
     try {
-      Thread.sleep(100);
+      Thread.sleep(500);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -515,7 +604,7 @@ public class accountPermissionUpdate002 {
     }
     PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
     try {
-      Thread.sleep(100);
+      Thread.sleep(500);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -554,6 +643,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold13() {
     // theshold = Integer.MAX_VALUE  > sum(weight)
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
@@ -673,7 +777,7 @@ public class accountPermissionUpdate002 {
     }
     PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
     try {
-      Thread.sleep(100);
+      Thread.sleep(500);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -740,6 +844,21 @@ public class accountPermissionUpdate002 {
   @Test
   public void testOwnerTheshold16() {
     // theshold = Long.MAX_VALUE  < sum(weight)
+    ECKey ecKey1 = new ECKey(Utils.getRandom());
+    byte[] ownerAddress = ecKey1.getAddress();
+    String ownerKey = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    PublicMethed.sendcoin(ownerAddress, 1_000_000, fromAddress, testKey002, blockingStubFull);
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     List<String> ownerPermissionKeys = new ArrayList<>();
 
     PublicMethed.printAddress(ownerKey);
