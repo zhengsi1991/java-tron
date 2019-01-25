@@ -7,10 +7,10 @@
   </listeners>
     <test name="contract scenario,committee,witness">
 
- <classes>
-                      <class name="stest.tron.wallet.committee.WalletTestCommittee003"/>
-                    </classes>
-
+     <classes>
+         <class name="stest.tron.wallet.account.AssetIssueAndCreateExchange"/>
+         <class name="stest.tron.wallet.committee.WalletTestCommittee003"/>
+     </classes>
     </test>
 
 </suite>
