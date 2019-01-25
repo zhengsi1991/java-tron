@@ -43,6 +43,8 @@
           <!--</package>-->
           <!--<package name="stest.tron.wallet.witness">-->
           <!--</package>-->
+        <package name="stest.tron.wallet.mutisign.accountPermissionUpdate.*">
+        </package>
         <package name="stest.tron.wallet.mutisign.*">
         </package>
       </packages>
