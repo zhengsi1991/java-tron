@@ -20,15 +20,11 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.Key;
-import org.tron.protos.Protocol.Permission;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
 import stest.tron.wallet.common.client.WalletClient;
-import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
-import stest.tron.wallet.common.client.utils.Sha256Hash;
 
 @Slf4j
 public class accountPermissionUpdate015 {
@@ -62,7 +58,7 @@ public class accountPermissionUpdate015 {
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
   private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
+      .getStringList("fullnode.ip.list").get(1);
   private long maxFeeLimit = Configuration.getByPath("testng.conf")
       .getLong("defaultParameter.maxFeeLimit");
 
@@ -97,7 +93,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent01() {
     // no parent_id
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -129,8 +125,9 @@ public class accountPermissionUpdate015 {
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(testKey002);
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -141,19 +138,22 @@ public class accountPermissionUpdate015 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getWitnessPermission()));
 
-    PublicMethedForMutiSign.recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethedForMutiSign
+        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
   }
 
   @Test
   public void testWitnessParent02() {
     // parent_id = "123"
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -180,7 +180,6 @@ public class accountPermissionUpdate015 {
             + "{\"address\":\"" + PublicMethed.getAddressString(tmpKey02) + "\",\"weight\":1}"
             + "]}]}";
 
-
     GrpcAPI.Return response = PublicMethed.accountPermissionUpdateForResponse(
         accountPermissionJson, ownerAddress, ownerKey, blockingStubFull);
     Assert.assertFalse(response.getResult());
@@ -192,7 +191,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent03() {
     // parent_id = 123
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -229,7 +228,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent04() {
     // parent_id = "abc"
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -270,7 +269,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent05() {
     // parent = "active"
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -302,8 +301,9 @@ public class accountPermissionUpdate015 {
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(testKey002);
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -314,19 +314,22 @@ public class accountPermissionUpdate015 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getWitnessPermission()));
 
-    PublicMethedForMutiSign.recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethedForMutiSign
+        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
   }
 
   @Test
   public void testWitnessParent06() {
     // parent = owner
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -358,8 +361,9 @@ public class accountPermissionUpdate015 {
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(testKey002);
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -370,20 +374,23 @@ public class accountPermissionUpdate015 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getWitnessPermission()));
 
-    PublicMethedForMutiSign.recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethedForMutiSign
+        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
   }
 
 
   @Test
   public void testWitnessParent07() {
     // parent = "witness"
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -415,8 +422,9 @@ public class accountPermissionUpdate015 {
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(testKey002);
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -427,13 +435,16 @@ public class accountPermissionUpdate015 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getWitnessPermission()));
 
-    PublicMethedForMutiSign.recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethedForMutiSign
+        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
   }
 
   @Test
@@ -487,7 +498,7 @@ public class accountPermissionUpdate015 {
         "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
             + "{\"address\":\"" + PublicMethed.getAddressString(testKey002)
             + "\",\"weight\":1}]},"
-            + "\"witness_permission\":{\"parent_id\":"+ null +",\"type\":1,"
+            + "\"witness_permission\":{\"parent_id\":" + null + ",\"type\":1,"
             + "\"permission_name\":\"witness\",\"threshold\":1,\"keys\":["
             + "{\"address\":\"" + PublicMethed.getAddressString(tmpKey02)
             + "\",\"weight\":1}]},"
@@ -512,7 +523,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent10() {
     // parent_id = 1
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -548,7 +559,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent11() {
     // parent_id = 2
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -587,7 +598,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent12() {
     // parent_id = 3
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -623,7 +634,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent13() {
     // parent_id = -1
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -661,7 +672,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent14() {
     // parent_id = Integer.MAX_VALUE
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -698,7 +709,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent15() {
     // parent_id = Integer.MAX_VALUE +1
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -735,7 +746,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent16() {
     // parent_id = Integer.MIN_VALUE
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -772,7 +783,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent17() {
     // parent_id = Integer.MIN_VALUE -1
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -810,7 +821,7 @@ public class accountPermissionUpdate015 {
   @Test
   public void testWitnessParent18() {
     // parent_id = 0
-    String ownerKey  = witnessKey001;
+    String ownerKey = witnessKey001;
     byte[] ownerAddress = new WalletClient(ownerKey).getAddress();
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -843,8 +854,9 @@ public class accountPermissionUpdate015 {
     ownerPermissionKeys.clear();
     ownerPermissionKeys.add(testKey002);
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -855,13 +867,16 @@ public class accountPermissionUpdate015 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getWitnessPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getWitnessPermission()));
 
-    PublicMethedForMutiSign.recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethedForMutiSign
+        .recoverWitnessPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
   }
 
 
