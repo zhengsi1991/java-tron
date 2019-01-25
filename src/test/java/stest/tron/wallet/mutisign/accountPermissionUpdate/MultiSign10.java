@@ -1,4 +1,4 @@
-package stest.tron.wallet.mutisign;
+package stest.tron.wallet.mutisign.accountPermissionUpdate;
 
 import static org.hamcrest.core.StringContains.containsString;
 

@@ -1,4 +1,4 @@
-package stest.tron.wallet.mutisign;
+package stest.tron.wallet.mutisign.accountPermissionUpdate;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
