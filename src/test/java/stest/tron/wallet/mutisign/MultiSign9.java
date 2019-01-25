@@ -1,4 +1,4 @@
-package stest.tron.wallet.mutisign.accountPermissionUpdate;
+package stest.tron.wallet.mutisign;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;

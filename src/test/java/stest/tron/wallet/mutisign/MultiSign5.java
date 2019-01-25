@@ -1,4 +1,4 @@
-package stest.tron.wallet.mutisign.accountPermissionUpdate;
+package stest.tron.wallet.mutisign;
 
 import static org.hamcrest.core.StringContains.containsString;
 
@@ -26,7 +26,7 @@ import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 
 @Slf4j
-public class MultiSign1 {
+public class MultiSign5 {
 
   private final String testKey002 = Configuration.getByPath("testng.conf")
       .getString("foundationAccount.key2");
@@ -101,9 +101,9 @@ public class MultiSign1 {
 
 
   @Test
-  public void testMultiUpdatepermissions_1() {
-    //使用在permissionlist（activelist）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(也不在ownerlist和activelist中的)中的address签名.
+  public void testMultiUpdatepermissions_34() {
+    //使用在permissionlist（activelist(operations与交易类型匹配)））中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId相同)中的address签名（weight >= thredshold).广播
 
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
@@ -121,18 +121,15 @@ public class MultiSign1 {
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
 
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\""
-            + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations\""
-            + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]} ";
-
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":\""
+        + "owner\",\"threshold\":1,\"keys\":[{\"address\":\""
+        + "" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name"
+        + "\":\"active0\",\"threshold\":1,\"operations\":\""
+        + "0200000000000000000000000000000000000000000000000000000000000000\""
+        + ",\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2) + "\","
+        + "\"weight\":1},{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]} ";
     Assert.assertTrue(PublicMethedForMutiSign
         .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
             blockingStubFull, 0,
@@ -156,177 +153,11 @@ public class MultiSign1 {
         .getTransactionSignWeight(transaction1, blockingStubFull);
     logger.info("transaction:" + transactionSignWeight);
     logger.info("------------------------------------------");
-
-    Transaction transaction2 = PublicMethed
-        .addTransactionSign(transaction1, sendAccountKey4, blockingStubFull);
-    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction2, blockingStubFull);
-    logger.info("transaction1:" + transactionSignWeight1);
-    logger.info("------------------------------------------");
-
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("but it is not contained of permission"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
     Return returnResult1 = PublicMethedForMutiSign
-        .broadcastTransaction1(transaction2, blockingStubFull);
+        .broadcastTransaction1(transaction1, blockingStubFull);
+
     logger.info("returnResult1:" + returnResult1);
-    Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("but it is not contained of permission"));
-
-  }
-
-  @Test
-  public void testMultiUpdatepermissions_2() {
-    //使用在permissionlist（activelist）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(也不在ownerlist和activelist中的)中的address签名.
-
-    Assert.assertTrue(PublicMethed
-        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
-            blockingStubFull));
-
-    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
-    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
-    logger.info("wei-----------------------");
-
-    String[] permissionKeyString = new String[1];
-    permissionKeyString[0] = dev001Key;
-
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\""
-            + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations\""
-            + ":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]} ";
-
-    Assert.assertTrue(PublicMethedForMutiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-            blockingStubFull, 0,
-            permissionKeyString));
-
-    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
-    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList1);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
-    logger.info("1-----------------------");
-
-    Transaction transaction = PublicMethedForMutiSign
-        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 2, dev001Key,
-            blockingStubFull);
-    Transaction transaction1 = PublicMethed
-        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
-    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction1, blockingStubFull);
-    logger.info("transaction:" + transactionSignWeight);
-    logger.info("------------------------------------------");
-
-    Transaction transaction2 = PublicMethed
-        .addTransactionSign(transaction1, sendAccountKey4, blockingStubFull);
-    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction2, blockingStubFull);
-    logger.info("transaction1:" + transactionSignWeight1);
-    logger.info("------------------------------------------");
-
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Permission denied"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
-    Return returnResult1 = PublicMethedForMutiSign
-        .broadcastTransaction1(transaction2, blockingStubFull);
-    logger.info("returnResult1:" + returnResult1);
-    Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Permission denied"));
-
-  }
-
-  @Test
-  public void testMultiUpdatepermissions_3() {
-    //使用在permissionlist（activelist）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(不在ownerlist，但是在其他activelist中的)中的address签名.
-
-    Assert.assertTrue(PublicMethed
-        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
-            blockingStubFull));
-
-    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
-    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
-    logger.info("wei-----------------------");
-
-    String[] permissionKeyString = new String[1];
-    permissionKeyString[0] = dev001Key;
-
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-            + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1}]},"
-            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]}";
-
-    Assert.assertTrue(PublicMethedForMutiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-            blockingStubFull, 0,
-            permissionKeyString));
-
-    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
-    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList1);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
-    logger.info("1-----------------------");
-
-    Transaction transaction = PublicMethedForMutiSign
-        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 2, dev001Key,
-            blockingStubFull);
-    Transaction transaction1 = PublicMethed
-        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
-    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction1, blockingStubFull);
-    logger.info("transaction:" + transactionSignWeight);
-    logger.info("------------------------------------------");
-
+    Assert.assertTrue(returnResult1.getResult());
     Transaction transaction2 = PublicMethed
         .addTransactionSign(transaction1, sendAccountKey3, blockingStubFull);
     TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
@@ -334,31 +165,20 @@ public class MultiSign1 {
     logger.info("transaction1:" + transactionSignWeight1);
     logger.info("------------------------------------------");
 
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
-    Return returnResult1 = PublicMethedForMutiSign
+    Return returnResult2 = PublicMethedForMutiSign
         .broadcastTransaction1(transaction2, blockingStubFull);
-    logger.info("returnResult1:" + returnResult1);
+    logger.info("returnResult2:" + returnResult2);
     Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
+
 
   }
 
 
   @Test
-  public void testMultiUpdatepermissions_4() {
-    //使用在permissionlist（activelist）（(operations与交易类型不匹配)）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(不在ownerlist，但是在其他activelist中的(operations与交易类型不匹配))中的address签名.
+  public void testMultiUpdatepermissions_35() {
+    //使用在permissionlist（activelist(operations与交易类型不匹配)））中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId相同)中的address签名（weight >= thredshold).广播
 
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
@@ -376,20 +196,15 @@ public class MultiSign1 {
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
 
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-            + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1}]},"
-            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]}";
-
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":\""
+        + "owner\",\"threshold\":1,\"keys\":[{\"address\":\""
+        + "" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name"
+        + "\":\"active0\",\"threshold\":1,\"operations\":\""
+        + "0100000000000000000000000000000000000000000000000000000000000000\""
+        + ",\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2) + "\","
+        + "\"weight\":1},{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]} ";
     Assert.assertTrue(PublicMethedForMutiSign
         .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
             blockingStubFull, 0,
@@ -419,13 +234,21 @@ public class MultiSign1 {
         .assertThat(transactionSignWeight.getResult().getMessage(),
             containsString("Permission denied"));
     logger.info("------------------------------------------");
+    Return returnResult1 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
 
+    logger.info("returnResult1:" + returnResult1);
+    Assert
+        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult1.getMessage().toStringUtf8(),
+            containsString("validate signature error Permission denied"));
     Transaction transaction2 = PublicMethed
         .addTransactionSign(transaction1, sendAccountKey3, blockingStubFull);
     TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction2, blockingStubFull);
+
     logger.info("transaction1:" + transactionSignWeight1);
-    logger.info("------------------------------------------");
 
     Assert
         .assertThat(transactionSignWeight1.getResult().getCode().toString(),
@@ -433,24 +256,21 @@ public class MultiSign1 {
     Assert
         .assertThat(transactionSignWeight1.getResult().getMessage(),
             containsString("Permission denied"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
-    Return returnResult1 = PublicMethedForMutiSign
+    logger.info("------------------------------------------");
+
+    Return returnResult2 = PublicMethedForMutiSign
         .broadcastTransaction1(transaction2, blockingStubFull);
-    logger.info("returnResult1:" + returnResult1);
+    logger.info("returnResult2:" + returnResult2);
     Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Permission denied"));
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
+
 
   }
 
   @Test
-  public void testMultiUpdatepermissions_5() {
-    //使用在permissionlist（activelist）（(operations与交易类型不匹配)）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(不在ownerlist，但是在其他activelist中的(operations与交易类型匹配))中的address签名.
+  public void testMultiUpdatepermissions_36() {
+    //使用在permissionlist（ownerlist）中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId相同)中的address签名（weight >= thredshold)，广播
 
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
@@ -468,20 +288,15 @@ public class MultiSign1 {
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
 
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-            + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1}]},"
-            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]}";
-
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+        + "\"owner\",\"threshold\":1,\"keys\":[{\"address\":"
+        + "\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1},"
+        + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
+        + "\"threshold\":1,\"operations\":"
+        + "\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]} ";
     Assert.assertTrue(PublicMethedForMutiSign
         .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
             blockingStubFull, 0,
@@ -497,146 +312,38 @@ public class MultiSign1 {
     logger.info("1-----------------------");
 
     Transaction transaction = PublicMethedForMutiSign
-        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 2, dev001Key,
+        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 0, dev001Key,
             blockingStubFull);
     Transaction transaction1 = PublicMethed
-        .addTransactionSign(transaction, sendAccountKey3, blockingStubFull);
+        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
     TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction1, blockingStubFull);
     logger.info("transaction:" + transactionSignWeight);
-    Assert
-        .assertThat(transactionSignWeight.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight.getResult().getMessage(),
-            containsString("Permission denied"));
+    Return returnResult1 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+    Assert.assertTrue(returnResult1.getResult());
+
+    logger.info("returnResult1:" + returnResult1);
     logger.info("------------------------------------------");
 
     Transaction transaction2 = PublicMethed
-        .addTransactionSign(transaction1, sendAccountKey2, blockingStubFull);
+        .addTransactionSign(transaction1, dev001Key, blockingStubFull);
     TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("transaction1:" + transactionSignWeight1);
     logger.info("------------------------------------------");
 
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Permission denied"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
-    Return returnResult1 = PublicMethedForMutiSign
+    Return returnResult2 = PublicMethedForMutiSign
         .broadcastTransaction1(transaction2, blockingStubFull);
-    logger.info("returnResult1:" + returnResult1);
+    logger.info("returnResult1:" + returnResult2);
     Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Permission denied"));
-
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
   }
 
-//  @Test（enable=false）
-//
-//  public void testMultiSignAddKey_24() {
-//    //使用在permissionlist（activelist）（(operations与交易类型匹配)）中的address签名（weight >= thredshold),
-//    // 再使用非 permissionlist(不在ownerlist，但是在其他activelist中的(operations与交易类型不匹配))中的address签名.
-//
-//    Assert.assertTrue(PublicMethed
-//        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
-//            blockingStubFull));
-//
-//    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
-//    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
-//    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-//    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
-//    PublicMethedForMutiSign.printPermissionList(permissionsList);
-//    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
-//    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
-//    logger.info("wei-----------------------");
-//
-//    String[] permissionKeyString = new String[1];
-//    permissionKeyString[0] = dev001Key;
-//
-//    String accountPermissionJson1 =
-//        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-//            + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-//            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-//            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-//            + "\"active0\",\"threshold\":1,\"operations"
-//            + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
-//            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-//            + "\",\"weight\":1}]},"
-//            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
-//            + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-//            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-//            + "\",\"weight\":1}]}]}";
-//
-//    Assert.assertTrue(PublicMethedForMutiSign
-//        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-//            blockingStubFull, 0,
-//            permissionKeyString));
-//
-//    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
-//    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
-//    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-//    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
-//    PublicMethedForMutiSign.printPermissionList(permissionsList1);
-//    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
-//    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
-//    logger.info("1-----------------------");
-//
-//    Transaction transaction = PublicMethedForMutiSign
-//        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 3, dev001Key,
-//            blockingStubFull);
-//    Transaction transaction1 = PublicMethed
-//        .addTransactionSign(transaction, sendAccountKey3, blockingStubFull);
-//    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
-//        .getTransactionSignWeight(transaction1, blockingStubFull);
-//    logger.info("transaction:" + transactionSignWeight);
-//
-////    Assert
-////        .assertThat(transactionSignWeight.getResult(),
-////            containsString("PERMISSION_ERROR"));
-////    Assert
-////        .assertThat(transactionSignWeight.getResult().getMessage(),
-////            containsString("Permission denied"));
-//    logger.info("------------------------------------------");
-//
-//    Transaction transaction2 = PublicMethed
-//        .addTransactionSign(transaction1, sendAccountKey2, blockingStubFull);
-//    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
-//        .getTransactionSignWeight(transaction2, blockingStubFull);
-//    logger.info("transaction1:" + transactionSignWeight1);
-//    logger.info("------------------------------------------");
-//
-//    Assert
-//        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-//            containsString("PERMISSION_ERROR"));
-//    Assert
-//        .assertThat(transactionSignWeight1.getResult().getMessage(),
-//            containsString("Signature count is 2 more than key counts of permission : 1"));
-////    Return returnResult = PublicMethedForMutiSign
-////        .broadcastTransaction1(transaction1, blockingStubFull);
-////    logger.info("returnResult:" + returnResult);
-//    Return returnResult1 = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction2, blockingStubFull);
-//    logger.info("returnResult1:" + returnResult1);
-//    Assert
-//        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-//    Assert
-//        .assertThat(returnResult1.getMessage().toStringUtf8(),
-//            containsString("Signature count is 2 more than key counts of permission : 1"));
-//
-//  }
-
   @Test
-  public void testMultiUpdatepermissions_6() {
-    //使用在permissionlist（activelist）（(operations与交易类型匹配)）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(不在ownerlist，但是在其他activelist中的(operations与交易类型匹配))中的address签名.
+  public void testMultiUpdatepermissions_37() {
+    //使用在permissionlist（activelist(operations与交易类型不匹配)））中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId不同(operations与交易类型匹配))中的address签名（weight >= thredshold).广播
 
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
@@ -654,20 +361,112 @@ public class MultiSign1 {
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
 
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\":"
-            + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1}]},"
-            + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
-            + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]}";
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+        + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
+        + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
+        + "\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":1}]},"
+        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]}";
+    Assert.assertTrue(PublicMethedForMutiSign
+        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
+            blockingStubFull, 0,
+            permissionKeyString));
 
+    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
+    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
+    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
+    PublicMethedForMutiSign.printPermissionList(permissionsList1);
+    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
+    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
+    logger.info("1-----------------------");
+
+    Transaction transaction = PublicMethedForMutiSign
+        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 3, dev001Key,
+            blockingStubFull);
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
+    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
+        .getTransactionSignWeight(transaction1, blockingStubFull);
+    logger.info("transaction:" + transactionSignWeight);
+    Assert
+        .assertThat(transactionSignWeight.getResult().getCode().toString(),
+            containsString("PERMISSION_ERROR"));
+    Assert
+        .assertThat(transactionSignWeight.getResult().getMessage(),
+            containsString("but it is not contained of permission"));
+    logger.info("------------------------------------------");
+    Return returnResult1 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+
+    logger.info("returnResult1:" + returnResult1);
+    Assert
+        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult1.getMessage().toStringUtf8(),
+            containsString("but it is not contained of permission"));
+    //Assert.assertTrue(returnResult1.getResult());
+    Transaction transaction2 = PublicMethed
+        .addTransactionSign(transaction1, sendAccountKey3, blockingStubFull);
+    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
+        .getTransactionSignWeight(transaction2, blockingStubFull);
+    logger.info("transaction1:" + transactionSignWeight1);
+    Assert
+        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
+            containsString("PERMISSION_ERROR"));
+    Assert
+        .assertThat(transactionSignWeight1.getResult().getMessage(),
+            containsString("Signature count is 2 more than key counts of permission : 1"));
+    logger.info("------------------------------------------");
+
+    Return returnResult2 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction2, blockingStubFull);
+    logger.info("returnResult2:" + returnResult2);
+    Assert
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
+
+
+  }
+
+  @Test
+  public void testMultiUpdatepermissions_38() {
+    //使用在permissionlist（activelist(operations与交易类型匹配)））中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId不同(operations与交易类型不匹配))中的address签名（weight >= thredshold).广播
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
+    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
+    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
+    PublicMethedForMutiSign.printPermissionList(permissionsList);
+    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
+    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
+    logger.info("wei-----------------------");
+
+    String[] permissionKeyString = new String[1];
+    permissionKeyString[0] = dev001Key;
+
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+        + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
+        + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
+        + "\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":1}]},"
+        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]}";
     Assert.assertTrue(PublicMethedForMutiSign
         .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
             blockingStubFull, 0,
@@ -690,129 +489,38 @@ public class MultiSign1 {
     TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction1, blockingStubFull);
     logger.info("transaction:" + transactionSignWeight);
-
-//    Assert
-//        .assertThat(transactionSignWeight.getResult(),
-//            containsString("PERMISSION_ERROR"));
-//    Assert
-//        .assertThat(transactionSignWeight.getResult().getMessage(),
-//            containsString("Permission denied"));
     logger.info("------------------------------------------");
-
-    Transaction transaction2 = PublicMethedForMutiSign
-        .addTransactionSignWithPermissionId(transaction1, sendAccountKey2, 2, blockingStubFull);
-    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction2, blockingStubFull);
-    logger.info("transaction1:" + transactionSignWeight1);
-    logger.info("------------------------------------------");
-
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-//    logger.info("returnResult:" + returnResult);
     Return returnResult1 = PublicMethedForMutiSign
-        .broadcastTransaction1(transaction2, blockingStubFull);
+        .broadcastTransaction1(transaction1, blockingStubFull);
+
     logger.info("returnResult1:" + returnResult1);
-    Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-
-  }
-
-  @Test
-  public void testMultiUpdatepermissions_7() {
-    //使用在permissionlist（ownerlist）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(也不在ownerlist和activelist中的)中的address签名.
-
-    Assert.assertTrue(PublicMethed
-        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
-            blockingStubFull));
-
-    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
-    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
-    logger.info("wei-----------------------");
-
-    String[] permissionKeyString = new String[1];
-    permissionKeyString[0] = dev001Key;
-
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\""
-            + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations\""
-            + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]} ";
-
-    Assert.assertTrue(PublicMethedForMutiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-            blockingStubFull, 0,
-            permissionKeyString));
-
-    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
-    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList1);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
-    logger.info("1-----------------------");
-
-    Transaction transaction = PublicMethedForMutiSign
-        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 0, dev001Key,
-            blockingStubFull);
-    Transaction transaction1 = PublicMethed
-        .addTransactionSign(transaction, dev001Key, blockingStubFull);
-    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction1, blockingStubFull);
-    logger.info("transaction:" + transactionSignWeight);
-    logger.info("------------------------------------------");
-
+//    Assert.assertTrue(returnResult1.getResult());
     Transaction transaction2 = PublicMethed
-        .addTransactionSign(transaction1, sendAccountKey4, blockingStubFull);
+        .addTransactionSign(transaction1, sendAccountKey2, blockingStubFull);
     TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("transaction1:" + transactionSignWeight1);
-    logger.info("------------------------------------------");
-
     Assert
         .assertThat(transactionSignWeight1.getResult().getCode().toString(),
             containsString("PERMISSION_ERROR"));
     Assert
         .assertThat(transactionSignWeight1.getResult().getMessage(),
             containsString("Signature count is 2 more than key counts of permission : 1"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
-    Return returnResult1 = PublicMethedForMutiSign
+    logger.info("------------------------------------------");
+
+    Return returnResult2 = PublicMethedForMutiSign
         .broadcastTransaction1(transaction2, blockingStubFull);
-    logger.info("returnResult1:" + returnResult1);
+    logger.info("returnResult2:" + returnResult2);
     Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
+
 
   }
 
-
   @Test
-  public void testMultiUpdatepermissions_8() {
-    //使用在permissionlist（ownerlist）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(不在ownerlist,但是在activelist中的(operations与交易类型不匹配))中的address签名.
+  public void testMultiUpdatepermissions_39() {
+    //使用在permissionlist（activelist(operations与交易类型匹配)））中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId不同(operations与交易类型匹配))中的address签名（weight >= thredshold).广播
 
     Assert.assertTrue(PublicMethed
         .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
@@ -830,18 +538,195 @@ public class MultiSign1 {
     String[] permissionKeyString = new String[1];
     permissionKeyString[0] = dev001Key;
 
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\""
-            + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations\""
-            + ":\"0100000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]} ";
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+        + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
+        + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
+        + "\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":1}]},"
+        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]}";
+    Assert.assertTrue(PublicMethedForMutiSign
+        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
+            blockingStubFull, 0,
+            permissionKeyString));
 
+    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
+    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
+    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
+    PublicMethedForMutiSign.printPermissionList(permissionsList1);
+    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
+    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
+    logger.info("1-----------------------");
+
+    Transaction transaction = PublicMethedForMutiSign
+        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 3, dev001Key,
+            blockingStubFull);
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey3, blockingStubFull);
+    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
+        .getTransactionSignWeight(transaction1, blockingStubFull);
+    logger.info("transaction:" + transactionSignWeight);
+    logger.info("------------------------------------------");
+    Return returnResult1 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+
+    logger.info("returnResult1:" + returnResult1);
+    Assert.assertTrue(returnResult1.getResult());
+    Transaction transaction2 = PublicMethedForMutiSign
+        .addTransactionSignWithPermissionId(transaction1, sendAccountKey2, 2, blockingStubFull);
+
+    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
+        .getTransactionSignWeight(transaction2, blockingStubFull);
+    Assert
+        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
+            containsString("PERMISSION_ERROR"));
+    Assert
+        .assertThat(transactionSignWeight1.getResult().getMessage(),
+            containsString("Signature count is 2 more than key counts of permission : 1"));
+    logger.info("transaction1:" + transactionSignWeight1);
+    logger.info("------------------------------------------");
+
+    Return returnResult2 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction2, blockingStubFull);
+    logger.info("returnResult2:" + returnResult2);
+    Assert
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
+
+
+  }
+
+  @Test
+  public void testMultiUpdatepermissions_40() {
+    //使用在permissionlist（activelist(operations与交易类型不匹配)））中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId不同(operations与交易类型不匹配))中的address签名（weight >= thredshold).广播
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
+    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
+    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
+    PublicMethedForMutiSign.printPermissionList(permissionsList);
+    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
+    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
+    logger.info("wei-----------------------");
+
+    String[] permissionKeyString = new String[1];
+    permissionKeyString[0] = dev001Key;
+
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+        + "\"owner\",\"threshold\":1,\"keys\":[{\"address\""
+        + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
+        + "\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
+        + "\",\"weight\":1}]},"
+        + "{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,\"operations"
+        + "\":\"0100000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]}";
+    Assert.assertTrue(PublicMethedForMutiSign
+        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
+            blockingStubFull, 0,
+            permissionKeyString));
+
+    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
+    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
+    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
+    PublicMethedForMutiSign.printPermissionList(permissionsList1);
+    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
+    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
+    logger.info("1-----------------------");
+
+    Transaction transaction = PublicMethedForMutiSign
+        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 3, dev001Key,
+            blockingStubFull);
+    Transaction transaction1 = PublicMethed
+        .addTransactionSign(transaction, sendAccountKey3, blockingStubFull);
+    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
+        .getTransactionSignWeight(transaction1, blockingStubFull);
+    logger.info("transaction:" + transactionSignWeight);
+    Assert
+        .assertThat(transactionSignWeight.getResult().getCode().toString(),
+            containsString("PERMISSION_ERROR"));
+    Assert
+        .assertThat(transactionSignWeight.getResult().getMessage(),
+            containsString("Permission denied"));
+//
+    logger.info("------------------------------------------");
+    Return returnResult1 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+
+    logger.info("returnResult1:" + returnResult1);
+    Assert
+        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
+    Assert
+        .assertThat(returnResult1.getMessage().toStringUtf8(),
+            containsString("Permission denied"));
+    Transaction transaction2 = PublicMethedForMutiSign
+        .addTransactionSignWithPermissionId(transaction1, sendAccountKey2, 2, blockingStubFull);
+
+    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
+        .getTransactionSignWeight(transaction2, blockingStubFull);
+    Assert
+        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
+            containsString("PERMISSION_ERROR"));
+    Assert
+        .assertThat(transactionSignWeight1.getResult().getMessage(),
+            containsString("Permission denied"));
+//
+    logger.info("transaction1:" + transactionSignWeight1);
+    logger.info("------------------------------------------");
+
+    Return returnResult2 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction2, blockingStubFull);
+    logger.info("returnResult2:" + returnResult2);
+    Assert
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
+
+
+  }
+
+  @Test
+  public void testMultiUpdatepermissions_41() {
+    //使用在permissionlist（ownerlist）中的address签名（weight >= thredshold),广播
+    // 再使用 permissionlist(permissionId不同)中的address签名（weight >= thredshold)，广播
+
+    Assert.assertTrue(PublicMethed
+        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
+            blockingStubFull));
+
+    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
+    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
+    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
+    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
+    PublicMethedForMutiSign.printPermissionList(permissionsList);
+    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
+    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
+    logger.info("wei-----------------------");
+
+    String[] permissionKeyString = new String[1];
+    permissionKeyString[0] = dev001Key;
+
+    String accountPermissionJson1 = "{\"owner_permission\":{\"type\":0,\"permission_name\":"
+        + "\"owner\",\"threshold\":1,\"keys\":[{\"address\":"
+        + "\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1},"
+        + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2) + "\",\"weight\":1}]},"
+        + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\","
+        + "\"threshold\":1,\"operations\":"
+        + "\"0200000000000000000000000000000000000000000000000000000000000000\","
+        + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
+        + "\",\"weight\":1}]}]} ";
     Assert.assertTrue(PublicMethedForMutiSign
         .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
             blockingStubFull, 0,
@@ -860,121 +745,35 @@ public class MultiSign1 {
         .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 0, dev001Key,
             blockingStubFull);
     Transaction transaction1 = PublicMethed
-        .addTransactionSign(transaction, dev001Key, blockingStubFull);
+        .addTransactionSign(transaction, sendAccountKey2, blockingStubFull);
     TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction1, blockingStubFull);
     logger.info("transaction:" + transactionSignWeight);
+    Return returnResult1 = PublicMethedForMutiSign
+        .broadcastTransaction1(transaction1, blockingStubFull);
+    Assert.assertTrue(returnResult1.getResult());
+
+    logger.info("returnResult1:" + returnResult1);
     logger.info("------------------------------------------");
 
     Transaction transaction2 = PublicMethedForMutiSign
-        .addTransactionSignWithPermissionId(transaction1, sendAccountKey2, 2, blockingStubFull);
+        .addTransactionSignWithPermissionId(transaction1, sendAccountKey3, 2, blockingStubFull);
     TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction2, blockingStubFull);
-    logger.info("transaction1:" + transactionSignWeight1);
-    logger.info("------------------------------------------");
-
     Assert
         .assertThat(transactionSignWeight1.getResult().getCode().toString(),
             containsString("PERMISSION_ERROR"));
     Assert
         .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
-    Return returnResult1 = PublicMethedForMutiSign
-        .broadcastTransaction1(transaction2, blockingStubFull);
-    logger.info("returnResult1:" + returnResult1);
-    Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-
-  }
-
-  @Test
-  public void testMultiUpdatepermissions_9() {
-    //使用在permissionlist（ownerlist）中的address签名（weight >= thredshold),
-    // 再使用非 permissionlist(不在ownerlist,但是在activelist中的(operations与交易类型匹配))中的address签名.
-
-    Assert.assertTrue(PublicMethed
-        .sendcoin(test001Address, 1000000L, fromAddress, testKey002,
-            blockingStubFull));
-
-    Account test001AddressAccount = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList = test001AddressAccount.getActivePermissionList();
-    Permission ownerPermission = test001AddressAccount.getOwnerPermission();
-    Permission witnessPermission = test001AddressAccount.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission));
-    logger.info("wei-----------------------");
-
-    String[] permissionKeyString = new String[1];
-    permissionKeyString[0] = dev001Key;
-
-    String accountPermissionJson1 =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\""
-            + ":\"owner\",\"threshold\":1,\"keys\":[{\"address\""
-            + ":\"" + PublicMethed.getAddressString(dev001Key) + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":"
-            + "\"active0\",\"threshold\":1,\"operations\""
-            + ":\"0200000000000000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":[{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey2)
-            + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(sendAccountKey3)
-            + "\",\"weight\":1}]}]} ";
-
-    Assert.assertTrue(PublicMethedForMutiSign
-        .accountPermissionUpdateWithPermissionId(accountPermissionJson1, test001Address, dev001Key,
-            blockingStubFull, 0,
-            permissionKeyString));
-
-    Account test001AddressAccount1 = PublicMethed.queryAccount(test001Address, blockingStubFull);
-    List<Permission> permissionsList1 = test001AddressAccount1.getActivePermissionList();
-    Permission ownerPermission1 = test001AddressAccount1.getOwnerPermission();
-    Permission witnessPermission1 = test001AddressAccount1.getWitnessPermission();
-    PublicMethedForMutiSign.printPermissionList(permissionsList1);
-    logger.info(PublicMethedForMutiSign.printPermission(ownerPermission1));
-    logger.info(PublicMethedForMutiSign.printPermission(witnessPermission1));
-    logger.info("1-----------------------");
-
-    Transaction transaction = PublicMethedForMutiSign
-        .sendcoinWithPermissionIdNotSign(test005Address, 100L, test001Address, 0, dev001Key,
-            blockingStubFull);
-    Transaction transaction1 = PublicMethed
-        .addTransactionSign(transaction, dev001Key, blockingStubFull);
-    TransactionSignWeight transactionSignWeight = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction1, blockingStubFull);
-    logger.info("transaction:" + transactionSignWeight);
-    logger.info("------------------------------------------");
-
-    Transaction transaction2 = PublicMethedForMutiSign
-        .addTransactionSignWithPermissionId(transaction1, sendAccountKey2, 2, blockingStubFull);
-    TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
-        .getTransactionSignWeight(transaction2, blockingStubFull);
+            containsString("but it is not contained of permission"));
     logger.info("transaction1:" + transactionSignWeight1);
     logger.info("------------------------------------------");
 
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getCode().toString(),
-            containsString("PERMISSION_ERROR"));
-    Assert
-        .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-//    Return returnResult = PublicMethedForMutiSign
-//        .broadcastTransaction1(transaction1, blockingStubFull);
-//    logger.info("returnResult:" + returnResult);
-    Return returnResult1 = PublicMethedForMutiSign
+    Return returnResult2 = PublicMethedForMutiSign
         .broadcastTransaction1(transaction2, blockingStubFull);
-    logger.info("returnResult1:" + returnResult1);
+    logger.info("returnResult1:" + returnResult2);
     Assert
-        .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
-    Assert
-        .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
-
+        .assertThat(returnResult2.getCode().toString(), containsString("DUP_TRANSACTION_ERROR"));
   }
 
   /**
