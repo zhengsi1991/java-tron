@@ -164,9 +164,10 @@ public class MultiSign2 {
     Assert
         .assertThat(transactionSignWeight.getResult().getMessage(),
             containsString("but it is not contained of permission"));
+//    Transaction transaction2 = PublicMethedForMutiSign
+//        .addTransactionSignWithPermissionId(transaction1, sendAccountKey2, 2, blockingStubFull);
     Transaction transaction2 = PublicMethed
         .addTransactionSign(transaction1, sendAccountKey2, blockingStubFull);
-
     TransactionSignWeight transactionSignWeight1 = PublicMethedForMutiSign
         .getTransactionSignWeight(transaction2, blockingStubFull);
     logger.info("transaction1:" + transactionSignWeight1);
@@ -177,7 +178,7 @@ public class MultiSign2 {
             containsString("PERMISSION_ERROR"));
     Assert
         .assertThat(transactionSignWeight1.getResult().getMessage(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
+            containsString("but it is not contained of permission"));
 //    Return returnResult = PublicMethedForMutiSign
 //        .broadcastTransaction1(transaction1, blockingStubFull);
 //    logger.info("returnResult:" + returnResult);
@@ -188,7 +189,7 @@ public class MultiSign2 {
         .assertThat(returnResult1.getCode().toString(), containsString("SIGERROR"));
     Assert
         .assertThat(returnResult1.getMessage().toStringUtf8(),
-            containsString("Signature count is 2 more than key counts of permission : 1"));
+            containsString("but it is not contained of permission"));
 
   }
 
