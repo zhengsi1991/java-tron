@@ -149,6 +149,8 @@ public class FullNodeHttpApiService implements Service {
   private GetDelegatedResourceAccountIndexServlet getDelegatedResourceAccountIndexServlet;
   @Autowired
   private GetDelegatedResourceServlet getDelegatedResourceServlet;
+  @Autowired
+  private ExportAccountServlet exportAccountServlet;
 
   @Override
   public void init() {
@@ -241,6 +243,7 @@ public class FullNodeHttpApiService implements Service {
       context.addServlet(
           new ServletHolder(getDelegatedResourceAccountIndexServlet),
           "/getdelegatedresourceaccountindex");
+      context.addServlet(new ServletHolder(exportAccountServlet), "/exportaccount");
       server.start();
     } catch (Exception e) {
       logger.debug("IOException: {}", e.getMessage());
