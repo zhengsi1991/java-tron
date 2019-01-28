@@ -1,11 +1,6 @@
 package org.tron.common.utils;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Collections;
+import java.io.FileWriter;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,35 +21,37 @@ import org.tron.core.services.interfaceOnSolidity.WalletOnSolidity;
 public class AccountExporter {
   public static final String FILE_NAME = "account.csv";
   public static final AtomicLong EXPORT_NUM = new AtomicLong(0);
-  @Autowired
   private static WalletOnSolidity walletOnSolidity;
 
+  @Autowired
+  public void setWalletOnSolidity(WalletOnSolidity walletOnSolidity) {
+    AccountExporter.walletOnSolidity = walletOnSolidity;
+  }
+
   public static void export(BlockStore blockStore, Iterable<Entry<byte[], AccountCapsule>> iterable) {
-    walletOnSolidity.futureGet(() -> {
+    Long blockNum = walletOnSolidity.futureGetWithoutTimeout(() -> {
       List<BlockCapsule> blockList = blockStore.getBlockByLatestNum(1);
-      if (CollectionUtils.isNotEmpty(blockList)
-          && blockList.get(0).getNum() == EXPORT_NUM.get()) {
-        export(iterable);
+      if (CollectionUtils.isNotEmpty(blockList)) {
+        return blockList.get(0).getNum();
       }
+      return 0L;
     });
+    if (blockNum != null && blockNum == EXPORT_NUM.get()) {
+      export(iterable);
+    }
   }
 
   private static void export(Iterable<Entry<byte[], AccountCapsule>> iterable) {
-    try {
-      BufferedWriter writer = Files.newBufferedWriter(Paths.get(FILE_NAME),
-          StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-      CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("address", "balance"));
-
+    try (CSVPrinter printer = new CSVPrinter(new FileWriter(FILE_NAME), CSVFormat.EXCEL.withHeader("address", "balance"))) {
       iterable.forEach(e -> {
         try {
-          csvPrinter.printRecord(Wallet.encode58Check(e.getKey()), e.getValue().getBalance());
-        } catch (IOException e1) {
+          printer.printRecord(Wallet.encode58Check(e.getKey()), e.getValue().getBalance());
+        } catch (Exception e1) {
           logger.error("address {} write error.", Wallet.encode58Check(e.getKey()));
         }
       });
-      csvPrinter.flush();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    } catch (Exception e) {
+      logger.error("export error", e);
     }
   }
 }

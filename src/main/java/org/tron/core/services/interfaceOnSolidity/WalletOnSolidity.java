@@ -71,6 +71,27 @@ public class WalletOnSolidity {
     return null;
   }
 
+  public <T> T futureGetWithoutTimeout(Callable<T> callable) {
+    ListenableFuture<T> future = executorService.submit(() -> {
+      try {
+        dbManager.setMode(false);
+        return callable.call();
+      } catch (Exception e) {
+        logger.info("futureGet " + e.getMessage());
+        return null;
+      }
+    });
+
+    try {
+      return future.get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException ignored) {
+    }
+
+    return null;
+  }
+
   public void futureGet(Runnable runnable) {
     ListenableFuture<?> future = executorService.submit(() -> {
       try {
@@ -88,6 +109,24 @@ public class WalletOnSolidity {
     } catch (ExecutionException ignored) {
     } catch (TimeoutException e) {
       logger.info("futureGet time out");
+    }
+  }
+
+  public void futureGetWithoutTimeout(Runnable runnable) {
+    ListenableFuture<?> future = executorService.submit(() -> {
+      try {
+        dbManager.setMode(false);
+        runnable.run();
+      } catch (Exception e) {
+        logger.info("futureGet " + e.getMessage());
+      }
+    });
+
+    try {
+      future.get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException ignored) {
     }
   }
 }
