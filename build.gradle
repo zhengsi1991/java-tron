@@ -171,6 +171,8 @@ dependencies {
     // end http
 
     compile "io.vavr:vavr:0.9.2"
+
+    compile "org.apache.commons:commons-csv:1.6"
 }
 
 check.dependsOn 'lint'
