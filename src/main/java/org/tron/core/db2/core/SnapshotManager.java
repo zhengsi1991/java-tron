@@ -3,6 +3,7 @@ package org.tron.core.db2.core;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -24,10 +25,12 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.iq80.leveldb.WriteOptions;
 import org.tron.common.storage.leveldb.LevelDbDataSourceImpl;
+import org.tron.common.utils.ByteUtil;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.RevokingDatabase;
 import org.tron.core.db.common.WrappedByteArray;
 import org.tron.core.db2.common.DB;
+import org.tron.core.db2.common.DBChecker;
 import org.tron.core.db2.common.IRevokingDB;
 import org.tron.core.db2.common.Key;
 import org.tron.core.db2.common.Value;
@@ -192,11 +195,6 @@ public class SnapshotManager implements RevokingDatabase {
     return size;
   }
 
-  @Override
-  public void checkDB() {
-
-  }
-
 
   @Override
   public void setMaxSize(int maxSize) {
@@ -241,9 +239,13 @@ public class SnapshotManager implements RevokingDatabase {
   }
 
   private void refresh() {
+    // debug begin
+    List<List<byte[]>> accounts = new ArrayList<>();
+    List<String> debugBlockHashs = new ArrayList<>();
+    // debug end
     List<ListenableFuture<?>> futures = new ArrayList<>(dbs.size());
     for (RevokingDBWithCachingNewValue db : dbs) {
-      futures.add(flushServices.get(db.getDbName()).submit(() -> refreshOne(db)));
+      futures.add(flushServices.get(db.getDbName()).submit(() -> refreshOne(db, debugBlockHashs, accounts)));
     }
     Future<?> future = Futures.allAsList(futures);
     try {
@@ -253,9 +255,14 @@ public class SnapshotManager implements RevokingDatabase {
     } catch (ExecutionException e) {
       logger.error(e.getMessage(), e);
     }
+    // debug begin
+    for (int i = 0; i < debugBlockHashs.size(); ++i) {
+      DBChecker.check(debugBlockHashs.get(i), accounts.get(i));
+    }
+    // debug end
   }
 
-  private void refreshOne(RevokingDBWithCachingNewValue db) {
+  private void refreshOne(RevokingDBWithCachingNewValue db, List<String> blockhashs, List<List<byte[]>> accounts) {
     if (Snapshot.isRoot(db.getHead())) {
       return;
     }
@@ -267,6 +274,28 @@ public class SnapshotManager implements RevokingDatabase {
     for (int i = 0; i < flushCount; ++i) {
       next = next.getNext();
       snapshots.add(next);
+      // debug begin
+      String dbName = db.getDbName();
+      if ("block".equals(dbName) || "account".equals(dbName)) {
+        List<byte[]> debugDumpDatas = new ArrayList<>();
+        SnapshotImpl snapshot = (SnapshotImpl) next;
+        DB<Key, Value> keyValueDB = snapshot.getDb();
+        for (Map.Entry<Key, Value> e : keyValueDB) {
+          Key k = e.getKey();
+          Value v = e.getValue();
+          if ("block".equals(dbName)) {
+            blockhashs.add(Longs.fromByteArray(k.getBytes()) + ":" + ByteUtil.toHexString(k.getBytes()));
+          }
+          if ("account".equals(dbName) && v.getBytes() != null) {
+            debugDumpDatas.add(v.getBytes());
+          }
+        }
+
+        if ("account".equals(dbName)) {
+          accounts.add(debugDumpDatas);
+        }
+      }
+      // debug end
     }
 
     root.merge(snapshots);
