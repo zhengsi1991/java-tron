@@ -129,12 +129,10 @@ import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.net.message.TransactionMessage;
 import org.tron.core.net.node.NodeImpl;
 import org.tron.protos.Contract.AssetIssueContract;
-import org.tron.protos.Contract.AuthenticationPath;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.IncrementalMerkleTree;
 import org.tron.protos.Contract.IncrementalMerkleWitness;
 import org.tron.protos.Contract.IncrementalMerkleWitnessInfo;
-import org.tron.protos.Contract.MerklePath;
 import org.tron.protos.Contract.OutputPoint;
 import org.tron.protos.Contract.OutputPointInfo;
 import org.tron.protos.Contract.SHA256Compress;
@@ -1086,36 +1084,6 @@ public class Wallet {
     return null;
   }
 
-  public MerklePath getMerklePath(ByteString rt) {
-    if (Objects.isNull(rt)) {
-      return null;
-    }
-
-    if (!dbManager.getMerkleContainer().merkleRootIsExist(rt.toByteArray())) {
-      return null;
-    }
-
-    org.tron.common.zksnark.merkle.MerklePath merklePath = null;
-    try {
-      merklePath = dbManager.getMerkleContainer().merklePath(rt.toByteArray());
-    } catch (Exception ex) {
-      logger.error("get merkle path error, ", ex);
-    }
-
-    if (merklePath != null) {
-      MerklePath.Builder builder = MerklePath.newBuilder();
-      List<List<Boolean>> authenticationPath = merklePath.getAuthenticationPath();
-      List<Boolean> index = merklePath.getIndex();
-      builder.setRt(ByteString.copyFrom(rt.toByteArray()));
-      builder.addAllIndex(index);
-      authenticationPath.forEach(
-          path ->
-              builder.addAuthenticationPaths(
-                  AuthenticationPath.newBuilder().addAllValue(path).build()));
-      return builder.build();
-    }
-    return null;
-  }
 
   public byte[] getBestMerkleRoot() {
     IncrementalMerkleTreeContainer lastTree = dbManager.getMerkleContainer().getBestMerkle();

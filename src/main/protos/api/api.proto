@@ -597,10 +597,6 @@ service Wallet {
     };
   }
 
-  rpc GetMerklePath (BytesMessage) returns (MerklePath) {
-  }
-
-
   rpc GetBestMerkleRoot (EmptyMessage) returns (BytesMessage) {
   }
 
