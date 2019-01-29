@@ -24,7 +24,7 @@ public class ExportAccountServlet extends HttpServlet {
     try {
       String input = request.getParameter("value");
         AccountExporter.EXPORT_NUM.set(Long.parseLong(input));
-        response.getWriter().println("successfully!");
+        response.getWriter().println("successfully! Will dump the file on " + input);
     } catch (Exception e) {
       logger.debug("Exception: {}", e.getMessage());
       try {

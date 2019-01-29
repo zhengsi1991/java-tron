@@ -1,9 +1,17 @@
 package org.tron.common.utils;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.ToLongFunction;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -19,7 +27,7 @@ import org.tron.core.services.interfaceOnSolidity.WalletOnSolidity;
 @Slf4j
 @Component
 public class AccountExporter {
-  public static final String FILE_NAME = "account.csv";
+  public static final String FILE_NAME = "accounts.csv";
   public static final AtomicLong EXPORT_NUM = new AtomicLong(0);
   private static WalletOnSolidity walletOnSolidity;
 
@@ -42,14 +50,32 @@ public class AccountExporter {
   }
 
   private static void export(Iterable<Entry<byte[], AccountCapsule>> iterable) {
-    try (CSVPrinter printer = new CSVPrinter(new FileWriter(FILE_NAME), CSVFormat.EXCEL.withHeader("address", "balance"))) {
-      iterable.forEach(e -> {
-        try {
-          printer.printRecord(Wallet.encode58Check(e.getKey()), e.getValue().getBalance());
-        } catch (Exception e1) {
-          logger.error("address {} write error.", Wallet.encode58Check(e.getKey()));
-        }
-      });
+    AtomicLong total = new AtomicLong(0);
+    Map<String, Long> accounts = Streams.stream(iterable)
+        .map(e -> Maps.immutableEntry(Wallet.encode58Check(e.getKey()), e.getValue().getBalance()))
+        .peek(e -> {
+          if (e.getValue() >= 0) total.getAndAdd(e.getValue());
+        })
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (k1, k2) -> k1));
+
+    accounts.put("total", total.get());
+
+    try (CSVPrinter printer = new CSVPrinter(new FileWriter("block_" + EXPORT_NUM.get() + "_" + FILE_NAME),
+        CSVFormat.EXCEL.withHeader("address", "balance"))) {
+      accounts.entrySet().stream()
+          .sorted(Comparator.comparingLong((ToLongFunction<Entry<String, Long>>) Entry::getValue).reversed())
+          .forEach(e -> {
+            String address = e.getKey();
+            long balance = e.getValue();
+            if (balance >= 0) {
+              total.getAndAdd(balance);
+            }
+            try {
+              printer.printRecord(address, balance);
+            } catch (Exception e1) {
+              logger.error("address {} write error.", address);
+            }
+          });
     } catch (Exception e) {
       logger.error("export error", e);
     }
