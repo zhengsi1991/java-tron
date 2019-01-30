@@ -4,6 +4,7 @@ package stest.tron.wallet.account;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeSuite;
@@ -28,6 +29,7 @@ public class AssetIssueAndCreateExchange {
             "553c7b0dee17d3f5b334925f5a90fe99fb0b93d47073d69ec33eead8459d171e";
 
     //Default
+    //TDZdB4ogHSgU1CGrun8WXaMb2QDDkvAKQm
     private final String defaultKey =
             "549c7797b351e48ab1c6bb5857138b418012d97526fc2acba022357d49c93ac0";
 
@@ -36,8 +38,8 @@ public class AssetIssueAndCreateExchange {
     private final byte[] defaultAddress = PublicMethed.getFinalAddress(defaultKey);
     ByteString assetAccountId1;
     ByteString assetAccountId2;
-    Long firstTokenInitialBalance = 50000000000000L;
-    Long secondTokenInitialBalance = 50000000000000L;
+    Long firstTokenInitialBalance = 500000000L;
+    Long secondTokenInitialBalance = 500000000L;
 
     private Long start;
     private Long end;
@@ -72,7 +74,8 @@ public class AssetIssueAndCreateExchange {
         Account fromAccount = PublicMethed.queryAccount(testKey001,blockingStubFull);
         Account toAccount   = PublicMethed.queryAccount(defaultKey,blockingStubFull);
 
-        PublicMethed.sendcoin(fromAddress,10000000000000L,defaultAddress,defaultKey,blockingStubFull);
+        PublicMethed.sendcoin(defaultAddress,10000000000000L,fromAddress,testKey001,blockingStubFull);
+
         logger.info("sendcoin");
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -86,21 +89,40 @@ public class AssetIssueAndCreateExchange {
                     100000L, 1L, 1L, defaultKey, blockingStubFull);
             logger.info("createAssetIssue");
         }
+
+        if(fromAccount.getAssetCount()==0)
+        {
+            start = System.currentTimeMillis() + 2000;
+            end = System.currentTimeMillis() + 1000000000;
+            PublicMethed.createAssetIssue(fromAddress, "xxd", 50000000000000L,
+                    1, 1, start, end, 1, "wwwwww", "wwwwwwww", 100000L,
+                    100000L, 1L, 1L, testKey001, blockingStubFull);
+            logger.info("createAssetIssue");
+        }
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-        Account getAssetIdFromThisAccount;
-        getAssetIdFromThisAccount =PublicMethed.queryAccount(defaultAddress,blockingStubFull);
-        assetAccountId1 =getAssetIdFromThisAccount.getAssetIssuedID();
+        Account getAssetIdFromThisAccount1;
+        Account getAssetIdFromThisAccount2;
+        getAssetIdFromThisAccount1 =PublicMethed.queryAccount(defaultAddress,blockingStubFull);
+        assetAccountId1 =getAssetIdFromThisAccount1.getAssetIssuedID();
+        logger.info("assetAccountId1: "+ assetAccountId1.toStringUtf8());
+        getAssetIdFromThisAccount2 =PublicMethed.queryAccount(fromAddress,blockingStubFull);
+        assetAccountId2 =getAssetIdFromThisAccount2.getAssetIssuedID();
 
         String trx = "_";
         byte[] b = trx.getBytes();
-        PublicMethed.exchangeCreate(assetAccountId1.toByteArray(),firstTokenInitialBalance,
+        Assert.assertTrue(PublicMethed.exchangeCreate(assetAccountId1.toByteArray(),firstTokenInitialBalance,
                 b,secondTokenInitialBalance,defaultAddress,
-                defaultKey,blockingStubFull);
+                defaultKey,blockingStubFull));
+
+//        PublicMethed.exchangeCreate(assetAccountId2.toByteArray(),firstTokenInitialBalance,
+//                b,secondTokenInitialBalance,fromAddress,
+//                testKey001,blockingStubFull);
+
         logger.info("exchangeCreate");
         PublicMethed.waitProduceNextBlock(blockingStubFull);
         PublicMethed.waitProduceNextBlock(blockingStubFull);
