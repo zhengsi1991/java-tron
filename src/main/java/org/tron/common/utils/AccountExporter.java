@@ -58,10 +58,9 @@ public class AccountExporter {
         })
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (k1, k2) -> k1));
 
-    accounts.put("total", total.get());
-
     try (CSVPrinter printer = new CSVPrinter(new FileWriter("block_" + EXPORT_NUM.get() + "_" + FILE_NAME),
         CSVFormat.EXCEL.withHeader("address", "balance"))) {
+      printer.printRecord("total", total.get());
       accounts.forEach((k, v) -> {
             String address = k;
             long balance = v;
