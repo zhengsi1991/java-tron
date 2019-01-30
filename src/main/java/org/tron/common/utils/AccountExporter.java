@@ -63,13 +63,10 @@ public class AccountExporter {
     try (CSVPrinter printer = new CSVPrinter(new FileWriter("block_" + EXPORT_NUM.get() + "_" + FILE_NAME),
         CSVFormat.EXCEL.withHeader("address", "balance"))) {
       accounts.entrySet().stream()
-          .sorted(Comparator.comparingLong((ToLongFunction<Entry<String, Long>>) Entry::getValue).reversed())
+//          .sorted(Comparator.comparingLong((ToLongFunction<Entry<String, Long>>) Entry::getValue).reversed())
           .forEach(e -> {
             String address = e.getKey();
             long balance = e.getValue();
-            if (balance >= 0) {
-              total.getAndAdd(balance);
-            }
             try {
               printer.printRecord(address, balance);
             } catch (Exception e1) {
