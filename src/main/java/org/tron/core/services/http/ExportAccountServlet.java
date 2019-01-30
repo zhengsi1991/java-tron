@@ -24,7 +24,10 @@ public class ExportAccountServlet extends HttpServlet {
     try {
       String input = request.getParameter("value");
         AccountExporter.EXPORT_NUM.set(Long.parseLong(input));
-        response.getWriter().println("successfully! Will dump the file on " + input);
+        response.getWriter().println("successfully!\n"
+            + "Please wait a moment and will dump the file on " + input + "\n"
+            + "Log in to this machine to get the account file\n"
+            + "Path: " + System.getProperty("user.dir") + "/block_" + input + "_accounts.csv");
     } catch (Exception e) {
       logger.debug("Exception: {}", e.getMessage());
       try {
