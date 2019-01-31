@@ -5,6 +5,7 @@ import com.google.common.collect.Streams;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -16,9 +17,11 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.tron.core.Wallet;
 import org.tron.core.capsule.BlockCapsule;
+import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.config.Parameter.ForkBlockVersionConsts;
 import org.tron.core.config.Parameter.ForkBlockVersionEnum;
 import org.tron.core.config.args.Args;
+import org.tron.core.db.DynamicPropertiesStore;
 import org.tron.core.db.Manager;
 
 @Slf4j(topic = "utils")
@@ -145,12 +148,16 @@ public class ForkController {
   }
 
   public synchronized void reset() {
-    for (ForkBlockVersionEnum versionEnum : ForkBlockVersionEnum.values()) {
-      int versionValue = versionEnum.getValue();
-      byte[] stats = manager.getDynamicPropertiesStore().statsByVersion(versionValue);
-      if (!check(stats) && Objects.nonNull(stats)) {
-        Arrays.fill(stats, VERSION_DOWNGRADE);
-        manager.getDynamicPropertiesStore().statsByVersion(versionValue, stats);
+    byte[] prefix = DynamicPropertiesStore.FORK_PREFIX.getBytes();
+    for (Entry<byte[], BytesCapsule> e : manager.getDynamicPropertiesStore()) {
+      byte[] key = e.getKey();
+      if (key.length > prefix.length && Arrays.equals(Arrays.copyOf(key, prefix.length), prefix)) {
+        int version = Integer.valueOf(new String(Arrays.copyOfRange(key, prefix.length, key.length)));
+        byte[] stats = manager.getDynamicPropertiesStore().statsByVersion(version);
+        if (!check(stats) && Objects.nonNull(stats)) {
+          Arrays.fill(stats, VERSION_DOWNGRADE);
+          manager.getDynamicPropertiesStore().statsByVersion(version, stats);
+        }
       }
     }
   }
