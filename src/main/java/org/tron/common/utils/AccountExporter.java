@@ -37,16 +37,12 @@ public class AccountExporter {
   }
 
   public static void export(BlockStore blockStore, Iterable<Entry<byte[], AccountCapsule>> iterable) {
-    Long blockNum = walletOnSolidity.futureGetWithoutTimeout(() -> {
+    walletOnSolidity.futureGetWithoutTimeout(() -> {
       List<BlockCapsule> blockList = blockStore.getBlockByLatestNum(1);
-      if (CollectionUtils.isNotEmpty(blockList)) {
-        return blockList.get(0).getNum();
+      if (CollectionUtils.isNotEmpty(blockList) && blockList.get(0).getNum() == EXPORT_NUM.get()) {
+        export(iterable);
       }
-      return 0L;
     });
-    if (blockNum != null && blockNum == EXPORT_NUM.get()) {
-      export(iterable);
-    }
   }
 
   private static void export(Iterable<Entry<byte[], AccountCapsule>> iterable) {
