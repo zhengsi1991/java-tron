@@ -21,16 +21,11 @@ import org.tron.common.crypto.ECKey;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol.Key;
-import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import stest.tron.wallet.common.client.Configuration;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
-import stest.tron.wallet.common.client.WalletClient;
-import stest.tron.wallet.common.client.utils.Base58;
 import stest.tron.wallet.common.client.utils.PublicMethed;
 import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
-import stest.tron.wallet.common.client.utils.Sha256Hash;
 
 @Slf4j
 public class accountPermissionUpdate022 {
@@ -126,8 +121,9 @@ public class accountPermissionUpdate022 {
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
-    Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(1,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(2, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -135,8 +131,9 @@ public class accountPermissionUpdate022 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
     logger.info("** update owner permission to one address");
     accountPermissionJson =
@@ -150,12 +147,14 @@ public class accountPermissionUpdate022 {
             + "]}]}";
     ownerPermissionKeys.add(testKey002);
 
-    Assert.assertTrue(PublicMethedForMutiSign.accountPermissionUpdateWithPermissionId(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull, 0,
-        ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethedForMutiSign.accountPermissionUpdateWithPermissionId(accountPermissionJson,
+            ownerAddress, ownerKey, blockingStubFull, 0,
+            ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
-    Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(1,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -202,8 +201,9 @@ public class accountPermissionUpdate022 {
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
-    Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(1,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(2, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -211,17 +211,18 @@ public class accountPermissionUpdate022 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
     ownerPermissionKeys.add(testKey002);
 
     logger.info("** trigger a normal permission");
     Assert.assertTrue(PublicMethedForMutiSign
-        .sendcoinWithPermissionId(fromAddress, 1_000000, ownerAddress, 0,  ownerKey, blockingStubFull,
+        .sendcoinWithPermissionId(fromAddress, 1_000000, ownerAddress, 0, ownerKey,
+            blockingStubFull,
             ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
   }
-
 
 
   @Test
@@ -263,8 +264,9 @@ public class accountPermissionUpdate022 {
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -272,8 +274,9 @@ public class accountPermissionUpdate022 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
     activePermissionKeys.add(testKey002);
     activePermissionKeys.add(normalKey001);
@@ -281,12 +284,13 @@ public class accountPermissionUpdate022 {
     logger.info("** update owner permission to two address");
     logger.info("** trigger a normal permission");
     Assert.assertFalse(PublicMethedForMutiSign
-        .sendcoinWithPermissionId(fromAddress, 1_000000, ownerAddress, 0,  ownerKey, blockingStubFull,
+        .sendcoinWithPermissionId(fromAddress, 1_000000, ownerAddress, 0, ownerKey,
+            blockingStubFull,
             activePermissionKeys.toArray(new String[activePermissionKeys.size()])));
 
-
     Assert.assertTrue(PublicMethedForMutiSign
-        .sendcoinWithPermissionId(fromAddress, 1_000000, ownerAddress, 2,  ownerKey, blockingStubFull,
+        .sendcoinWithPermissionId(fromAddress, 1_000000, ownerAddress, 2, ownerKey,
+            blockingStubFull,
             activePermissionKeys.toArray(new String[activePermissionKeys.size()])));
   }
 
@@ -322,7 +326,7 @@ public class accountPermissionUpdate022 {
             + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey)
             + "\",\"weight\":1}]},"
             + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":1,"
-            + "\"operations\":\""+ operations +"\","
+            + "\"operations\":\"" + operations + "\","
             + "\"keys\":["
             + "{\"address\":\"" + PublicMethed.getAddressString(testKey002) + "\",\"weight\":1},"
             + "{\"address\":\"" + PublicMethed.getAddressString(normalKey001) + "\",\"weight\":1}"
@@ -336,8 +340,9 @@ public class accountPermissionUpdate022 {
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -345,8 +350,9 @@ public class accountPermissionUpdate022 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
@@ -361,12 +367,14 @@ public class accountPermissionUpdate022 {
             + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey) + "\",\"weight\":1}"
             + "]}]}";
 
-    Assert.assertTrue(PublicMethedForMutiSign.accountPermissionUpdateWithPermissionId(accountPermissionJson,
-        ownerAddress, ownerKey, blockingStubFull, 2,
-        activePermissionKeys.toArray(new String[activePermissionKeys.size()])));
+    Assert.assertTrue(
+        PublicMethedForMutiSign.accountPermissionUpdateWithPermissionId(accountPermissionJson,
+            ownerAddress, ownerKey, blockingStubFull, 2,
+            activePermissionKeys.toArray(new String[activePermissionKeys.size()])));
 
-    Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(1,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -374,10 +382,10 @@ public class accountPermissionUpdate022 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
   }
-
 
 
   @Test
@@ -423,8 +431,9 @@ public class accountPermissionUpdate022 {
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
-    Assert.assertEquals(2, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(2,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -432,8 +441,9 @@ public class accountPermissionUpdate022 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
     logger.info("** trigger a permission transaction");
     accountPermissionJson =
@@ -497,17 +507,17 @@ public class accountPermissionUpdate022 {
 
     Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(
         PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
 
-
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
   }
 
   @Test
@@ -550,18 +560,19 @@ public class accountPermissionUpdate022 {
     Assert.assertEquals("validate signature error miss sig or contract",
         response.getMessage().toStringUtf8());
 
-    Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(1,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
 
-
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
   }
 
   @Test
@@ -611,8 +622,9 @@ public class accountPermissionUpdate022 {
     }
 
     Assert.assertTrue(ret);
-    Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    Assert.assertEquals(1,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
@@ -620,8 +632,9 @@ public class accountPermissionUpdate022 {
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
   }
 
   @Test
@@ -666,7 +679,7 @@ public class accountPermissionUpdate022 {
       GrpcAPI.Return response = PublicMethedForMutiSign.accountPermissionUpdateForResponse(
           accountPermissionJson, ownerKey.getBytes(), ownerKey, blockingStubFull,
           ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()]));
-    } catch (NullPointerException e){
+    } catch (NullPointerException e) {
       logger.info("NullPointerException !");
       ret = true;
     }
@@ -693,20 +706,23 @@ public class accountPermissionUpdate022 {
 
     List<String> ownerPermissionKeys = new ArrayList<>();
     ownerPermissionKeys.add(ownerKey);
-    PublicMethedForMutiSign.recoverAccountPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
-    PublicMethedForMutiSign.recoverAccountPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
-    Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+    PublicMethedForMutiSign
+        .recoverAccountPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    PublicMethedForMutiSign
+        .recoverAccountPermission(ownerKey, ownerPermissionKeys, blockingStubFull);
+    Assert.assertEquals(1,
+        PublicMethedForMutiSign.getActivePermissionKeyCount(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
 
-
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
   }
 
   @Test
@@ -743,21 +759,21 @@ public class accountPermissionUpdate022 {
     Assert.assertFalse(response.getResult());
     Assert.assertEquals(SIGERROR, response.getCode());
     Assert.assertEquals("validate signature error Signature count "
-            + "is 2 more than key counts of permission : 1", response.getMessage().toStringUtf8());
+        + "is 2 more than key counts of permission : 1", response.getMessage().toStringUtf8());
 
     Assert.assertEquals(1, PublicMethedForMutiSign.getActivePermissionKeyCount(
         PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getActivePermissionList()));
+            blockingStubFull).getActivePermissionList()));
 
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getOwnerPermission().getKeysCount());
 
-
     PublicMethedForMutiSign.printPermissionList(PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getActivePermissionList());
 
-    System.out.printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
-        blockingStubFull).getOwnerPermission()));
+    System.out
+        .printf(PublicMethedForMutiSign.printPermission(PublicMethed.queryAccount(ownerAddress,
+            blockingStubFull).getOwnerPermission()));
 
   }
 

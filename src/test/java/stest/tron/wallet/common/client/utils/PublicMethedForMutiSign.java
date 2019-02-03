@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -39,12 +41,14 @@ import org.tron.protos.Contract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.CreateSmartContract.Builder;
 import org.tron.protos.Contract.UpdateSettingContract;
+import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.Block;
 import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.Transaction.Result;
 import org.tron.protos.Protocol.Transaction.raw;
 import stest.tron.wallet.common.client.Parameter.CommonConstant;
@@ -303,7 +307,8 @@ public class PublicMethedForMutiSign {
    */
 
   public static Boolean freezeBalanceWithPermissionId(byte[] addRess, long freezeBalance,
-      long freezeDuration, int permissionId, String priKey, WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
+      long freezeDuration, int permissionId, String priKey,
+      WalletGrpc.WalletBlockingStub blockingStubFull, String[] permissionKeyString) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     byte[] address = addRess;
     long frozenBalance = freezeBalance;
@@ -2200,7 +2205,8 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-  public static GrpcAPI.Return accountPermissionUpdateForResponse(String permissionJson, byte[] owner, String priKey,
+  public static GrpcAPI.Return accountPermissionUpdateForResponse(String permissionJson,
+      byte[] owner, String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, String[] priKeys) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
@@ -2427,7 +2433,8 @@ public class PublicMethedForMutiSign {
     return response.getResult();
   }
 
-  public static boolean accountPermissionUpdateWithPermissionId(String permissionJson, byte[] owner, String priKey,
+  public static boolean accountPermissionUpdateWithPermissionId(String permissionJson, byte[] owner,
+      String priKey,
       WalletGrpc.WalletBlockingStub blockingStubFull, int permissionId, String[] priKeys) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
@@ -2536,6 +2543,8 @@ public class PublicMethedForMutiSign {
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     Assert.assertEquals(1, getActivePermissionKeyCount(
         PublicMethed.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
@@ -2566,6 +2575,8 @@ public class PublicMethedForMutiSign {
         ownerAddress, ownerKey, blockingStubFull,
         ownerPermissionKeys.toArray(new String[ownerPermissionKeys.size()])));
 
+    PublicMethed.waitProduceNextBlock(blockingStubFull);
+
     Assert.assertEquals(1, getActivePermissionKeyCount(
         PublicMethed.queryAccount(ownerAddress, blockingStubFull).getActivePermissionList()));
 
@@ -2575,7 +2586,6 @@ public class PublicMethedForMutiSign {
     Assert.assertEquals(1, PublicMethed.queryAccount(ownerAddress,
         blockingStubFull).getWitnessPermission().getKeysCount());
   }
-
 
 
   /**
@@ -2694,7 +2704,7 @@ public class PublicMethedForMutiSign {
     return transaction;
   }
 
-  public static String getOperations(Integer[] ints){
+  public static String getOperations(Integer[] ints) {
     List<Integer> list = new ArrayList<>(Arrays.asList(ints));
     byte[] operations = new byte[32];
     list.forEach(e -> {
@@ -2705,7 +2715,8 @@ public class PublicMethedForMutiSign {
     return ByteArray.toHexString(operations);
   }
 
-  public static Transaction setPermissionId(Transaction transaction, int permission_id) throws CancelException {
+  public static Transaction setPermissionId(Transaction transaction, int permission_id)
+      throws CancelException {
     if (transaction.getSignatureCount() != 0
         || transaction.getRawData().getContract(0).getPermissionId() != 0) {
       return transaction;
@@ -2727,7 +2738,8 @@ public class PublicMethedForMutiSign {
   /**
    * constructor.
    */
-  public static Transaction addTransactionSignWithPermissionId(Transaction transaction, String priKey, int permissionId,
+  public static Transaction addTransactionSignWithPermissionId(Transaction transaction,
+      String priKey, int permissionId,
       WalletGrpc.WalletBlockingStub blockingStubFull) {
     Wallet.setAddressPreFixByte(CommonConstant.ADD_PRE_FIX_BYTE_MAINNET);
     ECKey temKey = null;
@@ -2753,7 +2765,6 @@ public class PublicMethedForMutiSign {
     transaction = transactionBuilderSigned.build();
     return transaction;
   }
-
 
 
   private static Transaction signTransaction(Transaction transaction,
@@ -2846,4 +2857,56 @@ public class PublicMethedForMutiSign {
 
     return response;
   }
+
+
+  public static Protocol.Transaction createFakeTransaction(byte[] toAddrss, Long amount,
+      byte[] fromAddress) {
+
+    Contract.TransferContract contract = Contract.TransferContract.newBuilder()
+        .setOwnerAddress(ByteString.copyFrom(fromAddress))
+        .setToAddress(ByteString.copyFrom(toAddrss))
+        .setAmount(amount)
+        .build();
+    Protocol.Transaction transaction = createTransaction(contract, ContractType.TransferContract);
+
+    return transaction;
+  }
+
+  private static Transaction setReference(Transaction transaction, long blockNum,
+      byte[] blockHash) {
+    byte[] refBlockNum = ByteArray.fromLong(blockNum);
+    Transaction.raw rawData = transaction.getRawData().toBuilder()
+        .setRefBlockHash(ByteString.copyFrom(blockHash))
+        .setRefBlockBytes(ByteString.copyFrom(refBlockNum))
+        .build();
+    return transaction.toBuilder().setRawData(rawData).build();
+  }
+
+  public static Transaction setExpiration(Transaction transaction, long expiration) {
+    Transaction.raw rawData = transaction.getRawData().toBuilder().setExpiration(expiration)
+        .build();
+    return transaction.toBuilder().setRawData(rawData).build();
+  }
+
+  public static Transaction createTransaction(com.google.protobuf.Message message,
+      ContractType contractType) {
+    Transaction.raw.Builder transactionBuilder = Transaction.raw.newBuilder().addContract(
+        Transaction.Contract.newBuilder().setType(contractType).setParameter(
+            Any.pack(message)).build());
+
+    Transaction transaction = Transaction.newBuilder().setRawData(transactionBuilder.build())
+        .build();
+
+    long time = System.currentTimeMillis();
+    AtomicLong count = new AtomicLong();
+    long gTime = count.incrementAndGet() + time;
+    String ref = "" + gTime;
+
+    transaction = setReference(transaction, gTime, ByteArray.fromString(ref));
+
+    transaction = setExpiration(transaction, gTime);
+
+    return transaction;
+  }
+
 }
