@@ -57,7 +57,10 @@ public class AccountExporter {
     Map<String, Long> accounts = Streams.stream(manager.getAccountStore())
         .filter(e -> !manager.getContractStore().has(e.getKey()))
         .map(e -> Maps.immutableEntry(
-            Wallet.encode58Check(e.getKey()), e.getValue().getBalance() + e.getValue().getFrozenBalance()))
+            Wallet.encode58Check(e.getKey()),
+            e.getValue().getBalance()
+                + e.getValue().getFrozenBalance()
+                + e.getValue().getEnergyFrozenBalance()))
         .peek(e -> {
           if (e.getValue() >= 0) total.getAndAdd(e.getValue());
         })
