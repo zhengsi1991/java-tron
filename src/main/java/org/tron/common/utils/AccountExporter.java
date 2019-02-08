@@ -22,33 +22,42 @@ import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.db.BlockStore;
+import org.tron.core.db.Manager;
 import org.tron.core.services.interfaceOnSolidity.WalletOnSolidity;
 
 @Slf4j
 @Component
 public class AccountExporter {
-  public static final String FILE_NAME = "accounts.csv";
+  private static final String FILE_NAME = "accounts.csv";
   public static final AtomicLong EXPORT_NUM = new AtomicLong(0);
   private static WalletOnSolidity walletOnSolidity;
+  private static Manager manager;
 
   @Autowired
   public void setWalletOnSolidity(WalletOnSolidity walletOnSolidity) {
     AccountExporter.walletOnSolidity = walletOnSolidity;
   }
 
-  public static void export(BlockStore blockStore, Iterable<Entry<byte[], AccountCapsule>> iterable) {
+  @Autowired
+  public void setManager(Manager manager) {
+    AccountExporter.manager = manager;
+  }
+
+  public static void export() {
     walletOnSolidity.futureGetWithoutTimeout(() -> {
-      List<BlockCapsule> blockList = blockStore.getBlockByLatestNum(1);
+      List<BlockCapsule> blockList = manager.getBlockStore().getBlockByLatestNum(1);
       if (CollectionUtils.isNotEmpty(blockList) && blockList.get(0).getNum() == EXPORT_NUM.get()) {
-        export(iterable);
+        exportAccount();
       }
     });
   }
 
-  private static void export(Iterable<Entry<byte[], AccountCapsule>> iterable) {
+  private static void exportAccount() {
     AtomicLong total = new AtomicLong(0);
-    Map<String, Long> accounts = Streams.stream(iterable)
-        .map(e -> Maps.immutableEntry(Wallet.encode58Check(e.getKey()), e.getValue().getBalance()))
+    Map<String, Long> accounts = Streams.stream(manager.getAccountStore())
+        .filter(e -> !manager.getContractStore().has(e.getKey()))
+        .map(e -> Maps.immutableEntry(
+            Wallet.encode58Check(e.getKey()), e.getValue().getBalance() + e.getValue().getFrozenBalance()))
         .peek(e -> {
           if (e.getValue() >= 0) total.getAndAdd(e.getValue());
         })
