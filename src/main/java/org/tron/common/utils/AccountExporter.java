@@ -24,6 +24,7 @@ import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.db.BlockStore;
 import org.tron.core.db.Manager;
 import org.tron.core.services.interfaceOnSolidity.WalletOnSolidity;
+import org.tron.protos.Protocol.AccountType;
 
 @Slf4j
 @Component
@@ -56,6 +57,7 @@ public class AccountExporter {
     AtomicLong total = new AtomicLong(0);
     Map<String, Long> accounts = Streams.stream(manager.getAccountStore())
         .filter(e -> !manager.getContractStore().has(e.getKey()))
+//        .filter(e -> e.getValue().getType() != AccountType.Contract)
         .map(e -> Maps.immutableEntry(
             Wallet.encode58Check(e.getKey()),
             e.getValue().getBalance()
