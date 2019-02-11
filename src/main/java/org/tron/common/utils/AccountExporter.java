@@ -56,8 +56,8 @@ public class AccountExporter {
   private static void exportAccount() {
     AtomicLong total = new AtomicLong(0);
     Map<String, Long> accounts = Streams.stream(manager.getAccountStore())
-        .filter(e -> !manager.getContractStore().has(e.getKey()))
-//        .filter(e -> e.getValue().getType() != AccountType.Contract)
+//        .filter(e -> !manager.getContractStore().has(e.getKey()))
+        .filter(e -> e.getValue().getType() != AccountType.Contract)
         .map(e -> Maps.immutableEntry(
             Wallet.encode58Check(e.getKey()),
             e.getValue().getBalance()
