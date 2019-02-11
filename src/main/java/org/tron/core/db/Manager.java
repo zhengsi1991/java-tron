@@ -886,7 +886,7 @@ public class Manager {
         block.getNum(),
         System.currentTimeMillis() - start,
         block.getTransactions().size());
-    AccountExporter.export(blockStore, accountStore);
+    AccountExporter.export();
   }
 
   public void updateDynamicProperties(BlockCapsule block) {
