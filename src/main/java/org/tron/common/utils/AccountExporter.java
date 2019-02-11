@@ -57,7 +57,7 @@ public class AccountExporter {
                                                                         e.getValue().getFrozenBalance() +
                                                                         e.getValue().getEnergyFrozenBalance() +
                                                                         e.getValue().getDelegatedFrozenBalanceForEnergy() +
-                                                                        e.getValue().getDelegatedFrozenBalanceForEnergy()))
+                                                                        e.getValue().getDelegatedFrozenBalanceForBandwidth()))
         .peek(e -> {
           if (e.getValue() >= 0) total.getAndAdd(e.getValue());
         })
@@ -88,7 +88,7 @@ public class AccountExporter {
                                                                         e.getValue().getFrozenBalance() +
                                                                         e.getValue().getEnergyFrozenBalance() +
                                                                         e.getValue().getDelegatedFrozenBalanceForEnergy() +
-                                                                        e.getValue().getDelegatedFrozenBalanceForEnergy()))
+                                                                        e.getValue().getDelegatedFrozenBalanceForBandwidth()))
         .peek(e -> {
           if (e.getValue() >= 0) total.getAndAdd(e.getValue());
         })
@@ -119,7 +119,7 @@ public class AccountExporter {
                                                                         e.getValue().getFrozenBalance() +
                                                                         e.getValue().getEnergyFrozenBalance() +
                                                                         e.getValue().getDelegatedFrozenBalanceForEnergy() +
-                                                                        e.getValue().getDelegatedFrozenBalanceForEnergy()))
+                                                                        e.getValue().getDelegatedFrozenBalanceForBandwidth()))
         .peek(e -> {
           if (e.getValue() >= 0) total.getAndAdd(e.getValue());
         })
@@ -150,7 +150,7 @@ public class AccountExporter {
                                                                         e.getValue().getFrozenBalance() +
                                                                         e.getValue().getEnergyFrozenBalance() +
                                                                         e.getValue().getDelegatedFrozenBalanceForEnergy() +
-                                                                        e.getValue().getDelegatedFrozenBalanceForEnergy()))
+                                                                        e.getValue().getDelegatedFrozenBalanceForBandwidth()))
         .peek(e -> {
           if (e.getValue() >= 0) total.getAndAdd(e.getValue());
         })
@@ -183,7 +183,7 @@ public class AccountExporter {
                                                                         e.getValue().getFrozenBalance() +
                                                                         e.getValue().getEnergyFrozenBalance() +
                                                                         e.getValue().getDelegatedFrozenBalanceForEnergy() +
-                                                                        e.getValue().getDelegatedFrozenBalanceForEnergy()))
+                                                                        e.getValue().getDelegatedFrozenBalanceForBandwidth()))
         .peek(e -> {
           if (e.getValue() >= 0) total.getAndAdd(e.getValue());
         })
