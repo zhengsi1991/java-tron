@@ -170,6 +170,8 @@ public class AccountExporter {
           });
     } catch (Exception e) {
       logger.error("export error", e);
+    } finally {
+      System.exit(0);
     }
   }
 
