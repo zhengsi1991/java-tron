@@ -113,14 +113,12 @@ public class WalletTestCommittee003 {
             true,blockingStubFull);
 
 
-
-
   }
   @Test(enabled = true)
   public void test2ApproveProposal() {
 
     HashMap<Long, Long> proposalMap = new HashMap<Long, Long>();
-    proposalMap.put(20L, 1L);
+    proposalMap.put(21L, 1L);
     PublicMethed.createProposal(witness001Address,witnessKey001,
             proposalMap,blockingStubFull);
     PublicMethed.waitProduceNextBlock(blockingStubFull);
@@ -150,65 +148,6 @@ public class WalletTestCommittee003 {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-
-  }
-  @Test(enabled = true)
-  public void test3MultiSignPreparation() {
-    //TYtZeP1Xnho7LKcgeNsTY2Xg3LTpjfF6G5
-    //41FB6A0BA726411CFC24CD066852B3FB8EB1381EFE
-    String ownerKey = "795D7F7A3120132695DFB8977CC3B7ACC9770C125EB69037F19DCA55B075C4AE";
-    byte[] ownerAddress = PublicMethed.getFinalAddress(ownerKey);
-
-
-   PublicMethed.sendcoin(ownerAddress,9968981537400L,witness002Address,witnessKey002,
-          blockingStubFull);
-   PublicMethed.waitProduceNextBlock(blockingStubFull);
-   PublicMethed.waitProduceNextBlock(blockingStubFull);
-   PublicMethed.waitProduceNextBlock(blockingStubFull);
-
-    String manager1Key = "ff5d867c4434ac17d264afc6696e15365832d5e8000f75733ebb336d66df148d";
-    String[] permissionKeyString = new String[3];
-    permissionKeyString[0] = manager1Key;
-
-    String manager2Key = "2925e186bb1e88988855f11ebf20ea3a6e19ed92328b0ffb576122e769d45b68";
-    permissionKeyString[1] = manager2Key;
-
-    permissionKeyString[2] = ownerKey;
-
-    String[] ownerKeyString = new String[1];
-    ownerKeyString[0] = ownerKey;
-
-    String accountPermissionJson =
-            "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":3,\"keys\":["
-                    + "{\"address\":\"" + PublicMethed.getAddressString(ownerKey) + "\",\"weight\":1},"
-                    + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
-                    + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}]},"
-                    + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-                    + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
-                    + "\"keys\":["
-                    + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
-                    + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"
-                    + "]}]}";
-    logger.info(accountPermissionJson);
-    PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,ownerAddress,ownerKey,
-            blockingStubFull,ownerKeyString);
-
-
-//permissionKeyString[0] = ownerKey;
-
-    String[] ownerKeyString1 = new String[3];
-    ownerKeyString1[0] = ownerKey;
-    ownerKeyString1[1] = manager1Key;
-    ownerKeyString1[2] = manager2Key;
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,ownerAddress,ownerKey,
-            blockingStubFull,ownerKeyString);
-//    PublicMethedForMutiSign.sendcoin(
-//            witness001Address,4000000L,ownerAddress,ownerKey,blockingStubFull,permissionKeyString);
-//
-//    PublicMethedForMutiSign.triggerContract()
 
   }
 
