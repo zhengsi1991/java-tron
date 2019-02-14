@@ -24,42 +24,18 @@ import stest.tron.wallet.common.client.utils.PublicMethedForMutiSign;
 @Slf4j
 public class WalletTestMutiSign001 {
 
-  private final String testKey002 = Configuration.getByPath("testng.conf")
-      .getString("foundationAccount.key1");
-  private final byte[] fromAddress = PublicMethed.getFinalAddress(testKey002);
-
-  private static final long now = System.currentTimeMillis();
-  private static String name = "MutiSign001_" + Long.toString(now);
-  private static final long totalSupply = now;
-  String description = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetDescription");
-  String url = Configuration.getByPath("testng.conf")
-      .getString("defaultParameter.assetUrl");
-
   private ManagedChannel channelFull = null;
   private WalletGrpc.WalletBlockingStub blockingStubFull = null;
-  private String fullnode = Configuration.getByPath("testng.conf")
-      .getStringList("fullnode.ip.list").get(0);
-  ByteString assetAccountId1;
+  private String fullnode = "47.94.239.172:50051";
   String[] permissionKeyString = new String[2];
   String[] ownerKeyString = new String[1];
   String accountPermissionJson = "";
 
-  ECKey ecKey1 = new ECKey(Utils.getRandom());
-  byte[] manager1Address = ecKey1.getAddress();
-  String manager1Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
+  String manager1Key = "76fb5f55710c7ad6a98f73dd38a732f9a69a7b3ce700a694363a50572fa2842a";
+  String manager2Key = "549c7797b351e48ab1c6bb5857138b418012d97526fc2acba022357d49c93ac0";
+  String ownerKey = "795D7F7A3120132695DFB8977CC3B7ACC9770C125EB69037F19DCA55B075C4AE";
 
-  ECKey ecKey2 = new ECKey(Utils.getRandom());
-  byte[] manager2Address = ecKey2.getAddress();
-  String manager2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-
-  ECKey ecKey3 = new ECKey(Utils.getRandom());
-  byte[] ownerAddress = ecKey3.getAddress();
-  String ownerKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
-
-  ECKey ecKey4 = new ECKey(Utils.getRandom());
-  byte[] participateAddress = ecKey4.getAddress();
-  String participateKey = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
+  private final byte[] ownerAddress = PublicMethed.getFinalAddress(ownerKey);
 
   @BeforeSuite
   public void beforeSuite() {
@@ -81,21 +57,7 @@ public class WalletTestMutiSign001 {
 
   @Test(enabled = true)
   public void testMutiSign1CreateAssetissue() {
-    ecKey1 = new ECKey(Utils.getRandom());
-    manager1Address = ecKey1.getAddress();
-    manager1Key = ByteArray.toHexString(ecKey1.getPrivKeyBytes());
 
-    ecKey2 = new ECKey(Utils.getRandom());
-    manager2Address = ecKey2.getAddress();
-    manager2Key = ByteArray.toHexString(ecKey2.getPrivKeyBytes());
-
-    ecKey3 = new ECKey(Utils.getRandom());
-    ownerAddress = ecKey3.getAddress();
-    ownerKey = ByteArray.toHexString(ecKey3.getPrivKeyBytes());
-    PublicMethed.printAddress(ownerKey);
-
-    Assert.assertTrue(PublicMethed.sendcoin(ownerAddress,2048000000L,fromAddress,testKey002,
-        blockingStubFull));
     PublicMethed.waitProduceNextBlock(blockingStubFull);
 
     permissionKeyString[0] = manager1Key;
@@ -115,86 +77,8 @@ public class WalletTestMutiSign001 {
     logger.info(accountPermissionJson);
     PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,ownerAddress,ownerKey,
         blockingStubFull,ownerKeyString);
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
 
-    permissionKeyString[0] = ownerKey;
-
-    Long start = System.currentTimeMillis() + 5000;
-    Long end = System.currentTimeMillis() + 1000000000;
-    logger.info("try create asset issue");
-
-    Assert.assertTrue(PublicMethedForMutiSign.createAssetIssue(ownerAddress,name,totalSupply,1,
-        1,start,end,1,description,url,2000L,2000L,
-        1L, 1L, ownerKey, blockingStubFull, permissionKeyString));
-    logger.info(" create asset end");
   }
-  /**
-   * constructor.
-   */
-
-  @Test(enabled = true)
-  public void testMutiSign2TransferAssetissue() {
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    PublicMethed.printAddress(manager1Key);
-    Account getAssetIdFromOwnerAccount;
-    getAssetIdFromOwnerAccount = PublicMethed.queryAccount(ownerAddress, blockingStubFull);
-    assetAccountId1 = getAssetIdFromOwnerAccount.getAssetIssuedID();
-    Assert.assertTrue(PublicMethedForMutiSign.transferAsset(manager1Address,
-        assetAccountId1.toByteArray(), 10,ownerAddress,ownerKey,blockingStubFull,
-        permissionKeyString));
-  }
-
-  /**
-   * constructor.
-   */
-
-  @Test(enabled = true)
-  public void testMutiSign3ParticipateAssetissue() {
-    ecKey4 = new ECKey(Utils.getRandom());
-    participateAddress = ecKey4.getAddress();
-    participateKey = ByteArray.toHexString(ecKey4.getPrivKeyBytes());
-
-    Assert.assertTrue(PublicMethed.sendcoin(participateAddress,2048000000L,fromAddress,testKey002,
-        blockingStubFull));
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    ownerKeyString[0] = participateKey;
-    accountPermissionJson =
-        "{\"owner_permission\":{\"type\":0,\"permission_name\":\"owner\",\"threshold\":1,\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(participateKey)
-            + "\",\"weight\":1}]},"
-            + "\"active_permissions\":[{\"type\":2,\"permission_name\":\"active0\",\"threshold\":2,"
-            + "\"operations\":\"7fff1fc0033e0000000000000000000000000000000000000000000000000000\","
-            + "\"keys\":["
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager1Key) + "\",\"weight\":1},"
-            + "{\"address\":\"" + PublicMethed.getAddressString(manager2Key) + "\",\"weight\":1}"
-            + "]}]}";
-    logger.info(accountPermissionJson);
-    PublicMethedForMutiSign.accountPermissionUpdate(accountPermissionJson,participateAddress,
-        participateKey, blockingStubFull,ownerKeyString);
-
-    permissionKeyString[0] = participateKey;
-
-    PublicMethed.waitProduceNextBlock(blockingStubFull);
-    Assert.assertTrue(PublicMethedForMutiSign.participateAssetIssue(ownerAddress,assetAccountId1
-            .toByteArray(), 10,participateAddress,participateKey,
-        blockingStubFull, permissionKeyString));
-  }
-
-  /**
-   * constructor.
-   */
-
-  @Test(enabled = true)
-  public void testMutiSign4updateAssetissue() {
-    url = "MutiSign001_update_url" + Long.toString(now);
-    ownerKeyString[0] = ownerKey;
-    description = "MutiSign001_update_description" + Long.toString(now);
-    Assert.assertTrue(PublicMethedForMutiSign.updateAsset(ownerAddress,description.getBytes(),url
-        .getBytes(), 100L, 100L, ownerKey, blockingStubFull, ownerKeyString));
-  }
-
-
   /**
    * constructor.
    */
