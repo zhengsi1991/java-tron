@@ -625,18 +625,9 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
 
 
   private void onHandleInventoryMessage(PeerConnection peer, InventoryMessage msg) {
-    int count = peer.getNodeStatistics().messageStatistics.tronInTrxInventoryElement.getCount(10);
-    if (count > 10_000) {
-      logger.warn("Inventory count {} from Peer {} is overload.", count, peer.getInetAddress());
-      return;
-    }
-    if (trxHandler.isBusy() && msg.getInventoryType().equals(InventoryType.TRX)) {
-      logger.warn("Too many trx msg to handle, drop inventory msg from peer {}, size {}",
-          peer.getInetAddress(), msg.getHashList().size());
-      return;
-    }
     for (Sha256Hash id : msg.getHashList()) {
-      if (msg.getInventoryType().equals(InventoryType.TRX) && TrxCache.getIfPresent(id) != null) {
+      logger.info("### {} {}", peer.getInetAddress(), id.toString());
+      if (msg.getInventoryType().equals(InventoryType.TRX)) {
         continue;
       }
       final boolean[] spreaded = {false};
