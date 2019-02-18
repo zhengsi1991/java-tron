@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -623,10 +624,9 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
     });
   }
 
-
   private void onHandleInventoryMessage(PeerConnection peer, InventoryMessage msg) {
     for (Sha256Hash id : msg.getHashList()) {
-      logger.info("### {} {}", peer.getInetAddress(), id.toString());
+      logger.info("### {} {} {}",  id.toString(), System.currentTimeMillis(), peer.getInetAddress());
       if (msg.getInventoryType().equals(InventoryType.TRX)) {
         continue;
       }
