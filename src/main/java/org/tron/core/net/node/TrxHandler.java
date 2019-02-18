@@ -9,7 +9,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.spongycastle.util.encoders.Hex;
 import org.springframework.stereotype.Component;
+import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.TraitorPeerException;
 import org.tron.core.net.message.TransactionMessage;
@@ -66,7 +68,22 @@ public class TrxHandler {
 
   public void handleTransactionsMessage(PeerConnection peer, TransactionsMessage msg) {
     for (Transaction trx : msg.getTransactions().getTransactionsList()) {
-      Item item = new Item(new TransactionMessage(trx).getMessageId(), InventoryType.TRX);
+
+      TransactionMessage trxMsg = new TransactionMessage(trx);
+      byte[] owner = TransactionCapsule.getOwner(trx.getRawData().getContract(0));
+      if (Hex.toHexString(owner).toLowerCase().equals("416440704522DB53551FCE5A1E9AA41543DD87DA7E".toLowerCase())) {
+        logger.info("### Trx {}, {}", trxMsg.getMessageId(), peer.getInetAddress());
+        nodeImpl.getActivePeer().forEach(peerConnection -> {
+          if (peerConnection.getAdvObjSpreadToUs().containsKey(trxMsg.getMessageId())) {
+            logger.info("## {} {} {}",
+                trxMsg.getMessageId(),
+                peerConnection.getAdvObjSpreadToUs().get(trxMsg.getMessageId()),
+                peerConnection.getInetAddress());
+          }
+        });
+      }
+
+        Item item = new Item(new TransactionMessage(trx).getMessageId(), InventoryType.TRX);
       if (!peer.getAdvObjWeRequested().containsKey(item)) {
         logger.warn("Receive trx {} from peer {} without fetch request.",
             msg.getMessageId(), peer.getInetAddress());
