@@ -328,25 +328,25 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
   }
 
   public void broadcast(Message msg) {
-//    try {
-//      InventoryType type;
-//      if (msg instanceof BlockMessage) {
-//        logger.info("Ready to broadcast block {}", ((BlockMessage) msg).getBlockId());
-//        freshBlockId.offer(((BlockMessage) msg).getBlockId());
-//        BlockCache.put(msg.getMessageId(), (BlockMessage) msg);
-//        type = InventoryType.BLOCK;
-//      } else if (msg instanceof TransactionMessage) {
-//        TrxCache.put(msg.getMessageId(), new TransactionMessage(msg.getData()));
-//        type = InventoryType.TRX;
-//      } else {
-//        return;
-//      }
+    try {
+      InventoryType type;
+      if (msg instanceof BlockMessage) {
+        logger.info("Ready to broadcast block {}", ((BlockMessage) msg).getBlockId());
+        freshBlockId.offer(((BlockMessage) msg).getBlockId());
+        BlockCache.put(msg.getMessageId(), (BlockMessage) msg);
+        type = InventoryType.BLOCK;
+      } else if (msg instanceof TransactionMessage) {
+        TrxCache.put(msg.getMessageId(), new TransactionMessage(msg.getData()));
+        type = InventoryType.TRX;
+      } else {
+        return;
+      }
 //      synchronized (advObjToSpread) {
 //        advObjToSpread.put(msg.getMessageId(), type);
 //      }
-//    }catch (Exception e) {
-//      logger.error("Broadcast message failed, type: {}, reason: {}", msg.getType(), e.getMessage());
-//    }
+    }catch (Exception e) {
+      logger.error("Broadcast message failed, type: {}, reason: {}", msg.getType(), e.getMessage());
+    }
   }
 
   @Override

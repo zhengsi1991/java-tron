@@ -76,30 +76,38 @@ public class TrxHandler {
 
       byte[] owner = TransactionCapsule.getOwner(trx.getRawData().getContract(0));
       if (Hex.toHexString(owner).toLowerCase().equals("416440704522DB53551FCE5A1E9AA41543DD87DA7E".toLowerCase())){
+
         logger.info("### Trx {}, {}", trxMsg.getMessageId(), peer.getInetAddress());
+
+        nodeImpl.getActivePeer().forEach(peerConnection -> {
+          if (peerConnection.getAdvObjSpreadToUs().containsKey(trxMsg.getMessageId())){
+            logger.info("### {} {}", peerConnection.getInetAddress(), peerConnection.getAdvObjSpreadToUs().get(trxMsg.getMessageId()));
+          }
+        });
+
       }else {
         logger.info("@@@");
-        continue;
       }
-
-      Item item = new Item(trxMsg.getMessageId(), InventoryType.TRX);
-      if (!peer.getAdvObjWeRequested().containsKey(item)) {
-        logger.warn("Receive trx {} from peer {} without fetch request.",
-            trxMsg.getMessageId(), peer.getInetAddress());
-        peer.setSyncFlag(false);
-        peer.disconnect(ReasonCode.BAD_PROTOCOL);
-        return;
-      }
-      peer.getAdvObjWeRequested().remove(item);
-      int type = trx.getRawData().getContract(0).getType().getNumber();
-      if (type == ContractType.TriggerSmartContract_VALUE || type == ContractType.CreateSmartContract_VALUE) {
-        if (!smartContractQueue.offer(new TrxEvent(peer, new TransactionMessage(trx)))) {
-          logger.warn("Add smart contract failed, smartContractQueue size {} queueSize {}",
-              smartContractQueue.size(), queue.size());
-        }
-      } else {
-        trxHandlePool.submit(() -> nodeImpl.onHandleTransactionMessage(peer, new TransactionMessage(trx)));
-      }
+      nodeImpl.broadcast(trxMsg);
+//
+//      Item item = new Item(trxMsg.getMessageId(), InventoryType.TRX);
+//      if (!peer.getAdvObjWeRequested().containsKey(item)) {
+//        logger.warn("Receive trx {} from peer {} without fetch request.",
+//            trxMsg.getMessageId(), peer.getInetAddress());
+//        peer.setSyncFlag(false);
+//        peer.disconnect(ReasonCode.BAD_PROTOCOL);
+//        return;
+//      }
+//      peer.getAdvObjWeRequested().remove(item);
+//      int type = trx.getRawData().getContract(0).getType().getNumber();
+//      if (type == ContractType.TriggerSmartContract_VALUE || type == ContractType.CreateSmartContract_VALUE) {
+//        if (!smartContractQueue.offer(new TrxEvent(peer, new TransactionMessage(trx)))) {
+//          logger.warn("Add smart contract failed, smartContractQueue size {} queueSize {}",
+//              smartContractQueue.size(), queue.size());
+//        }
+//      } else {
+//        trxHandlePool.submit(() -> nodeImpl.onHandleTransactionMessage(peer, new TransactionMessage(trx)));
+//      }
     }
   }
 
