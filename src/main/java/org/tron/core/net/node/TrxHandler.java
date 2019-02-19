@@ -71,6 +71,9 @@ public class TrxHandler {
 
       TransactionMessage trxMsg = new TransactionMessage(trx);
       byte[] owner = TransactionCapsule.getOwner(trx.getRawData().getContract(0));
+
+      logger.info("@@@ Trx {}, {}", trxMsg.getMessageId(), peer.getInetAddress());
+
       if (Hex.toHexString(owner).toLowerCase().equals("416440704522DB53551FCE5A1E9AA41543DD87DA7E".toLowerCase())) {
         logger.info("### Trx {}, {}", trxMsg.getMessageId(), peer.getInetAddress());
         nodeImpl.getActivePeer().forEach(peerConnection -> {
