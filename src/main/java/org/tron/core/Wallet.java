@@ -388,7 +388,7 @@ public class Wallet {
         blockId = dbManager.getSolidBlockId();
       }
       trx.setReference(blockId.getNum(), blockId.getBytes());
-      long expiration = dbManager.getHeadBlockTimeStamp() + Constant.TRANSACTION_DEFAULT_EXPIRATION_TIME;
+      long expiration = dbManager.getHeadBlockTimeStamp() + Args.getInstance().getTrxExpirationTimeInMilliseconds();
       trx.setExpiration(expiration);
       trx.setTimestamp();
     } catch (Exception e) {
