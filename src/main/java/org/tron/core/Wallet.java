@@ -448,7 +448,7 @@ public class Wallet {
       }
       dbManager.pushTransaction(trx);
       p2pNode.broadcast(message);
-      logger.info("Broadcast transaction {} successfully.", trx.getTransactionId());
+      logger.info("## @@ Broadcast transaction {} successfully.", trx.getTransactionId());
       return builder.setResult(true).setCode(response_code.SUCCESS).build();
     } catch (ValidateSignatureException e) {
       logger.error("Broadcast transaction {} failed, {}.", trx.getTransactionId(), e.getMessage());
