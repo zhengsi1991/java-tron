@@ -37,6 +37,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -300,7 +301,9 @@ public class Wallet {
 
 
   public Account getAccount(Account account) {
-    logger.info("### @@@ getAccount, id: {}, address: {}", account.getAccountId().toString(), account.getAddress().toString());
+    logger.info("### @@@ getAccount, id: {}, address: {}",
+        Hex.toHexString(account.getAccountId().toByteArray()) ,
+        Hex.toHexString(account.getAddress().toByteArray()));
     AccountStore accountStore = dbManager.getAccountStore();
     AccountCapsule accountCapsule = accountStore.get(account.getAddress().toByteArray());
     if (accountCapsule == null) {
