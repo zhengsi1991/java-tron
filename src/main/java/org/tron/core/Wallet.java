@@ -300,6 +300,7 @@ public class Wallet {
 
 
   public Account getAccount(Account account) {
+    logger.info("### @@@ getAccount, id: {}, address: {}", account.getAccountId().toString(), account.getAddress().toString());
     AccountStore accountStore = dbManager.getAccountStore();
     AccountCapsule accountCapsule = accountStore.get(account.getAddress().toByteArray());
     if (accountCapsule == null) {
