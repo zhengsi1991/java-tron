@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import io.grpc.Server;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerInterceptors;
 import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
@@ -75,6 +77,7 @@ import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.NonUniqueObjectException;
 import org.tron.core.exception.StoreException;
 import org.tron.core.exception.VMIllegalException;
+import org.tron.core.services.interceptor.GrpcInterceptor;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.AccountCreateContract;
 import org.tron.protos.Contract.AssetIssueContract;
@@ -137,8 +140,10 @@ public class RpcApiService implements Service {
   @Override
   public void start() {
     try {
+      ServerInterceptor grpcInterceptor = new GrpcInterceptor();
+
       NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port)
-          .addService(databaseApi);
+          .addService(ServerInterceptors.intercept(databaseApi, grpcInterceptor));
 
       Args args = Args.getInstance();
 
@@ -148,12 +153,13 @@ public class RpcApiService implements Service {
       }
 
       if (args.isSolidityNode()) {
-        serverBuilder = serverBuilder.addService(walletSolidityApi);
+        serverBuilder = serverBuilder.addService(ServerInterceptors.intercept(walletSolidityApi, grpcInterceptor));
         if (args.isWalletExtensionApi()) {
-          serverBuilder = serverBuilder.addService(new WalletExtensionApi());
+          serverBuilder = serverBuilder.addService(ServerInterceptors.intercept(new WalletExtensionApi(), grpcInterceptor));
         }
       } else {
-        serverBuilder = serverBuilder.addService(walletApi);
+        serverBuilder = serverBuilder.addService(
+            ServerInterceptors.intercept(walletApi, grpcInterceptor));
       }
 
       // Set configs from config.conf or default value
