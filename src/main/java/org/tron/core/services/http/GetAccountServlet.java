@@ -41,7 +41,7 @@ public class GetAccountServlet extends HttpServlet {
   }
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String address = request.getParameter("address");
       Account.Builder build = Account.newBuilder();
       JSONObject jsonObject = new JSONObject();

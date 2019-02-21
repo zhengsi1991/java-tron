@@ -27,7 +27,7 @@ public class GetAccountResourceServlet extends HttpServlet {
   private Manager dbManager;
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String address = request.getParameter("address");
       AccountResourceMessage reply = wallet
           .getAccountResource(ByteString.copyFrom(ByteArray.fromHexString(address)));
@@ -47,7 +47,7 @@ public class GetAccountResourceServlet extends HttpServlet {
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String input = request.getReader().lines()
           .collect(Collectors.joining(System.lineSeparator()));
       JSONObject jsonObject = JSONObject.parseObject(input);

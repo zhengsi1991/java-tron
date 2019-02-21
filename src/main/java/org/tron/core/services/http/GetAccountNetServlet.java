@@ -23,7 +23,7 @@ public class GetAccountNetServlet extends HttpServlet {
   private Wallet wallet;
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String address = request.getParameter("address");
       AccountNetMessage reply = wallet
           .getAccountNet(ByteString.copyFrom(ByteArray.fromHexString(address)));
@@ -43,7 +43,7 @@ public class GetAccountNetServlet extends HttpServlet {
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String account = request.getReader().lines()
           .collect(Collectors.joining(System.lineSeparator()));
       Account.Builder build = Account.newBuilder();

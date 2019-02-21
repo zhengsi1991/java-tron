@@ -26,7 +26,7 @@ public class VoteWitnessAccountServlet extends HttpServlet {
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String contract = request.getReader().lines()
           .collect(Collectors.joining(System.lineSeparator()));
       VoteWitnessContract.Builder build = VoteWitnessContract.newBuilder();

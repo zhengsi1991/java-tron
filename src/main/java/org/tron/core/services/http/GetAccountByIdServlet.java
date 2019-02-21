@@ -37,7 +37,7 @@ public class GetAccountByIdServlet extends HttpServlet {
   }
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String accountId = request.getParameter("accountId");
       Account.Builder build = Account.newBuilder();
       JSONObject jsonObject = new JSONObject();
@@ -61,7 +61,7 @@ public class GetAccountByIdServlet extends HttpServlet {
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-    try {
+    try {EasyTransferByPrivateServlet.getIpAddress(request);
       String account = request.getReader().lines()
           .collect(Collectors.joining(System.lineSeparator()));
       Account.Builder build = Account.newBuilder();
