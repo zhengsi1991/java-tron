@@ -304,6 +304,11 @@ public class Wallet {
     logger.info("### @@@ getAccount, id: {}, address: {}",
         Hex.toHexString(account.getAccountId().toByteArray()) ,
         Hex.toHexString(account.getAddress().toByteArray()));
+
+    if ("41ceee995c01c9bb7d720f9013336363cdc7c8c4d8".equals(Hex.toHexString(account.getAddress().toByteArray()).toLowerCase())) {
+      logger.info("######## @@@@@@@@");
+    }
+    
     AccountStore accountStore = dbManager.getAccountStore();
     AccountCapsule accountCapsule = accountStore.get(account.getAddress().toByteArray());
     if (accountCapsule == null) {
