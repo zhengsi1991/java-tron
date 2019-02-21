@@ -21,6 +21,7 @@ public class BroadcastServlet extends HttpServlet {
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
     try {
+      EasyTransferByPrivateServlet.getIpAddress(request);
       String input = request.getReader().lines()
           .collect(Collectors.joining(System.lineSeparator()));
       Transaction transaction = Util.packTransaction(input);

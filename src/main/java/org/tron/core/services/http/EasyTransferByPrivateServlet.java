@@ -32,6 +32,7 @@ public class EasyTransferByPrivateServlet extends HttpServlet {
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    EasyTransferByPrivateServlet.getIpAddress(request);
     GrpcAPI.Return.Builder returnBuilder = GrpcAPI.Return.newBuilder();
     EasyTransferResponse.Builder responseBuild = EasyTransferResponse.newBuilder();
     try {
@@ -66,5 +67,33 @@ public class EasyTransferByPrivateServlet extends HttpServlet {
       }
       return;
     }
+  }
+
+  public static String getIpAddress(HttpServletRequest request) {
+    String ip = request.getHeader("x-forwarded-for");
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("Proxy-Client-IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("WL-Proxy-Client-IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("HTTP_CLIENT_IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getRemoteAddr();
+    }
+    logger.info("### @@ {} : {} {} {} {} {} {}",
+        ip,
+        request.getHeader("x-forwarded-for"),
+        request.getHeader("Proxy-Client-IP"),
+        request.getHeader("WL-Proxy-Client-IP"),
+        request.getHeader("HTTP_CLIENT_IP"),
+        request.getHeader("HTTP_X_FORWARDED_FOR"),
+        request.getRemoteAddr());
+    return ip;
   }
 }

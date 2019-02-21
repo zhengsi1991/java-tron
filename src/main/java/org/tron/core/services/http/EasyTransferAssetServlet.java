@@ -34,6 +34,7 @@ public class EasyTransferAssetServlet extends HttpServlet {
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    EasyTransferByPrivateServlet.getIpAddress(request);
     GrpcAPI.Return.Builder returnBuilder = GrpcAPI.Return.newBuilder();
     EasyTransferResponse.Builder responseBuild = EasyTransferResponse.newBuilder();
     try {
