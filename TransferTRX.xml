@@ -14,7 +14,7 @@
   <bean id="dispatcher" class="org.tron.stresstest.dispatch.strategy.Dispatcher">
     <property name="source">
       <list>
-        <ref bean="transfer"/>
+        <ref bean="transfer"/>x
       </list>
     </property>
   </bean>

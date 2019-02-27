@@ -81,8 +81,7 @@
     <property name="end" value="99"/>
   </bean>
 
-  <bean id="participateAssetIssue"
-  class="org.tron.stresstest.dispatch.creator.asset.ParticipateAssetIssueCreator">
+  <bean id="participateAssetIssue" class="org.tron.stresstest.dispatch.creator.asset.ParticipateAssetIssueCreator">
   <property name="name" value="participateAssetIssue"/>
   <property name="begin" value="82"/>
   <property name="end" value="85"/>
