@@ -419,6 +419,7 @@ public class Args {
   @Parameter(names = {"--center-forward"})
   private boolean centerForward = false;
 
+  @Getter
   @Setter
   private long trxExpirationTimeInMilliseconds; // (ms)
 
