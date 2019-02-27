@@ -419,6 +419,9 @@ public class Args {
   @Parameter(names = {"--center-forward"})
   private boolean centerForward = false;
 
+  @Setter
+  private long trxExpirationTimeInMilliseconds; // (ms)
+
   public static void clearParam() {
     INSTANCE.outputDirectory = "output-directory";
     INSTANCE.help = false;
@@ -489,6 +492,7 @@ public class Args {
     INSTANCE.maxTimeRatio = 5.0;
     INSTANCE.longRunningTime = 10;
     INSTANCE.allowMultiSign = 0;
+    INSTANCE.trxExpirationTimeInMilliseconds = 0;
   }
 
   /**
@@ -826,6 +830,10 @@ public class Args {
 
     INSTANCE.trxReferenceBlock = config.hasPath("trx.reference.block") ?
         config.getString("trx.reference.block") : "head";
+
+    INSTANCE.trxExpirationTimeInMilliseconds =
+        config.hasPath("trx.expiration.timeInMilliseconds") && config.getLong("trx.expiration.timeInMilliseconds") > 0 ?
+            config.getLong("trx.expiration.timeInMilliseconds") : Constant.TRANSACTION_DEFAULT_EXPIRATION_TIME;
 
     INSTANCE.minEffectiveConnection = config.hasPath("node.rpc.minEffectiveConnection") ?
         config.getInt("node.rpc.minEffectiveConnection") : 1;
