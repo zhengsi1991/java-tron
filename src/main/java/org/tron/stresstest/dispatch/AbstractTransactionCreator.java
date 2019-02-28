@@ -33,10 +33,10 @@ import org.tron.api.GrpcAPI.TransactionSignWeight;
 
 @Getter
 public abstract class AbstractTransactionCreator extends Level2Strategy {
-  protected String commonOwnerAddress = "TXtrbmfwZ2LxtoCveEhZT86fTss1w8rwJE";
-  protected String commonOwnerPrivateKey = "0528dc17428585fc4dece68b79fa7912270a1fe8e85f244372f59eb7e8925e04";
-  protected String commonToAddress = "TQjKWNDCLSgqUtg9vrjzZnWhhmsgNgTfmj";
-  protected String commonToPrivateKey = "76fb5f55710c7ad6a98f73dd38a732f9a69a7b3ce700a694363a50572fa2842a";
+  protected String commonOwnerAddress = "THRR7uvFbRLfNzpKPXEyQa8KCJqi59V59e";
+  protected String commonOwnerPrivateKey = "9F0B8537C77A0BC91BE874950E2591EDD669DD30390AEAEFC65852F8D5164908";
+  protected String commonToAddress = "TBLZaw93rsnLJ1SWTvoPkr7GVg5ixn2Jv1";
+  protected String commonToPrivateKey = "D4040B05023D3745CE04040C0D427B98BA18FACC30ADF3DF8D4E29BF83D489AA";
   protected String commonWitnessAddress = "TXtrbmfwZ2LxtoCveEhZT86fTss1w8rwJE";
   protected String commonWitnessPrivateKey = "0528dc17428585fc4dece68b79fa7912270a1fe8e85f244372f59eb7e8925e04";
 
