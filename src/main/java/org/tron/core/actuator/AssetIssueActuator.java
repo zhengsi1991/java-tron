@@ -266,7 +266,8 @@ public class AssetIssueActuator extends AbstractActuator {
 
     AccountCapsule accountCapsule = dbManager.getAccountStore().get(ownerAddress);
     if (accountCapsule == null) {
-      throw new ContractValidateException("Account not exists");
+      String tmp = "Account not exists" + ownerAddress;
+      throw new ContractValidateException(tmp);
     }
 
     if (!accountCapsule.getAssetIssuedName().isEmpty()) {

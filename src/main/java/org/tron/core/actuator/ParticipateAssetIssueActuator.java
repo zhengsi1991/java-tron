@@ -28,10 +28,12 @@ import org.tron.core.capsule.TransactionResultCapsule;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.services.RpcApiService.WalletApi;
 import org.tron.protos.Contract;
 import org.tron.protos.Contract.ParticipateAssetIssueContract;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Transaction.Result.code;
+
 
 @Slf4j(topic = "actuator")
 public class ParticipateAssetIssueActuator extends AbstractActuator {
@@ -143,7 +145,7 @@ public class ParticipateAssetIssueActuator extends AbstractActuator {
       //Whether the balance is enough
       long fee = calcFee();
       if (ownerAccount.getBalance() < Math.addExact(amount, fee)) {
-        throw new ContractValidateException("No enough balance !");
+        throw new ContractValidateException("No enough balance !" + ownerAccount.getAddress() );
       }
 
       //Whether have the mapping

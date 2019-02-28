@@ -95,7 +95,9 @@ public class BandwidthProcessor extends ResourceProcessor {
       byte[] address = TransactionCapsule.getOwner(contract);
       AccountCapsule accountCapsule = dbManager.getAccountStore().get(address);
       if (accountCapsule == null) {
-        throw new ContractValidateException("account not exists");
+        String tmp = "account not exists" + accountCapsule;
+
+        throw new ContractValidateException(tmp);
       }
       long now = dbManager.getWitnessController().getHeadSlot();
 
