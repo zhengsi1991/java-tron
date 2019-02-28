@@ -31,8 +31,8 @@ public class NiceTransferTransactionCreator extends AbstractTransferTransactionC
         .setAmount(amount)
         .build();
     Protocol.Transaction transaction = createTransaction(contract, ContractType.TransferContract);
-
     transaction = sign(transaction, ECKey.fromPrivate(ByteArray.fromHexString(privateKey)));
+
     return transaction;
   }
 }

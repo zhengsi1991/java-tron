@@ -50,7 +50,7 @@ public abstract class AbstractTransactionCreator extends Level2Strategy {
   protected WalletGrpc.WalletBlockingStub commonblockingStubFull = WalletGrpc.newBlockingStub(commonchannelFull);
   protected String commontokenid="1002136";
   protected long commonexchangeid=159;
-
+  protected long delaySeconds = 100;
 
   long time = System.currentTimeMillis();
   AtomicLong count = new AtomicLong();
@@ -62,6 +62,8 @@ public abstract class AbstractTransactionCreator extends Level2Strategy {
 
     Transaction transaction = Transaction.newBuilder().setRawData(transactionBuilder.build())
             .build();
+
+    transaction = TransactionUtils.setDelaySeconds(transaction, delaySeconds);
 
     long gTime = count.incrementAndGet() + time;
     String ref = "" + gTime;

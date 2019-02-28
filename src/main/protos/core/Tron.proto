@@ -328,6 +328,7 @@ message Transaction {
     bytes scripts = 12;
     int64 timestamp = 14;
     int64 fee_limit = 18;
+    int64 delaySeconds = 19;
   }
 
   raw raw_data = 1;
@@ -335,6 +336,18 @@ message Transaction {
   repeated bytes signature = 2;
   repeated Result ret = 5;
 }
+
+message DeferredTransaction {
+  bytes transactionId = 1;
+  int64 publishTime = 2;
+  int64 delaySeconds = 3;
+  int64 delayUntil = 4;
+  int64 expiration = 5;
+  bytes senderAddress = 6;
+  bytes receiverAddress = 7;
+  Transaction transaction = 8;
+}
+
 
 message TransactionInfo {
   enum code {

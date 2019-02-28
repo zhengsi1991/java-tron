@@ -20,8 +20,8 @@ import org.tron.core.services.interfaceOnSolidity.http.solidity.HttpApiOnSolidit
 @Slf4j(topic = "app")
 @Configuration
 @Import(CommonConfig.class)
-//@ImportResource(locations = "file:TransactionConfiguration.xml")
-@ImportResource(locations = "file:TransferTRX.xml")
+@ImportResource(locations = "file:TransactionConfiguration.xml")
+//@ImportResource(locations = "file:TransferTRX.xml")
 public class DefaultConfig {
 
   @Autowired

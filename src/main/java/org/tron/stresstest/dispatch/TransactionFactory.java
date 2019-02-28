@@ -35,10 +35,5 @@ public class TransactionFactory {
   }
 
   public static void main(String[] args) throws IOException {
-//    Protocol.Transaction createAssetTransaction = newTransaction(NiceCreateAssetTransactionCreator.class);
-//
-//    Protocol.Transaction freezeBlanceTransaction = newTransaction(NiceFreezeBalanceTransactionCreator.class);
-//
-//    Protocol.Transaction transferAssetTransaction = newTransaction(NiceTransferAssetTransactionCreator.class);
   }
 }
