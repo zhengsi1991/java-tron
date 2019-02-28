@@ -1226,7 +1226,8 @@ public class Manager {
     // no need tapos validation when processing deferred transaction at the second time.
    // validateTapos(trxCap);
    // validateCommon(trxCap);
-    logger.info("wubin test: {}", trxCap);
+       logger.info("wubin test: {}, {}", trxCap, trxCap.getInstance().getRawData().getDelaySeconds());
+
     if (trxCap.getInstance().getRawData().getContractList().size() != 1) {
       throw new ContractSizeNotEqualToOneException(
           "act size should be exactly 1, this is extend feature");
