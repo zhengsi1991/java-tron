@@ -1232,8 +1232,10 @@ public class Manager {
       throw new ContractSizeNotEqualToOneException(
           "act size should be exactly 1, this is extend feature");
     }
+    logger.info("wubin test:1");
 
     validateDup(trxCap);
+    logger.info("wubin test:2" + TransactionCapsule.UNEXECUTEDDEFERREDTRANSACTION);
 
 //    if (trxCap.getTransactionType() != TransactionCapsule.EXECUTINGDEFERREDTRANSACTION && !trxCap.validateSignature(this)) {
 //      throw new ValidateSignatureException("trans sig validate failed");
@@ -1247,8 +1249,10 @@ public class Manager {
 
     // process deferred transaction for the first time
     if (trxCap.getTransactionType() == TransactionCapsule.UNEXECUTEDDEFERREDTRANSACTION){
+            logger.info("wubin test:3");
       return processDeferTransaction(trxCap, blockCap, trace);
     }
+    logger.info("wubin test:4");
 
     VMConfig.initVmHardFork();
     VMConfig.initAllowMultiSign(dynamicPropertiesStore.getAllowMultiSign());
