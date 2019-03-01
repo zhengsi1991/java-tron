@@ -1579,7 +1579,7 @@ public class Manager {
     this.dynamicPropertiesStore.saveBlockEnergyUsage(0);
 
     //parallel check sign
-    if (!block.generatedByMyself) {
+    if (false) {
       try {
         preValidateTransactionSign(block);
       } catch (InterruptedException e) {
