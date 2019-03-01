@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class WhitelistException extends TronException {
+public class WhitelistException extends ContractValidateException {
 
   public WhitelistException() {
     super();

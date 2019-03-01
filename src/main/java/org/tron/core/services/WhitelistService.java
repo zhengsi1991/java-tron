@@ -46,8 +46,8 @@ public class WhitelistService {
 //    });
   }
 
-  public static void check(TransactionCapsule transactionCapsule) throws WhitelistException {
-    if (!ForkController.pass(ForkBlockVersionEnum.VERSION_3_5)) {
+  public static void check(TransactionCapsule transactionCapsule, boolean forced) throws WhitelistException {
+    if (!forced && !ForkController.pass(ForkBlockVersionEnum.VERSION_3_5)) {
       return;
     }
 

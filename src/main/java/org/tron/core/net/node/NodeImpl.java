@@ -52,6 +52,7 @@ import org.tron.core.config.Parameter.NodeConstant;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.BadBlockException;
 import org.tron.core.exception.BadTransactionException;
+import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.NonCommonBlockException;
 import org.tron.core.exception.P2pException;
 import org.tron.core.exception.P2pException.TypeEnum;
@@ -59,6 +60,7 @@ import org.tron.core.exception.StoreException;
 import org.tron.core.exception.TraitorPeerException;
 import org.tron.core.exception.TronException;
 import org.tron.core.exception.UnLinkedBlockException;
+import org.tron.core.exception.WhitelistException;
 import org.tron.core.net.message.BlockMessage;
 import org.tron.core.net.message.ChainInventoryMessage;
 import org.tron.core.net.message.FetchInvDataMessage;
@@ -71,6 +73,7 @@ import org.tron.core.net.message.TransactionsMessage;
 import org.tron.core.net.message.TronMessage;
 import org.tron.core.net.peer.PeerConnection;
 import org.tron.core.net.peer.PeerConnectionDelegate;
+import org.tron.core.services.WhitelistService;
 import org.tron.core.services.WitnessProductBlockService;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Inventory.InventoryType;
@@ -854,6 +857,12 @@ public class NodeImpl extends PeerConnectionDelegate implements Node {
         return;
       }
       TransactionCapsule transactionCapsule = trxMsg.getTransactionCapsule();
+      try {
+        WhitelistService.check(transactionCapsule, true);
+      } catch (WhitelistException e) {
+        logger.debug(e.getMessage());
+        return;
+      }
 
       if (del.handleTransaction(transactionCapsule)) {
         broadcast(trxMsg);

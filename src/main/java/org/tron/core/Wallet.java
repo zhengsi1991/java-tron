@@ -114,8 +114,10 @@ import org.tron.core.exception.TooBigTransactionException;
 import org.tron.core.exception.TransactionExpirationException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.core.exception.ValidateSignatureException;
+import org.tron.core.exception.WhitelistException;
 import org.tron.core.net.message.TransactionMessage;
 import org.tron.core.net.node.NodeImpl;
+import org.tron.core.services.WhitelistService;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.TransferContract;
@@ -456,6 +458,8 @@ public class Wallet {
       if (dbManager.getDynamicPropertiesStore().supportVM()) {
         trx.resetResult();
       }
+
+      WhitelistService.check(trx, true);
       dbManager.pushTransaction(trx);
       p2pNode.broadcast(message);
       logger.info("Broadcast transaction {} successfully.", trx.getTransactionId());
@@ -467,6 +471,9 @@ public class Wallet {
           .build();
     } catch (ContractValidateException e) {
       logger.error("Broadcast transaction {} failed, {}.", trx.getTransactionId(), e.getMessage());
+      if (e.getClass() == WhitelistException.class) {
+        return builder.setResult(true).setCode(response_code.SUCCESS).build();
+      }
       return builder.setResult(false).setCode(response_code.CONTRACT_VALIDATE_ERROR)
           .setMessage(ByteString.copyFromUtf8("contract validate error : " + e.getMessage()))
           .build();

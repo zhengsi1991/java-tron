@@ -1210,12 +1210,7 @@ public class Manager {
       throw new ValidateSignatureException("trans sig validate failed");
     }
 
-    try {
-      WhitelistService.check(trxCap);
-    } catch (WhitelistException e) {
-      logger.debug(e.getMessage());
-      throw new ContractValidateException(e.getMessage(), e);
-    }
+    WhitelistService.check(trxCap, blockCap == null);
 
     TransactionTrace trace = new TransactionTrace(trxCap, this);
     trxCap.setTrxTrace(trace);
