@@ -416,7 +416,10 @@ public class Wallet {
     if (trx.getDeferredSeconds() > Constant.MAX_DEFERRED_TRANSACTION_DELAY_SECONDS) {
       return builder.setResult(false).setCode(response_code.TOO_LONG_DEFERRED_TRANSACTION_DELAYTIME).build();
     }
-
+      if (trx.getDeferredSeconds() > 0) {
+        logger.error("wubin deferred transaction");
+      trx.setContractType(Constant.UNEXECUTEDDEFERREDTRANSACTION);
+    }
 
     Message message = new TransactionMessage(signaturedTransaction);
 
