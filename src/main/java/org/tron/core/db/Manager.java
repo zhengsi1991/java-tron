@@ -1249,6 +1249,7 @@ public class Manager {
 
     // process deferred transaction for the first time
     if (trxCap.getContractType() == Constant.UNEXECUTEDDEFERREDTRANSACTION){
+      logger.info("wubin test:3");
       return processDeferTransaction(trxCap, blockCap, trace);
     }
     logger.info("wubin test:4");
@@ -2060,8 +2061,9 @@ public class Manager {
   private void pushScheduledTransaction(BlockCapsule blockCapsule, TransactionCapsule transactionCapsule){
 
     // new trx id to represent the second trx record
+    logger.info("before deferred transaction trxid = {}", transactionCapsule.getTransactionId());
     transactionCapsule.setReference(this.dynamicPropertiesStore.getLatestBlockHeaderNumber());
-    logger.debug("deferred transaction trxid = {}", transactionCapsule.getTransactionId());
+    logger.info("after deferred transaction trxid = {}", transactionCapsule.getTransactionId());
 
 
     DeferredTransaction.Builder deferredTransaction = DeferredTransaction.newBuilder();
