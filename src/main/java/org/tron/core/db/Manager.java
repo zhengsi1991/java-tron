@@ -1235,7 +1235,7 @@ public class Manager {
     logger.info("wubin test:1");
 
     validateDup(trxCap);
-    logger.info("wubin test:2" + trxCap.getContractType());
+    logger.info("wubin test:2" + trxCap.getContractType() + "  " + trxCap.getDeferredSeconds());
 
 //    if (trxCap.getTransactionType() != TransactionCapsule.EXECUTINGDEFERREDTRANSACTION && !trxCap.validateSignature(this)) {
 //      throw new ValidateSignatureException("trans sig validate failed");
