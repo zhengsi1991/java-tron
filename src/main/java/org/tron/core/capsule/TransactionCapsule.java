@@ -119,6 +119,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
    */
   public TransactionCapsule(Transaction trx) {
     this.transaction = trx;
+    if (transaction.getRawData().getTimestamp() != 0 && contractType == 0) {
+      contractType = Constant.UNEXECUTEDDEFERREDTRANSACTION;
+    }
   }
 
   /**
@@ -127,6 +130,9 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
   public TransactionCapsule(byte[] data) throws BadItemException {
     try {
       this.transaction = Transaction.parseFrom(data);
+      if (transaction.getRawData().getTimestamp() != 0 && contractType == 0) {
+        contractType = Constant.UNEXECUTEDDEFERREDTRANSACTION;
+      }
     } catch (InvalidProtocolBufferException e) {
       throw new BadItemException("Transaction proto data parse exception");
     }
