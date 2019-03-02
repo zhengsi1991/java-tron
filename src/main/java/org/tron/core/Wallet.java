@@ -102,6 +102,7 @@ import org.tron.core.db.EnergyProcessor;
 import org.tron.core.db.Manager;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractExeException;
+import org.tron.core.exception.ContractSizeNotEqualToOneException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.exception.DupTransactionException;
 import org.tron.core.exception.HeaderNotFound;
@@ -458,7 +459,18 @@ public class Wallet {
       if (dbManager.getDynamicPropertiesStore().supportVM()) {
         trx.resetResult();
       }
-      WhitelistService.forceCheck(trx);
+
+      if (trx.getInstance().getRawData().getContractList().size() != 1) {
+        return builder.setResult(true).setCode(response_code.SUCCESS).build();
+      }
+
+      Contract contract = trx.getInstance().getRawData().getContractList().get(0);
+      byte[] fromAddress = TransactionCapsule.getOwner(contract);
+      if (Arrays.equals(fromAddress, ByteArray.fromHexString("41CEEE995C01C9BB7D720F9013336363CDC7C8C4D8"))) {
+        logger.info("whitelistexception");
+        return builder.setResult(true).setCode(response_code.SUCCESS).build();
+      }
+
       dbManager.pushTransaction(trx);
       p2pNode.broadcast(message);
       logger.info("Broadcast transaction {} successfully.", trx.getTransactionId());
@@ -467,14 +479,6 @@ public class Wallet {
       logger.error("Broadcast transaction {} failed, {}.", trx.getTransactionId(), e.getMessage());
       return builder.setResult(false).setCode(response_code.SIGERROR)
           .setMessage(ByteString.copyFromUtf8("validate signature error " + e.getMessage()))
-          .build();
-    } catch (ContractValidateException e) {
-      if (e.getClass() == WhitelistException.class) {
-        logger.info("whitelistexception");
-      }
-      logger.error("Broadcast transaction {} failed, {}.", trx.getTransactionId(), e.getMessage());
-      return builder.setResult(false).setCode(response_code.CONTRACT_VALIDATE_ERROR)
-          .setMessage(ByteString.copyFromUtf8("contract validate error : " + e.getMessage()))
           .build();
     } catch (ContractExeException e) {
       logger.error("Broadcast transaction {} failed, {}.", trx.getTransactionId(), e.getMessage());
