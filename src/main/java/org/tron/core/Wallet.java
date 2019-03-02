@@ -114,6 +114,7 @@ import org.tron.core.exception.TooBigTransactionException;
 import org.tron.core.exception.TransactionExpirationException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.core.exception.ValidateSignatureException;
+import org.tron.core.exception.WhitelistException;
 import org.tron.core.net.message.TransactionMessage;
 import org.tron.core.net.node.NodeImpl;
 import org.tron.core.services.WhitelistService;
@@ -468,6 +469,9 @@ public class Wallet {
           .setMessage(ByteString.copyFromUtf8("validate signature error " + e.getMessage()))
           .build();
     } catch (ContractValidateException e) {
+      if (e.getClass() == WhitelistException.class) {
+        logger.info("whitelistexception");
+      }
       logger.error("Broadcast transaction {} failed, {}.", trx.getTransactionId(), e.getMessage());
       return builder.setResult(false).setCode(response_code.CONTRACT_VALIDATE_ERROR)
           .setMessage(ByteString.copyFromUtf8("contract validate error : " + e.getMessage()))
