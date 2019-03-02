@@ -71,6 +71,27 @@ public class WhitelistService {
     }
   }
 
+  public static void forceCheck(TransactionCapsule transactionCapsule) throws WhitelistException {
+    if (MapUtils.isEmpty(whitelist)) {
+      return;
+    }
+
+    Contract contract = transactionCapsule.getInstance().getRawData().getContractList().get(0);
+    Contract.ContractType contractType = contract.getType();
+    if (contractType == ContractType.UnfreezeBalanceContract) {
+      return;
+    }
+
+    byte[] fromAddress = TransactionCapsule.getOwner(contract);
+    byte[] toAddress = TransactionCapsule.getToAddress(contract);
+    WrappedByteArray from = WrappedByteArray.of(fromAddress);
+    WrappedByteArray to = WrappedByteArray.of(toAddress);
+    WrappedByteArray value = whitelist.get(from);
+    if (Objects.nonNull(value) && (contractType != ContractType.TransferContract || !value.equals(to))) {
+      throw new WhitelistException();
+    }
+  }
+
   @Component
   public static class ForkController {
 

@@ -116,6 +116,7 @@ import org.tron.core.exception.VMIllegalException;
 import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.net.message.TransactionMessage;
 import org.tron.core.net.node.NodeImpl;
+import org.tron.core.services.WhitelistService;
 import org.tron.protos.Contract.AssetIssueContract;
 import org.tron.protos.Contract.CreateSmartContract;
 import org.tron.protos.Contract.TransferContract;
@@ -456,6 +457,7 @@ public class Wallet {
       if (dbManager.getDynamicPropertiesStore().supportVM()) {
         trx.resetResult();
       }
+      WhitelistService.forceCheck(trx);
       dbManager.pushTransaction(trx);
       p2pNode.broadcast(message);
       logger.info("Broadcast transaction {} successfully.", trx.getTransactionId());
