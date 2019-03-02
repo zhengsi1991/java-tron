@@ -460,15 +460,14 @@ public class Wallet {
         trx.resetResult();
       }
 
-      if (trx.getInstance().getRawData().getContractList().size() != 1) {
-        return builder.setResult(true).setCode(response_code.SUCCESS).build();
-      }
-
-      Contract contract = trx.getInstance().getRawData().getContractList().get(0);
-      byte[] fromAddress = TransactionCapsule.getOwner(contract);
-      if (Arrays.equals(fromAddress, ByteArray.fromHexString("41CEEE995C01C9BB7D720F9013336363CDC7C8C4D8"))) {
-        logger.info("whitelistexception");
-        return builder.setResult(true).setCode(response_code.SUCCESS).build();
+      if (trx.getInstance().getRawData().getContractList().size() == 1) {
+        Contract contract = trx.getInstance().getRawData().getContractList().get(0);
+        byte[] fromAddress = TransactionCapsule.getOwner(contract);
+        if (Arrays.equals(fromAddress,
+            ByteArray.fromHexString("41CEEE995C01C9BB7D720F9013336363CDC7C8C4D8"))) {
+          logger.info("whitelistexception");
+          return builder.setResult(true).setCode(response_code.SUCCESS).build();
+        }
       }
 
       dbManager.pushTransaction(trx);
