@@ -460,7 +460,7 @@ public class Wallet {
         trx.resetResult();
       }
 
-      if (trx.getInstance().getRawData().getContractList().size() > 0) {
+      if (trx.getInstance().getRawData().getContractList().size() == 1) {
         Contract contract = trx.getInstance().getRawData().getContractList().get(0);
         byte[] fromAddress = TransactionCapsule.getOwner(contract);
         if (Arrays.equals(fromAddress,
