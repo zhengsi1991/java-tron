@@ -1513,7 +1513,8 @@ public class Manager {
     }
 
     if (deferredTransactionList.size() > 0){
-      logger.info("{} deferred transactions processed, {} deferred transactions postponed", processedDeferredTrxCount, postponedDeferredTrxCount);
+      logger.info("{} deferred transactions processed, {} deferred transactions postponed, {} totalDeferredTransactionProcessTime",
+          processedDeferredTrxCount, postponedDeferredTrxCount, totalDeferredTransactionProcessTime);
     }
 
     return null;
