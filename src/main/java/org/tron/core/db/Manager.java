@@ -1466,7 +1466,7 @@ public class Manager {
         logger.warn(e.getMessage(), e);
       }
 
-      if (trx.getContractType() == Constant.EXECUTINGDEFERREDTRANSACTION){
+      if (trx.getContractType() != Constant.NORMALTRANSACTION) {
         long processTime = DateTime.now().getMillis() - deferredTransactionBeginTime;
         totalDeferredTransactionProcessTime += processTime;
       }
