@@ -1483,9 +1483,14 @@ public class Manager {
     logger.info(
         "postponedTrxCount[" + postponedTrxCount + "],TrxLeft[" + pendingTransactions.size()
             + "],repushTrxCount[" + repushTransactions.size() + "]");
+        
+    if (deferredTransactionList.size() > 0){
+      logger.info("{} deferred transactions processed, {} deferred transactions postponed, {} totalDeferredTransactionProcessTime",
+          processedDeferredTrxCount, postponedDeferredTrxCount, totalDeferredTransactionProcessTime);
+    } 
+
     blockCapsule.setMerkleRoot();
     blockCapsule.sign(privateKey);
-
     try {
       this.pushBlock(blockCapsule);
       return blockCapsule;
@@ -1511,12 +1516,6 @@ public class Manager {
     } catch (TooBigTransactionResultException e) {
       logger.info("contract not processed during TooBigTransactionResultException");
     }
-
-    if (deferredTransactionList.size() > 0){
-      logger.info("{} deferred transactions processed, {} deferred transactions postponed, {} totalDeferredTransactionProcessTime",
-          processedDeferredTrxCount, postponedDeferredTrxCount, totalDeferredTransactionProcessTime);
-    }
-
     return null;
   }
 
