@@ -1484,7 +1484,7 @@ public class Manager {
         "postponedTrxCount[" + postponedTrxCount + "],TrxLeft[" + pendingTransactions.size()
             + "],repushTrxCount[" + repushTransactions.size() + "]");
         
-    if (deferredTransactionList.size() > 0){
+    if (postponedDeferredTrxCount > 0){
       logger.info("{} deferred transactions processed, {} deferred transactions postponed, {} totalDeferredTransactionProcessTime",
           processedDeferredTrxCount, postponedDeferredTrxCount, totalDeferredTransactionProcessTime);
     } 
