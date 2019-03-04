@@ -26,6 +26,7 @@ public class GetTransactionInfoByIdServlet extends HttpServlet {
       String input = request.getParameter("value");
       TransactionInfo reply = wallet
           .getTransactionInfoById(ByteString.copyFrom(ByteArray.fromHexString(input)));
+      logger.info("get transaction{} info from leveldb", input);
       if (reply != null) {
         response.getWriter().println(JsonFormat.printToString(reply));
       } else {
