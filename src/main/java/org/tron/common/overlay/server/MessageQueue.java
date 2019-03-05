@@ -93,7 +93,7 @@ public class MessageQueue {
     if (msg instanceof PingMessage && sendTime > System.currentTimeMillis() - 10_000) {
       return false;
     }
-    if (true) {
+    if (needToLog(msg)) {
       logger.info("Send to {}, {} ", ctx.channel().remoteAddress(), msg);
     }
     channel.getNodeStatistics().messageStatistics.addTcpOutMessage(msg);
@@ -107,7 +107,7 @@ public class MessageQueue {
   }
 
   public void receivedMessage(Message msg) {
-    if (true) {
+    if (needToLog(msg)) {
       logger.info("Receive from {}, {}", ctx.channel().remoteAddress(), msg);
     }
     channel.getNodeStatistics().messageStatistics.addTcpInMessage(msg);
