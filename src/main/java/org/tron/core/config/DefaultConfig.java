@@ -77,6 +77,7 @@ public class DefaultConfig {
   @Bean
   public TransactionCache transactionCache() {
     int dbVersion = Args.getInstance().getStorage().getDbVersion();
+    dbVersion = 1;
     if (dbVersion == 2) {
       return new TransactionCache("trans-cache");
     }

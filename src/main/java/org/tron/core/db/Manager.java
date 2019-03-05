@@ -579,6 +579,7 @@ public class Manager {
   public void initCacheTxs() {
     logger.info("begin to init txs cache.");
     int dbVersion = Args.getInstance().getStorage().getDbVersion();
+    dbVersion = 1;
     if (dbVersion != 2) {
       return;
     }
