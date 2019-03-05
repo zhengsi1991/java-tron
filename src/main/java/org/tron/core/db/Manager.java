@@ -1062,10 +1062,20 @@ public class Manager {
         ownerAddressSet.addAll(result);
       }
     }
-    logger.info("pushBlock block number:{}, cost/txs:{}/{}",
+
+    int countDelay = 0;
+    int notDelay = 0;
+    for (TransactionCapsule trx : block.getTransactions()) {
+      if (trx.getDeferredSeconds() > 0) {
+        countDelay ++;
+      } else {
+        notDelay ++;
+      }
+    }
+    logger.info("pushBlock block number:{}, cost/txs:{}/{} delayTrx:{},  notDelayTrx:{}",
         block.getNum(),
         System.currentTimeMillis() - start,
-        block.getTransactions().size());
+        block.getTransactions().size(), countDelay, notDelay);
   }
 
   public void updateDynamicProperties(BlockCapsule block) {
