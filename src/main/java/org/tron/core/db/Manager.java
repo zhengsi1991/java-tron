@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -722,8 +723,9 @@ public class Manager {
     }
   }
 
+  Random r = new Random(System.currentTimeMillis());
   private boolean containsTransaction(TransactionCapsule transactionCapsule) {
-    if (transactionCache != null) {
+    if (r.nextInt(100) < 50 && transactionCache != null) {
       return transactionCache.has(transactionCapsule.getTransactionId().getBytes());
     }
 
