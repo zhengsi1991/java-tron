@@ -725,7 +725,7 @@ public class Manager {
 
   Random r = new Random(System.currentTimeMillis());
   private boolean containsTransaction(TransactionCapsule transactionCapsule) {
-    if (r.nextInt(100) < 50 && transactionCache != null) {
+    if (r.nextInt(100) < 25 && transactionCache != null) {
       return transactionCache.has(transactionCapsule.getTransactionId().getBytes());
     }
 
