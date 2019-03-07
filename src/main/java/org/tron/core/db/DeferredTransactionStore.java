@@ -9,6 +9,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import static org.tron.core.config.Parameter.NodeConstant.MAX_TRANSACTION_PENDING;
 import org.tron.core.capsule.DeferredTransactionCapsule;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class DeferredTransactionStore extends TronStoreWithRevoking<DeferredTran
     }
 
     public List<DeferredTransactionCapsule> getScheduledTransactions (long time){
-        return revokingDB.getValuesPrevious(Longs.toByteArray(time), Long.MAX_VALUE).stream()
+        return revokingDB.getValuesPrevious(Longs.toByteArray(time), MAX_TRANSACTION_PENDING).stream()
             .filter(Objects::nonNull)
             .map(DeferredTransactionCapsule::new)
             .collect(Collectors.toList());
