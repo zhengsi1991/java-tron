@@ -382,7 +382,7 @@ public class LevelDbDataSourceImpl implements DbSourceInter<byte[]>,
     try (DBIterator iterator = database.iterator()) {
       Map<byte[], byte[]> result = new HashMap<>();
       long i = 0;
-      for (iterator.seekToFirst(); iterator.hasNext() && i++ < limit; iterator.next()) {
+      for (iterator.seek(key); iterator.hasNext() && i++ < limit; iterator.next()) {
         Entry<byte[], byte[]> entry = iterator.peekNext();
 
         if (entry.getKey().length < precision) {
