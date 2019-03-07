@@ -194,10 +194,12 @@ public class RevokingDBWithCachingNewValue implements IRevokingDB {
     Map<WrappedByteArray, WrappedByteArray> levelDBMap = new HashMap<>();
     long estimatedTime = System.currentTimeMillis() - start;
     start = System.currentTimeMillis();
+
+
     logger.info("db data namiao1:{}   system time:{}",  estimatedTime);
 
     int precision = Long.SIZE / Byte.SIZE;
-    ((LevelDB) ((SnapshotRoot) head.getRoot()).db).getDb().getPrevious(key, limit, precision).entrySet().stream()
+    ((LevelDB) ((SnapshotRoot) head.getRoot()).db).getDb().getPrevious(key, limit).entrySet().stream()
         .map(e -> Maps.immutableEntry(WrappedByteArray.of(e.getKey()), WrappedByteArray.of(e.getValue())))
         .forEach(e -> levelDBMap.put(e.getKey(), e.getValue()));
     levelDBMap.putAll(collection);
