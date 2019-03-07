@@ -2050,13 +2050,13 @@ public class Manager {
 
   private List<DeferredTransactionCapsule> addDeferredTransactionToPending(final BlockCapsule blockCapsule){
     // add deferred transactions to header of pendingTransactions
-    long start = System.currentTimeMillis();
+    long start =  System.nanoTime(); // 纳秒;
     List<DeferredTransactionCapsule> deferredTransactionList = getDeferredTransactionStore()
             .getScheduledTransactions(blockCapsule.getTimeStamp());
-    long end = System.currentTimeMillis();
+    long estimatedTime = System.nanoTime() - start;
 
     int len = getDeferredTransactionStore().revokingDB.getAllValues(MAX_TRANSACTION_PENDING).size();
-    logger.info("db data:{}   system time:{}", len, (end - start));
+    logger.info("db data:{}   system time:{}", len, estimatedTime);
     for (DeferredTransactionCapsule deferredTransaction : deferredTransactionList) {
       TransactionCapsule trxCapsule = new TransactionCapsule(deferredTransaction.getDeferredTransaction().getTransaction());
       trxCapsule.setContractType(Constant.EXECUTINGDEFERREDTRANSACTION);
