@@ -1419,6 +1419,8 @@ public class Manager {
         }
       }
 
+      logger.info("trx type: {}", trx.getContractType());
+
       //
       Contract contract = trx.getInstance().getRawData().getContract(0);
       byte[] owner = TransactionCapsule.getOwner(contract);
