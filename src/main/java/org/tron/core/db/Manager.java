@@ -1437,7 +1437,10 @@ public class Manager {
       }
       // apply transaction
       try (ISession tmpSeesion = revokingStore.buildSession()) {
+        long start = System.currentTimeMillis();
         processTransaction(trx, blockCapsule);
+        long costtime = System.currentTimeMillis() - start;
+        logger.info("process transaction time:{}", costtime);
         tmpSeesion.merge();
         // push into block
         blockCapsule.addTransaction(trx);
@@ -2050,13 +2053,13 @@ public class Manager {
 
   private List<DeferredTransactionCapsule> addDeferredTransactionToPending(final BlockCapsule blockCapsule){
     // add deferred transactions to header of pendingTransactions
-    long start =  System.nanoTime(); // 纳秒;
+    long start =  System.currentTimeMillis(); // 纳秒;
     List<DeferredTransactionCapsule> deferredTransactionList = getDeferredTransactionStore()
             .getScheduledTransactions(blockCapsule.getTimeStamp());
-    long estimatedTime = System.nanoTime() - start; 
+    long estimatedTime = System.currentTimeMillis() - start;
 
     int len = getDeferredTransactionStore().revokingDB.getAllValues(MAX_TRANSACTION_PENDING).size();
-    logger.info("db data:{}   system time:{}", len, estimatedTime);
+    logger.info("db data namiao:{}   system time:{}", len, estimatedTime);
     for (DeferredTransactionCapsule deferredTransaction : deferredTransactionList) {
       TransactionCapsule trxCapsule = new TransactionCapsule(deferredTransaction.getDeferredTransaction().getTransaction());
       trxCapsule.setContractType(Constant.EXECUTINGDEFERREDTRANSACTION);
