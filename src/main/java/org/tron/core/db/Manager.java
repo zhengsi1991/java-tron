@@ -2053,7 +2053,7 @@ public class Manager {
     long start =  System.nanoTime(); // 纳秒;
     List<DeferredTransactionCapsule> deferredTransactionList = getDeferredTransactionStore()
             .getScheduledTransactions(blockCapsule.getTimeStamp());
-    long estimatedTime = System.nanoTime() - start;
+    long estimatedTime = System.nanoTime() - start; 
 
     int len = getDeferredTransactionStore().revokingDB.getAllValues(MAX_TRANSACTION_PENDING).size();
     logger.info("db data:{}   system time:{}", len, estimatedTime);
