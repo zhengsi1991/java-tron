@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Longs;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,10 +37,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.tron.common.application.TronApplicationContext;
 import org.tron.common.utils.ByteArray;
+import org.tron.common.utils.ByteString;
 import org.tron.common.utils.FileUtil;
 import org.tron.core.Constant;
 import org.tron.core.config.DefaultConfig;
 import org.tron.core.config.args.Args;
+import org.tron.core.db.TransactionStoreTest;
 
 @Slf4j
 public class LevelDbDataSourceImplTest {
@@ -227,6 +230,28 @@ public class LevelDbDataSourceImplTest {
     dataSource.putData(key4, value4);
   }
 
+  private void putSomeKeyValueNotInOrder(LevelDbDataSourceImpl dataSource) {
+    value1 = "10000".getBytes();
+    value2 = "20000".getBytes();
+    value3 = "30000".getBytes();
+    value4 = "40000".getBytes();
+    value5 = "50000".getBytes();
+    value6 = "60000".getBytes();
+    key1 = "00000001aa".getBytes();
+    key2 = "00000002aa".getBytes();
+    key3 = "00000003aa".getBytes();
+    key4 = "00000004aa".getBytes();
+    key5 = "00000005aa".getBytes();
+    key6 = "00000006aa".getBytes();
+
+    dataSource.putData(key6, value6);
+    dataSource.putData(key3, value3);
+    dataSource.putData(key4, value4);
+    dataSource.putData(key5, value5);
+    dataSource.putData(key2, value2);
+    dataSource.putData(key1, value1);
+  }
+
   @Test
   public void seekTest() {
     LevelDbDataSourceImpl dataSource = new LevelDbDataSourceImpl(
@@ -275,20 +300,54 @@ public class LevelDbDataSourceImplTest {
     dataSource.closeDB();
   }
 
+  byte[] getKey(long time) {
+    int size = Long.SIZE/Byte.SIZE;
+    long delayUntil = time;
+    byte[] delayTime =  Longs.toByteArray(delayUntil);
+    byte[] trxId = TransactionStoreTest.randomBytes(32);
+    byte[] key = new byte[8 + trxId.length];
+    System.arraycopy(delayTime, 0, key, 0, size);
+    System.arraycopy(trxId, 0, key, size, trxId.length);
+    return key;
+  }
+
+  @Test
+  public void testGetPrevious2() {
+    LevelDbDataSourceImpl dataSource = new LevelDbDataSourceImpl(
+        Args.getInstance().getOutputDirectory(), "test_getPrevious_key");
+    dataSource.initDB();
+    dataSource.resetDb();
+    long now = System.currentTimeMillis();
+    dataSource.putData(getKey(now + 1), value1);
+    dataSource.putData(getKey(now + 2), value2);
+    dataSource.putData(getKey(now + 3), value3);
+    dataSource.putData(getKey(now + 4), value4);
+    dataSource.putData(getKey(now + 6), value4);
+
+    Map<byte[], byte[]> seekKeyLimitNext = dataSource.getPrevious(getKey(now + 5), Long.MAX_VALUE);
+    Assert.assertEquals("getPrevious1",  4, seekKeyLimitNext.size());
+
+    Map<byte[], byte[]> seekKeyLimitNext2 = dataSource.getPrevious(getKey(now + 3), Long.MAX_VALUE);
+
+    Assert.assertEquals("getPrevious2",  2, seekKeyLimitNext2.size());
+  }
+
   @Test
   public void getPrevious() {
     LevelDbDataSourceImpl dataSource = new LevelDbDataSourceImpl(
         Args.getInstance().getOutputDirectory(), "test_getPrevious_key");
     dataSource.initDB();
     dataSource.resetDb();
-    putSomeKeyValue(dataSource);
+    dataSource.putData(key1, value1);
+    dataSource.putData(key6, value6);
+    dataSource.putData(key2, value2);
+    dataSource.putData(key5, value5);
+    dataSource.putData(key3, value3);
+    dataSource.putData(key4, value4);
     dataSource.putData(key7, value7);
 
-    Map<byte[], byte[]> seekKeyLimitNext = dataSource.getPrevious(key3, Long.MAX_VALUE, Long.SIZE / Byte.SIZE);
-    Assert.assertEquals("getPrevious1",  4, seekKeyLimitNext.size());
-
-    seekKeyLimitNext = dataSource.getPrevious(key3, Long.MAX_VALUE, 10);
-    Assert.assertEquals("getPrevious2",  3, seekKeyLimitNext.size());
+    Map<byte[], byte[]> seekKeyLimitNext = dataSource.getPrevious(key3, Long.MAX_VALUE);
+    Assert.assertEquals("getPrevious1",  3, seekKeyLimitNext.size());
     dataSource.resetDb();
     dataSource.closeDB();
   }
