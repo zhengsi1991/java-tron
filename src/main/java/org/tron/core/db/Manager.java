@@ -2056,7 +2056,7 @@ public class Manager {
     long end = System.currentTimeMillis();
 
     int len = getDeferredTransactionStore().revokingDB.getAllValues(MAX_TRANSACTION_PENDING).size();
-    logger.info("db data:{}   system time:{}", len, (start - end));
+    logger.info("db data:{}   system time:{}", len, (end - start));
     for (DeferredTransactionCapsule deferredTransaction : deferredTransactionList) {
       TransactionCapsule trxCapsule = new TransactionCapsule(deferredTransaction.getDeferredTransaction().getTransaction());
       trxCapsule.setContractType(Constant.EXECUTINGDEFERREDTRANSACTION);
