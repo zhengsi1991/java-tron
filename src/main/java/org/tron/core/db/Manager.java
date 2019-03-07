@@ -2054,7 +2054,9 @@ public class Manager {
     List<DeferredTransactionCapsule> deferredTransactionList = getDeferredTransactionStore()
             .getScheduledTransactions(blockCapsule.getTimeStamp());
     long end = System.currentTimeMillis();
-    logger.info("system time:{}", (start - end));
+
+    int len = getDeferredTransactionStore().revokingDB.getAllValues(MAX_TRANSACTION_PENDING).size();
+    logger.info("db data:{}   system time:{}", len, (start - end));
     for (DeferredTransactionCapsule deferredTransaction : deferredTransactionList) {
       TransactionCapsule trxCapsule = new TransactionCapsule(deferredTransaction.getDeferredTransaction().getTransaction());
       trxCapsule.setContractType(Constant.EXECUTINGDEFERREDTRANSACTION);
