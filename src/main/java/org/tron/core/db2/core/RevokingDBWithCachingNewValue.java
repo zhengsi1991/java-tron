@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.ByteUtil;
 import org.tron.core.config.args.Args;
 import org.tron.core.db.common.WrappedByteArray;
@@ -19,6 +20,7 @@ import org.tron.core.db2.common.LevelDB;
 import org.tron.core.db2.common.Value;
 import org.tron.core.exception.ItemNotFoundException;
 
+@Slf4j(topic = "DB")
 public class RevokingDBWithCachingNewValue implements IRevokingDB {
 
   //true:fullnode, false:soliditynode
@@ -183,17 +185,24 @@ public class RevokingDBWithCachingNewValue implements IRevokingDB {
 
   @Override
   public Set<byte[]> getValuesPrevious(byte[] key, long limit) {
+    long start = System.currentTimeMillis();
+
     Map<WrappedByteArray, WrappedByteArray> collection = new HashMap<>();
     if (head.getPrevious() != null) {
       ((SnapshotImpl) head).collect(collection);
     }
     Map<WrappedByteArray, WrappedByteArray> levelDBMap = new HashMap<>();
+    long estimatedTime = System.currentTimeMillis() - start;
+    start = System.currentTimeMillis();
+    logger.info("db data namiao1:{}   system time:{}",  estimatedTime);
 
     int precision = Long.SIZE / Byte.SIZE;
     ((LevelDB) ((SnapshotRoot) head.getRoot()).db).getDb().getPrevious(key, limit, precision).entrySet().stream()
         .map(e -> Maps.immutableEntry(WrappedByteArray.of(e.getKey()), WrappedByteArray.of(e.getValue())))
         .forEach(e -> levelDBMap.put(e.getKey(), e.getValue()));
     levelDBMap.putAll(collection);
+    estimatedTime = System.currentTimeMillis() - start;
+    logger.info("db data namiao2:{}   system time:{}",  estimatedTime);
 
     Set<byte[]> result = new HashSet<>();
     for (WrappedByteArray p : levelDBMap.keySet()) {
