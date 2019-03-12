@@ -22,9 +22,11 @@ public class DbBackupConfig {
   private String bak2path;
 
   @Getter
-  @Setter
   private int frequency;
 
+  public void setFrequency(int frequency){
+    this.frequency = Math.max(1,frequency);
+  }
   @Getter
   @Setter
   private boolean enable = true;

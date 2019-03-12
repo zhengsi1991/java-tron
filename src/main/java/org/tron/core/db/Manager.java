@@ -43,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
 import org.spongycastle.util.encoders.Hex;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.common.logsfilter.EventPluginLoader;
@@ -1418,7 +1419,7 @@ public class Manager {
     blockCapsule.sign(privateKey);
 
     try {
-      this.pushBlock(blockCapsule);
+      ((Manager)AopContext.currentProxy()).pushBlock(blockCapsule);
       return blockCapsule;
     } catch (TaposException e) {
       logger.info("contract not processed during TaposException");

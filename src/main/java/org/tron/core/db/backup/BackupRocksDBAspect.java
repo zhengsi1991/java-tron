@@ -23,6 +23,7 @@ public class BackupRocksDBAspect {
   @Before("pointPushBlock(block)")
   public void backupDb(BlockCapsule block) {
     try {
+      logger.info("doooo");
       util.doBackup(block);
     } catch (Exception e) {
       logger.error("backup db failure: {}", e);
