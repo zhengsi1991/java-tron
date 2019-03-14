@@ -1,31 +1,28 @@
 package org.tron.core.net;
 
 import java.io.File;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.tron.common.application.TronApplicationContext;
-import org.testng.collections.Lists;
-import org.tron.common.net.udp.message.discover.FindNodeMessage;
-import org.tron.common.net.udp.message.Message;
-import org.tron.common.net.udp.message.discover.NeighborsMessage;
-import org.tron.common.net.udp.message.discover.PingMessage;
-import org.tron.common.net.udp.message.discover.PongMessage;
-import org.tron.common.overlay.discover.node.Node;
-import org.tron.common.overlay.discover.node.NodeManager;
-import org.tron.common.overlay.discover.RefreshTask;
-import org.tron.common.utils.FileUtil;
-import org.tron.core.config.DefaultConfig;
-import org.tron.core.config.args.Args;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.testng.collections.Lists;
+import org.tron.common.application.TronApplicationContext;
+import org.tron.common.net.udp.message.Message;
+import org.tron.common.net.udp.message.discover.FindNodeMessage;
+import org.tron.common.net.udp.message.discover.NeighborsMessage;
+import org.tron.common.net.udp.message.discover.PingMessage;
+import org.tron.common.net.udp.message.discover.PongMessage;
+import org.tron.common.overlay.discover.RefreshTask;
+import org.tron.common.overlay.discover.node.Node;
+import org.tron.common.overlay.discover.node.NodeManager;
+import org.tron.common.utils.FileUtil;
+import org.tron.core.config.DefaultConfig;
+import org.tron.core.config.args.Args;
 
 @Slf4j
 public class UdpTest {
@@ -134,6 +131,7 @@ public class UdpTest {
 
   //@After
   public void after() {
+    Args.clearParam();
     FileUtil.deleteDir(new File("udp_test"));
   }
 }
