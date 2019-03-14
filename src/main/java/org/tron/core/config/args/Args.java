@@ -446,12 +446,14 @@ public class Args {
     INSTANCE.storageIndexDirectory = "";
     INSTANCE.storageIndexSwitch = "";
 
-    // FIXME: INSTANCE.storage maybe null ?
-    if (INSTANCE.storage != null) {
-      // WARNING: WILL DELETE DB STORAGE PATHS
-      INSTANCE.storage.deleteAllStoragePaths();
-      INSTANCE.storage = null;
-    }
+    // // FIXME: INSTANCE.storage maybe null ?
+    // if (INSTANCE.storage != null) {
+    //   // WARNING: WILL DELETE DB STORAGE PATHS
+    //   INSTANCE.storage.deleteAllStoragePaths();
+    //   INSTANCE.storage = null;
+    // }
+
+    INSTANCE.storage = null;
 
     INSTANCE.overlay = null;
     INSTANCE.seedNode = null;
@@ -921,8 +923,10 @@ public class Args {
   public String getOutputDirectoryByDbName(String dbName) {
     String path = storage.getPathByDbName(dbName);
     if (!StringUtils.isBlank(path)) {
+      logger.error("dbName: {}, is not blank, path: {}", dbName, path);
       return path;
     }
+    logger.error("dbName: {}, is blank, getOutputDirectory: {}", dbName, getOutputDirectory());
     return getOutputDirectory();
   }
 
