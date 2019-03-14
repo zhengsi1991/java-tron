@@ -2,6 +2,7 @@ package org.tron.core.capsule;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
@@ -12,6 +13,7 @@ import org.tron.core.exception.BalanceInsufficientException;
 import org.tron.protos.Protocol.ResourceReceipt;
 import org.tron.protos.Protocol.Transaction.Result.contractResult;
 
+@Slf4j
 public class ReceiptCapsule {
 
   private ResourceReceipt receipt;
@@ -158,6 +160,15 @@ public class ReceiptCapsule {
       account.setBalance(balance - energyFee);
 
       //send to blackHole
+
+      // for debug begin
+      logger.info("manager: {}", manager);
+      logger.info("getAccountStore: {}", manager.getAccountStore());
+      logger.info("getBlackhole: {}", manager.getAccountStore().getBlackhole());
+      logger.info("getAddress: {}", manager.getAccountStore().getBlackhole().getAddress());
+      // for debug end
+
+
       manager.adjustBalance(manager.getAccountStore().getBlackhole().getAddress().toByteArray(),
           energyFee);
     }
