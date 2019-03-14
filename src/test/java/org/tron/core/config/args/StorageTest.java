@@ -30,7 +30,7 @@ public class StorageTest {
   private static Storage storage;
 
   static {
-    Args.setParam(new String[]{}, Constant.TEST_WITHOUT_STORAGE_PROPERTY_CONF);
+    Args.setParam(new String[]{}, Constant.TEST_CONF);
     storage = Args.getInstance().getStorage();
   }
 
