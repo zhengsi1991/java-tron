@@ -41,7 +41,7 @@ public class InternalTransactionCallTest {
   @Before
   public void init() {
     Args.setParam(new String[]{"--output-directory", dbPath, "--support-constant", "--debug"},
-        Constant.TEST_CONF);
+        Constant.TEST_WITHOUT_STORAGE_PROPERTY_CONF);
 
     context = new TronApplicationContext(DefaultConfig.class);
     AppT = ApplicationFactory.create(context);

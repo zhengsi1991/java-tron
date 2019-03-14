@@ -33,6 +33,8 @@ public class Constant {
   //config for junit test
   public static final String TEST_CONF = "config-test.conf";
 
+  public static final String TEST_WITHOUT_STORAGE_PROPERTY_CONF = "config-test-without-storage-property.conf";
+
   public static final String DATABASE_DIR = "storage.directory";
 
   public static final byte ADD_PRE_FIX_BYTE_MAINNET = (byte) 0x41;   //41 + address
