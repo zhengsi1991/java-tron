@@ -1,13 +1,7 @@
 package org.tron.core.db;
 
-import static org.tron.core.config.Parameter.NodeConstant.MAX_TRANSACTION_PENDING;
-
-import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.io.File;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -24,12 +18,11 @@ import org.tron.protos.Protocol.DeferredStage;
 import org.tron.protos.Protocol.DeferredTransaction;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
-import org.tron.protos.Protocol.Transaction.raw.Builder;
 
 public class DeferredTransactionCacheTest {
-  private static String dbPath = "output_deferred_transactionCache_test";
-  private static String dbDirectory = "db_deferred_transactionCache_test";
-  private static String indexDirectory = "index_deferred_transactionCache_test";
+  private static String dbPath = "output_deferred_transactionCache1_test";
+  private static String dbDirectory = "db_deferred_transactionCache1_test";
+  private static String indexDirectory = "index_deferred_transactionCache1_test";
   private static TronApplicationContext context;
   private static Manager dbManager;
 
@@ -83,20 +76,25 @@ public class DeferredTransactionCacheTest {
   public void GetScheduledTransactionsTest (){
     DeferredTransactionCache deferredTransactionCache = dbManager.getDeferredTransactionCache();
     DeferredTransactionIdIndexCache deferredTransactionIdIndexCache = dbManager.getDeferredTransactionIdIndexCache();
-    // save in database with block number
-    TransferContract tc =
-        TransferContract.newBuilder()
-            .setAmount(10)
-            .setOwnerAddress(ByteString.copyFromUtf8("aaa"))
-            .setToAddress(ByteString.copyFromUtf8("bbb"))
-            .build();
-    TransactionCapsule trx = new TransactionCapsule(tc, ContractType.TransferContract);
-    DeferredTransactionCapsule deferredTransactionCapsule = new DeferredTransactionCapsule(
-        buildDeferredTransaction(trx.getInstance()));
-    deferredTransactionCache.put(deferredTransactionCapsule);
-    deferredTransactionIdIndexCache.put(deferredTransactionCapsule);
 
-    dbManager.getDeferredTransactionCache().getScheduledTransactions(System.currentTimeMillis());
+    for (int i = 999; i >= 0; i --) {
+      TransferContract tc =
+          TransferContract.newBuilder()
+              .setAmount(i)
+              .setOwnerAddress(ByteString.copyFromUtf8("aaa"))
+              .setToAddress(ByteString.copyFromUtf8("bbb"))
+              .build();
+      TransactionCapsule trx = new TransactionCapsule(tc, ContractType.TransferContract);
+      DeferredTransactionCapsule deferredTransactionCapsule = new DeferredTransactionCapsule(
+          buildDeferredTransaction(trx.getInstance()));
+
+      deferredTransactionCache.put(new DeferredTransactionCapsule(deferredTransactionCapsule.getInstance().toBuilder().setDelayUntil(i).build()));
+      deferredTransactionIdIndexCache.put(deferredTransactionCapsule);
+    }
+    // save in database with block number
+    Assert.assertEquals(100, dbManager.getDeferredTransactionCache().getScheduledTransactions(99).size());
+    Assert.assertEquals(500, dbManager.getDeferredTransactionCache().getScheduledTransactions(499).size());
+
   }
 
   private static DeferredTransaction buildDeferredTransaction(Transaction transaction) {

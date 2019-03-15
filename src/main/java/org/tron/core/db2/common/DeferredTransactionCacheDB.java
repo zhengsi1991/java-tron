@@ -3,23 +3,30 @@ package org.tron.core.db2.common;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 import lombok.extern.slf4j.Slf4j;
-import org.iq80.leveldb.DBIterator;
+import java.util.Comparator;
+import java.util.TreeMap;
 import org.tron.common.utils.ByteUtil;
 import org.tron.core.db.common.WrappedByteArray;
 
 @Slf4j(topic = "DB")
 public class DeferredTransactionCacheDB implements DB<byte[], byte[]>, Flusher {
-  private final int MAX_DEFERRED_TRANSACTION = 1000000;
+  private final int MAX_DEFERRED_TRANSACTION = 100000000;
 
-  private Map<Key, byte[]> db = new HashMap<>();
+  private Map<Key, byte[]> db = new TreeMap<Key, byte[]>(new Comparator<Key>() {
+    @Override
+    public int compare(Key o1, Key o2) {
+      return ByteUtil.greater(o1.getBytes(), o2.getBytes())? 1 : -1;
+    }
+  });
 
   int size = 0;
 
@@ -34,6 +41,7 @@ public class DeferredTransactionCacheDB implements DB<byte[], byte[]>, Flusher {
       logger.error("put deferred transaction {} failed, too many pending.");
       return;
     }
+
     size ++;
     db.put(Key.copyOf(key), value);
   }
@@ -78,9 +86,17 @@ public class DeferredTransactionCacheDB implements DB<byte[], byte[]>, Flusher {
     db.clear();
   }
 
-  public Stream<Entry<Key,byte[]>> getPrevious(byte[] key, long limit, int precision) {
-    return db.entrySet().stream().
-        filter(keyEntry -> ByteUtil.lessOrEquals(ByteUtil.parseBytes(keyEntry.getKey().getBytes(), 0, precision), key) ).
-        limit(limit);
+  public List<byte[]> getPrevious(byte[] key, long limit, int precision) {
+    List<byte[]>  result = new ArrayList<>();
+    for (Map.Entry<Key, byte[]> entry : db.entrySet()) {
+      if (ByteUtil.lessOrEquals(ByteUtil.parseBytes(entry.getKey().getBytes(), 0, precision), key)) {
+        result.add(entry.getValue());
+        limit --;
+      } else {
+        break;
+      }
+      if (limit <= 0) break;
+    }
+    return result;
   }
 }
