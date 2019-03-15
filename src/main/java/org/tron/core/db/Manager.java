@@ -1373,7 +1373,7 @@ public class Manager {
     long postponedDeferredTrxCount = 0;
     long processedDeferredTrxCount = 0;
     long totalDeferredTransactionProcessTime = 0;
-    //addDeferredTransactionToPending(blockCapsule);
+    addDeferredTransactionToPending(blockCapsule);
 
     Set<String> accountSet = new HashSet<>();
     Iterator<TransactionCapsule> iterator = pendingTransactions.iterator();
@@ -2043,11 +2043,14 @@ public class Manager {
     // add deferred transactions to header of pendingTransactions
     List<DeferredTransactionCapsule> deferredTransactionList = getDeferredTransactionCache()
             .getScheduledTransactions(blockCapsule.getTimeStamp());
+    long start = System.currentTimeMillis();
     for (DeferredTransactionCapsule deferredTransaction : deferredTransactionList) {
       TransactionCapsule trxCapsule = new TransactionCapsule(deferredTransaction.getDeferredTransaction().getTransaction());
       pendingTransactions.add(0, trxCapsule);
     }
 
+    long end = System.currentTimeMillis() - start;
+    logger.info("cost time {}", end - start);
     return;
   }
 
