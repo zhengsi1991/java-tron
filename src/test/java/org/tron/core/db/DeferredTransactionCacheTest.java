@@ -95,6 +95,19 @@ public class DeferredTransactionCacheTest {
     Assert.assertEquals(100, dbManager.getDeferredTransactionCache().getScheduledTransactions(99).size());
     Assert.assertEquals(500, dbManager.getDeferredTransactionCache().getScheduledTransactions(499).size());
 
+    TransferContract tc =
+        TransferContract.newBuilder()
+            .setAmount(10)
+            .setOwnerAddress(ByteString.copyFromUtf8("aaa"))
+            .setToAddress(ByteString.copyFromUtf8("bbb"))
+            .build();
+    TransactionCapsule trx = new TransactionCapsule(tc, ContractType.TransferContract);
+    DeferredTransactionCapsule deferredTransactionCapsule = new DeferredTransactionCapsule(
+        buildDeferredTransaction(trx.getInstance()));
+    deferredTransactionCache.put(deferredTransactionCapsule);
+
+
+    deferredTransactionIdIndexCache.put(deferredTransactionCapsule);
   }
 
   private static DeferredTransaction buildDeferredTransaction(Transaction transaction) {

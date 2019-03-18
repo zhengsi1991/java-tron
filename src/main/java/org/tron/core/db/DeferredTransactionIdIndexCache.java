@@ -26,7 +26,6 @@ public class DeferredTransactionIdIndexCache extends TronStoreWithRevoking<Bytes
     super.put(key.getBytes(), new BytesCapsule(value.getBytes()));
   }
 
-
   public void removeDeferredTransactionIdIndex(ByteString transactionId) {
     super.delete(transactionId.toByteArray());
   }

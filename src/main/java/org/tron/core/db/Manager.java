@@ -125,7 +125,6 @@ public class Manager {
   private DeferredTransactionStore deferredTransactionStore;
   @Autowired
   private DeferredTransactionIdIndexStore deferredTransactionIdIndexStore;
-
   @Autowired
   private BlockStore blockStore;
   @Autowired
@@ -2089,6 +2088,12 @@ public class Manager {
     transactionCapsule.setDeferredStage(Constant.EXECUTINGDEFERREDTRANSACTION);
     logger.debug("deferred transaction trxid = {}", transactionCapsule.getTransactionId());
 
+    Long deferredTransactionMaxSize = this.dynamicPropertiesStore.getDeferredTransactionOccupySpace();
+    if (deferredTransactionMaxSize + transactionCapsule.getData().length
+        > Constant.MAX_DEFERRED_TRANSACTION_OCCUPY_SPACE) {
+      logger.info("deferred transaction over limit, the size is " + deferredTransactionMaxSize + " bytes");
+      return;
+    }
 
     DeferredTransaction.Builder deferredTransaction = DeferredTransaction.newBuilder();
     // save original transactionId in order to query deferred transaction
@@ -2130,6 +2135,8 @@ public class Manager {
 
     getDeferredTransactionCache().put(deferredTransactionCapsule);
     getDeferredTransactionIdIndexCache().put(deferredTransactionCapsule);
+
+    this.dynamicPropertiesStore.saveDeferredTransactionFee(deferredTransactionMaxSize + transactionCapsule.getData().length);
   }
 
   public boolean cancelDeferredTransaction(ByteString transactionId){
@@ -2145,6 +2152,7 @@ public class Manager {
     getDeferredTransactionIdIndexCache().removeDeferredTransactionIdIndex(deferredTransactionCapsule.getTransactionId());
     getDeferredTransactionStore().removeDeferredTransaction(deferredTransactionCapsule);
     getDeferredTransactionIdIndexStore().removeDeferredTransactionIdIndex(transactionId);
+
 
     logger.debug("cancel deferred transaction {} successfully", transactionId.toString());
 
