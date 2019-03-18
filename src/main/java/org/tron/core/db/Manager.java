@@ -122,6 +122,11 @@ public class Manager {
   @Autowired(required = false)
   private DeferredTransactionIdIndexCache deferredTransactionIdIndexCache;
   @Autowired
+  private DeferredTransactionStore deferredTransactionStore;
+  @Autowired
+  private DeferredTransactionIdIndexStore deferredTransactionIdIndexStore;
+
+  @Autowired
   private BlockStore blockStore;
   @Autowired
   private WitnessStore witnessStore;
@@ -604,6 +609,19 @@ public class Manager {
             throw new IllegalStateException("init txs cache error.");
           }
         })));
+
+    futures.add(service.submit(() -> {
+      getDeferredTransactionStore().revokingDB.getAllValues().forEach((key, value) -> {
+        getDeferredTransactionCache().put(key, value);
+      });
+    }));
+
+    futures.add(service.submit(() -> {
+      getDeferredTransactionIdIndexStore().revokingDB.getAllValues().forEach((key, value) -> {
+        getDeferredTransactionIdIndexCache().put(key, value);
+      });
+    }));
+
     ListenableFuture<?> future = Futures.allAsList(futures);
     try {
       future.get();
@@ -613,6 +631,8 @@ public class Manager {
     } catch (ExecutionException e) {
       logger.info(e.getMessage());
     }
+
+
     logger.info("end to init txs cache. trxids:{}, block count:{}, empty block count:{}, cost:{}",
         transactionCache.size(),
         blockCount.get(),
@@ -1556,6 +1576,14 @@ public class Manager {
       return this.deferredTransactionIdIndexCache;
   }
 
+  public DeferredTransactionStore getDeferredTransactionStore() {
+    return this.deferredTransactionStore;
+  }
+
+  public DeferredTransactionIdIndexStore getDeferredTransactionIdIndexStore() {
+    return this.deferredTransactionIdIndexStore;
+  }
+
   public TransactionHistoryStore getTransactionHistoryStore() {
     return this.transactionHistoryStore;
   }
@@ -2050,7 +2078,7 @@ public class Manager {
     }
 
     long end = System.currentTimeMillis() - start;
-    logger.info("cost time {}", end - start);
+    logger.info("cost time {}, length {}", end, pendingTransactions.size());
     return;
   }
 
@@ -2094,6 +2122,12 @@ public class Manager {
     deferredTransaction.setExpiration(expiration);
 
     DeferredTransactionCapsule deferredTransactionCapsule = new DeferredTransactionCapsule(deferredTransaction.build());
+    Optional.ofNullable(getDeferredTransactionCache())
+        .ifPresent(t -> t.put(deferredTransactionCapsule));
+
+    Optional.ofNullable(getDeferredTransactionIdIndexCache())
+        .ifPresent(t -> t.put(deferredTransactionCapsule));
+
     getDeferredTransactionCache().put(deferredTransactionCapsule);
     getDeferredTransactionIdIndexCache().put(deferredTransactionCapsule);
   }
@@ -2106,8 +2140,11 @@ public class Manager {
       return false;
     }
 
+
     getDeferredTransactionCache().removeDeferredTransaction(deferredTransactionCapsule);
     getDeferredTransactionIdIndexCache().removeDeferredTransactionIdIndex(deferredTransactionCapsule.getTransactionId());
+    getDeferredTransactionStore().removeDeferredTransaction(deferredTransactionCapsule);
+    getDeferredTransactionIdIndexStore().removeDeferredTransactionIdIndex(transactionId);
 
     logger.debug("cancel deferred transaction {} successfully", transactionId.toString());
 

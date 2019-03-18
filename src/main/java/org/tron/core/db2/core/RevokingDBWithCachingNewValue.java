@@ -25,6 +25,7 @@ public class RevokingDBWithCachingNewValue implements IRevokingDB {
 
   //true:fullnode, false:soliditynode
   private ThreadLocal<Boolean> mode = new ThreadLocal<>();
+  @Getter
   private Snapshot head;
   @Getter
   private String dbName;
@@ -193,22 +194,18 @@ public class RevokingDBWithCachingNewValue implements IRevokingDB {
 
   // for unit test
   @Override
-  public Set<byte[]> getAllValues(long limit){
+  public Map<WrappedByteArray, WrappedByteArray> getAllValues(){
     Map<WrappedByteArray, WrappedByteArray> collection = new HashMap<>();
     if (head.getPrevious() != null) {
       ((SnapshotImpl) head).collect(collection);
     }
     Map<WrappedByteArray, WrappedByteArray> levelDBMap = new HashMap<>();
 
-    ((LevelDB) ((SnapshotRoot) head.getRoot()).db).getDb().getAll(limit).entrySet().stream()
+    ((LevelDB) ((SnapshotRoot) head.getRoot()).db).getDb().getAll().entrySet().stream()
         .map(e -> Maps.immutableEntry(WrappedByteArray.of(e.getKey()), WrappedByteArray.of(e.getValue())))
         .forEach(e -> levelDBMap.put(e.getKey(), e.getValue()));
     levelDBMap.putAll(collection);
 
-    return levelDBMap.entrySet().stream()
-        .limit(limit)
-        .map(Map.Entry::getValue)
-        .map(WrappedByteArray::getBytes)
-        .collect(Collectors.toSet());
+    return levelDBMap;
   }
 }

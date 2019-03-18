@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.DeferredTransactionCapsule;
+import org.tron.core.db.common.WrappedByteArray;
 import org.tron.core.db2.common.DeferredTransactionCacheDB;
 
 @Slf4j(topic = "DB")
@@ -20,6 +21,11 @@ public class DeferredTransactionIdIndexCache extends TronStoreWithRevoking<Bytes
     byte[] trxId = deferredTransactionCapsule.getTransactionId().toByteArray();
     super.put(trxId, new BytesCapsule(deferredTransactionCapsule.getKey()));
   }
+
+  public void put(WrappedByteArray key, WrappedByteArray value){
+    super.put(key.getBytes(), new BytesCapsule(value.getBytes()));
+  }
+
 
   public void removeDeferredTransactionIdIndex(ByteString transactionId) {
     super.delete(transactionId.toByteArray());
