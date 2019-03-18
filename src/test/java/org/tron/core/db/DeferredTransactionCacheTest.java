@@ -20,9 +20,9 @@ import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 
 public class DeferredTransactionCacheTest {
-  private static String dbPath = "output_deferred_transactionCache1_test";
-  private static String dbDirectory = "db_deferred_transactionCache1_test";
-  private static String indexDirectory = "index_deferred_transactionCache1_test";
+  private static String dbPath = "output_deferred_transactionCache_test";
+  private static String dbDirectory = "db_deferred_transactionCache_test";
+  private static String indexDirectory = "index_deferred_transactionCache_test";
   private static TronApplicationContext context;
   private static Manager dbManager;
 
