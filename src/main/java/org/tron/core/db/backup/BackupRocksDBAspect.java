@@ -11,11 +11,11 @@ import org.tron.core.capsule.BlockCapsule;
 @Slf4j
 @Aspect
 public class BackupRocksDBAspect {
-  
+
   @Autowired
   private BackupDbUtil util;
 
-  private boolean []isBaking = {false};
+  private boolean[] isBaking = {false};
 
   @Pointcut("execution(** org.tron.core.db.Manager.pushBlock(..)) && args(block)")
   public void pointPushBlock(BlockCapsule block) {
@@ -25,7 +25,7 @@ public class BackupRocksDBAspect {
   @Before("pointPushBlock(block)")
   public void backupDb(BlockCapsule block) {
     try {
-      if(!isBaking[0]) {
+      if (!isBaking[0]) {
         isBaking[0] = true;
         new Thread(new Runnable() {
           @Override
@@ -33,6 +33,8 @@ public class BackupRocksDBAspect {
             util.doBackup(block, isBaking);
           }
         }).start();
+      } else {
+        logger.info("there are one baking thread working currently.");
       }
     } catch (Exception e) {
       isBaking[0] = false;
