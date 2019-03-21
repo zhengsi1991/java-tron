@@ -15,6 +15,8 @@ public class BackupRocksDBAspect {
   @Autowired
   private BackupDbUtil util;
 
+  private boolean []isBaking = {false};
+
   @Pointcut("execution(** org.tron.core.db.Manager.pushBlock(..)) && args(block)")
   public void pointPushBlock(BlockCapsule block) {
 
@@ -23,8 +25,17 @@ public class BackupRocksDBAspect {
   @Before("pointPushBlock(block)")
   public void backupDb(BlockCapsule block) {
     try {
-      util.doBackup(block);
+      if(!isBaking[0]) {
+        isBaking[0] = true;
+        new Thread(new Runnable() {
+          @Override
+          public void run() {
+            util.doBackup(block, isBaking);
+          }
+        }).start();
+      }
     } catch (Exception e) {
+      isBaking[0] = false;
       logger.error("backup db failure: {}", e);
     }
   }

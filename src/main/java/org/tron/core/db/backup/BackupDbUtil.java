@@ -116,8 +116,9 @@ public class BackupDbUtil {
     }
   }
 
-  public void doBackup(BlockCapsule block) {
+  public void doBackup(BlockCapsule block, boolean []isBaking) {
     if (!canDoBackup(block)) {
+      isBaking[0] = false;
       return;
     }
 
@@ -160,6 +161,7 @@ public class BackupDbUtil {
 
     logger.info("current block number is {}, backup all store use {} ms!", block.getNum(),
         System.currentTimeMillis() - t1);
+    isBaking[0] = false;
   }
 
   private void backup(int i) throws RocksDBException {
