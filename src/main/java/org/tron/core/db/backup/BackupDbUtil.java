@@ -173,6 +173,12 @@ public class BackupDbUtil {
           == org.tron.core.db2.common.RocksDB.class) {
         ((org.tron.core.db2.common.RocksDB) ((SnapshotRoot) (store.getHead().getRoot())).getDb())
             .getDb().backup(path);
+        try {
+          logger.info("bak" + i + "is baking.");
+          Thread.sleep(5000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
       }
     }
   }
