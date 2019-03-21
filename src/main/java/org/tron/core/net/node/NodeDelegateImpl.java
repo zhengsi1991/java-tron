@@ -58,6 +58,7 @@ public class NodeDelegateImpl implements NodeDelegate {
   public synchronized LinkedList<Sha256Hash> handleBlock(BlockCapsule block, boolean syncMode)
       throws BadBlockException, UnLinkedBlockException, InterruptedException, NonCommonBlockException {
 
+    logger.info("handleBlock block " + block.getNum() + " begin.");
     if (block.getInstance().getSerializedSize() > BLOCK_SIZE + 100) {
       throw new BadBlockException("block size over limit");
     }
@@ -67,14 +68,18 @@ public class NodeDelegateImpl implements NodeDelegate {
       throw new BadBlockException("block time error");
     }
     try {
+      logger.info("handleBlock block(pushBlock) " + block.getNum() + " begin.");
       dbManager.pushBlock(block);
+      logger.info("handleBlock block(pushBlock) " + block.getNum() + " end.");
       if (!syncMode) {
         List<TransactionCapsule> trx = null;
         trx = block.getTransactions();
+        logger.info("handleBlock block " + block.getNum() + " end.");
         return trx.stream()
             .map(TransactionCapsule::getTransactionId)
             .collect(Collectors.toCollection(LinkedList::new));
       } else {
+        logger.info("handleBlock block " + block.getNum() + " end.");
         return null;
       }
 

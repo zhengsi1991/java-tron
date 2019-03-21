@@ -121,6 +121,7 @@ public class BackupDbUtil {
       return;
     }
 
+    logger.info("doBackup block " + block.getNum() + " begin.");
     long t1 = System.currentTimeMillis();
     try {
       switch (State.valueOf(getBackupState())) {
@@ -154,6 +155,9 @@ public class BackupDbUtil {
     } catch (RocksDBException e) {
       logger.warn("backup db error:" + e);
     }
+
+    logger.info("doBackup block " + block.getNum() + " end.");
+
     logger.info("current block number is {}, backup all store use {} ms!", block.getNum(),
         System.currentTimeMillis() - t1);
   }
