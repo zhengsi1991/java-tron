@@ -22,7 +22,7 @@ cache:
     - '$HOME/.sonar/cache'
 matrix:
   include:
-    - os: linux
+     os: linux
       - name: build
         script:
         - sh tron.sh
@@ -34,7 +34,7 @@ matrix:
         - sh tron.sh
         - bash deploy.sh
 
-    - os: windows
+    os: windows
       - name: build
         script:
         - sh tron.sh
