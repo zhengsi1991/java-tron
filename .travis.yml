@@ -65,8 +65,8 @@ matrix:
     before_install:
       - git clone https://github.com/portapps/portapps ${TRAVIS_BUILD_DIR}/../portapps
       - source ${TRAVIS_BUILD_DIR}/../portapps/.travis/prepare.sh
-      - choco install jdk8 -params 'installdir=c:\\portapps_opt\\jdk' -y
-      - choco install ant --ignore-dependencies -y
+      - choco install jdk8
+      - choco install ant
 #      - source ${TRAVIS_BUILD_DIR}/../portapps/.travis/java.sh
 #      - source ${TRAVIS_BUILD_DIR}/../portapps/.travis/ant.sh
 #      - source ${TRAVIS_BUILD_DIR}/../portapps/.travis/nodejs.sh
