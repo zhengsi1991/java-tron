@@ -71,7 +71,7 @@ matrix:
 #      - source ${TRAVIS_BUILD_DIR}/../portapps/.travis/ant.sh
 #      - source ${TRAVIS_BUILD_DIR}/../portapps/.travis/nodejs.sh
 #      - source ${TRAVIS_BUILD_DIR}/../portapps/.travis/go.sh
-      - set
+#      - set
 
     addons:
       ssh_known_hosts:
