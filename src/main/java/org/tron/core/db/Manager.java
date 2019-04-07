@@ -590,6 +590,7 @@ public class Manager {
         if (hmap.containsKey(address) == false) {
           hmap.put(address, p.getVoteCount());
         } else {
+          logger.info("******** tmp ********" + hmap.get(address) + " " + p);
           hmap.put(address, hmap.get(address) + p.getVoteCount());
         }
       }
