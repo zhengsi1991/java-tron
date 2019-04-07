@@ -609,7 +609,7 @@ public class Manager {
     Streams.stream(hmap.entrySet()).sorted(Comparator.comparing(Entry::getValue)).forEach(
         stringLongEntry -> {
 
-          System.out.println("address: " + stringLongEntry.getKey() + "votes: " + stringLongEntry.getValue());
+          System.out.println("address: " + stringLongEntry.getKey() + " votes: " + stringLongEntry.getValue());
         }
     );
 
