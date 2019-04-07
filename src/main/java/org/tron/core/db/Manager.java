@@ -588,17 +588,19 @@ public class Manager {
       for (Vote p :v.getValue().getNewVotes()) {
         String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
         if (hmap.containsKey(address) == false) {
-          hmap.put(address, new Long(0));
+          hmap.put(address, p.getVoteCount());
+        } else {
+          hmap.put(address, hmap.get(address) + p.getVoteCount());
         }
-        hmap.put(address, hmap.get(address) + p.getVoteCount());
       }
 
       for (Vote p :v.getValue().getOldVotes()) {
         String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
         if (hmap.containsKey(address) == false) {
-          hmap.put(address, new Long(0));
+          hmap.put(address,  - p.getVoteCount());
+        } else {
+          hmap.put(address, hmap.get(address) - p.getVoteCount());
         }
-        hmap.put(address, hmap.get(address) - p.getVoteCount());
       }
     }
     Streams.stream(hmap.entrySet()).sorted(Comparator.comparing(Entry::getValue)).forEach(
