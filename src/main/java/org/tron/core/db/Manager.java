@@ -583,7 +583,7 @@ public class Manager {
   public void initCacheTxs() {
     logger.info("begin to init txs cache.");
     logger.info("******** result ********");
-    System.out.println("startresult");
+    System.out.println("start statistics");
     List<Entry<byte[], VotesCapsule>> list = Streams.stream(getVotesStore()).collect(Collectors.toList());
     Map<String, Long> hmap = new HashMap<>();
     for (Entry<byte[], VotesCapsule> v : list) {
@@ -608,12 +608,11 @@ public class Manager {
 
     Streams.stream(hmap.entrySet()).sorted(Comparator.comparing(Entry::getValue)).forEach(
         stringLongEntry -> {
-
           System.out.println("address: " + stringLongEntry.getKey() + " votes: " + stringLongEntry.getValue());
         }
     );
 
-    System.out.println("endresult");
+    System.out.println("end statistics");
 
     int dbVersion = Args.getInstance().getStorage().getDbVersion();
     if (dbVersion != 2) {
