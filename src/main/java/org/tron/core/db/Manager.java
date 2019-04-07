@@ -62,6 +62,7 @@ import org.tron.common.logsfilter.trigger.ContractTrigger;
 import org.tron.common.overlay.discover.node.Node;
 import org.tron.common.runtime.config.VMConfig;
 import org.tron.common.runtime.vm.LogEventWrapper;
+import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.ForkController;
 import org.tron.common.utils.SessionOptional;
@@ -586,7 +587,7 @@ public class Manager {
     Map<String, Long> hmap = new HashMap<>();
     for (Entry<byte[], VotesCapsule> v : list) {
       for (Vote p :v.getValue().getNewVotes()) {
-        String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
+        String address = Base58.encode(p.getVoteAddress().toByteArray());
         if (hmap.containsKey(address) == false) {
           hmap.put(address, p.getVoteCount());
         } else {
@@ -595,7 +596,7 @@ public class Manager {
       }
 
       for (Vote p :v.getValue().getOldVotes()) {
-        String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
+        String address = Base58.encode(p.getVoteAddress().toByteArray());
         if (hmap.containsKey(address) == false) {
           hmap.put(address,  - p.getVoteCount());
         } else {
@@ -603,8 +604,10 @@ public class Manager {
         }
       }
     }
+
     Streams.stream(hmap.entrySet()).sorted(Comparator.comparing(Entry::getValue)).forEach(
         stringLongEntry -> {
+
           System.out.println("address: " + stringLongEntry.getKey() + "votes: " + stringLongEntry.getValue());
         }
     );
