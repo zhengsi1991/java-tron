@@ -65,34 +65,6 @@ public class ApplicationImpl implements Application {
 
   @Override
   public void shutdown() {
-    List<Entry<byte[], VotesCapsule>> list = Streams.stream(dbManager.getVotesStore()).collect(Collectors.toList());
-    Map<String, Long> hmap = new HashMap<>();
-    for (Entry<byte[], VotesCapsule> v : list) {
-      for (Vote p :v.getValue().getNewVotes()) {
-        String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
-        if (hmap.containsKey(address)) {
-          hmap.put(address, new Long(0));
-        }
-        hmap.put(address, hmap.get(address) + p.getVoteCount());
-      }
-
-      for (Vote p :v.getValue().getOldVotes()) {
-        String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
-        if (hmap.containsKey(address)) {
-          hmap.put(address, new Long(0));
-        }
-        hmap.put(address, hmap.get(address) - p.getVoteCount());
-      }
-    }
-
-    logger.info("******** result ********");
-
-    Streams.stream(hmap.entrySet()).sorted(Comparator.comparing(Entry::getValue)).forEach(
-        stringLongEntry -> {
-          logger.info("address: " + stringLongEntry.getKey() + "votes: " + stringLongEntry.getValue());
-        }
-    );
-
     logger.info("******** begin to shutdown ********");
 
      tronNetService.close();

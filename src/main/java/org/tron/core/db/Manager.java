@@ -7,6 +7,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import com.google.common.primitives.Longs;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -16,10 +17,14 @@ import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -70,6 +75,7 @@ import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.ExchangeCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.capsule.TransactionInfoCapsule;
+import org.tron.core.capsule.VotesCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.capsule.utils.BlockUtil;
 import org.tron.core.config.Parameter.ChainConstant;
@@ -107,6 +113,7 @@ import org.tron.core.witness.WitnessController;
 import org.tron.protos.Protocol.AccountType;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
+import org.tron.protos.Protocol.Vote;
 
 
 @Slf4j(topic = "DB")
@@ -573,6 +580,33 @@ public class Manager {
 
   public void initCacheTxs() {
     logger.info("begin to init txs cache.");
+    logger.info("******** result ********");
+    System.out.println("wubinresult");
+    List<Entry<byte[], VotesCapsule>> list = Streams.stream(getVotesStore()).collect(Collectors.toList());
+    Map<String, Long> hmap = new HashMap<>();
+    for (Entry<byte[], VotesCapsule> v : list) {
+      for (Vote p :v.getValue().getNewVotes()) {
+        String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
+        if (hmap.containsKey(address)) {
+          hmap.put(address, new Long(0));
+        }
+        hmap.put(address, hmap.get(address) + p.getVoteCount());
+      }
+
+      for (Vote p :v.getValue().getOldVotes()) {
+        String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
+        if (hmap.containsKey(address)) {
+          hmap.put(address, new Long(0));
+        }
+        hmap.put(address, hmap.get(address) - p.getVoteCount());
+      }
+    }
+    Streams.stream(hmap.entrySet()).sorted(Comparator.comparing(Entry::getValue)).forEach(
+        stringLongEntry -> {
+          logger.info("address: " + stringLongEntry.getKey() + "votes: " + stringLongEntry.getValue());
+        }
+    );
+
     int dbVersion = Args.getInstance().getStorage().getDbVersion();
     if (dbVersion != 2) {
       return;
