@@ -587,10 +587,9 @@ public class Manager {
     for (Entry<byte[], VotesCapsule> v : list) {
       for (Vote p :v.getValue().getNewVotes()) {
         String address = ByteArray.toHexString(p.getVoteAddress().toByteArray());
-        if (hmap.containsKey(address)) {
+        if (hmap.containsKey(address) == false) {
           hmap.put(address, new Long(0));
         }
-        System.out.println(hmap + "  " + p + hmap.get(address));
         hmap.put(address, hmap.get(address) + p.getVoteCount());
       }
 
