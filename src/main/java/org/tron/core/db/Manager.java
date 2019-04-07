@@ -69,6 +69,7 @@ import org.tron.common.utils.SessionOptional;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.utils.StringUtil;
 import org.tron.core.Constant;
+import org.tron.core.Wallet;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BlockCapsule.BlockId;
@@ -587,7 +588,7 @@ public class Manager {
     Map<String, Long> hmap = new HashMap<>();
     for (Entry<byte[], VotesCapsule> v : list) {
       for (Vote p :v.getValue().getNewVotes()) {
-        String address = Base58.encode(p.getVoteAddress().toByteArray());
+        String address = Wallet.encode58Check(p.getVoteAddress().toByteArray());
         if (hmap.containsKey(address) == false) {
           hmap.put(address, p.getVoteCount());
         } else {
@@ -596,7 +597,7 @@ public class Manager {
       }
 
       for (Vote p :v.getValue().getOldVotes()) {
-        String address = Base58.encode(p.getVoteAddress().toByteArray());
+        String address = Wallet.encode58Check(p.getVoteAddress().toByteArray());
         if (hmap.containsKey(address) == false) {
           hmap.put(address,  - p.getVoteCount());
         } else {
