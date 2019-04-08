@@ -313,6 +313,15 @@ public class TransactionCapsule implements ProtoCapsule<Transaction> {
     return currentWeight;
   }
 
+  public void setTransactionPermission(int permissionId ) {
+    Transaction.raw.Builder raw = transaction.getRawData().toBuilder();
+    Transaction.Contract.Builder contract = raw.getContract(0).toBuilder()
+        .setPermissionId(permissionId);
+    raw.clearContract();
+    raw.addContract(contract);
+    transaction = transaction.toBuilder().setRawData(raw).build();
+  }
+
   public void addSign(byte[] privateKey, AccountStore accountStore)
       throws PermissionException, SignatureException, SignatureFormatException {
     Transaction.Contract contract = this.transaction.getRawData().getContract(0);

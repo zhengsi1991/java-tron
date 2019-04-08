@@ -376,6 +376,11 @@ message TransactionSign {
   bytes privateKey = 2;
 }
 
+message TransactionPermission {
+  Transaction transaction = 1;
+  int32 permissionId = 2;
+}
+
 message BlockHeader {
   message raw {
     int64 timestamp = 1;

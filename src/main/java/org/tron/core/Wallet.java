@@ -137,6 +137,7 @@ import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.Protocol.Transaction.Result.code;
 import org.tron.protos.Protocol.TransactionInfo;
+import org.tron.protos.Protocol.TransactionPermission;
 import org.tron.protos.Protocol.TransactionSign;
 
 @Slf4j
@@ -524,6 +525,12 @@ public class Wallet {
     byte[] privateKey = transactionSign.getPrivateKey().toByteArray();
     TransactionCapsule trx = new TransactionCapsule(transactionSign.getTransaction());
     trx.addSign(privateKey, dbManager.getAccountStore());
+    return trx;
+  }
+
+  public TransactionCapsule setTransactionPermission(TransactionPermission permission)  {
+    TransactionCapsule trx = new TransactionCapsule(permission.getTransaction());
+    trx.setTransactionPermission(permission.getPermissionId() );
     return trx;
   }
 

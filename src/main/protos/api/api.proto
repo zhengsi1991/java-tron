@@ -609,6 +609,10 @@ service Wallet {
   }
 
 
+  rpc SetTransactionPermission (TransactionPermission) returns (TransactionExtention) {
+
+  }
+
   rpc AddSign (TransactionSign) returns (TransactionExtention) {
 
   }
