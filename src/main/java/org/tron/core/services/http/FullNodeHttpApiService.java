@@ -249,7 +249,7 @@ public class FullNodeHttpApiService implements Service {
       context.addServlet(new ServletHolder(getChainParametersServlet), "/getchainparameters");
       context.addServlet(new ServletHolder(getAccountResourceServlet), "/getaccountresource");
       context.addServlet(new ServletHolder(addTransactionSignServlet), "/addtransactionsign");
-      context.addServlet(new ServletHolder(setTransactionPermissionServlet), "/setTransactionPermission");
+      context.addServlet(new ServletHolder(setTransactionPermissionServlet), "/settransactionpermission");
       context.addServlet(new ServletHolder(getTransactionSignWeightServlet), "/getsignweight");
       context.addServlet(new ServletHolder(getTransactionApprovedListServlet), "/getapprovedlist");
       context.addServlet(new ServletHolder(accountPermissionUpdateServlet),
