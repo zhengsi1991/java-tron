@@ -148,6 +148,8 @@ public class FullNodeHttpApiService implements Service {
   @Autowired
   private EncodePermissionOperationsServlet encodePermissionOperationsServlet;
   @Autowired
+  private DecodePermissionOperationsServlet decodePermissionOperationsServlet;
+  @Autowired
   private GetTransactionSignWeightServlet getTransactionSignWeightServlet;
   @Autowired
   private GetTransactionApprovedListServlet getTransactionApprovedListServlet;
@@ -253,6 +255,7 @@ public class FullNodeHttpApiService implements Service {
       context.addServlet(new ServletHolder(addTransactionSignServlet), "/addtransactionsign");
       context.addServlet(new ServletHolder(setTransactionPermissionServlet), "/settransactionpermission");
       context.addServlet(new ServletHolder(encodePermissionOperationsServlet), "/encodepermissionoperations");
+      context.addServlet(new ServletHolder(decodePermissionOperationsServlet), "/decodepermissionoperations");
       context.addServlet(new ServletHolder(getTransactionSignWeightServlet), "/getsignweight");
       context.addServlet(new ServletHolder(getTransactionApprovedListServlet), "/getapprovedlist");
       context.addServlet(new ServletHolder(accountPermissionUpdateServlet),

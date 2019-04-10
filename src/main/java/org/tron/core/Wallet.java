@@ -532,6 +532,43 @@ public class Wallet {
   }
 
 
+  public PermissionOperationsNameList decodePermissionOperations(
+      PermissionOperationsBytes bytes){
+
+    List<String> list = Lists.newArrayList();
+    ByteString operations =  ByteString.copyFrom(ByteArray.fromHexString(bytes.getOperations()));
+
+    //check operations
+    if (operations.isEmpty() || operations.size() != 32) {
+      throw new RuntimeException("operations size must 32");
+    }
+
+    byte[] types1 = dbManager.getDynamicPropertiesStore().getAvailableContractType();
+    for (int i = 0; i < 256; i++) {
+      boolean b = (operations.byteAt(i / 8) & (1 << (i % 8))) != 0;
+      boolean t = (types1[(i / 8)] & (1 << (i % 8))) != 0;
+      if (b && !t) {
+        throw new RuntimeException(i + " isn't a validate ContractType");
+      }
+    }
+
+    List<ContractType> ContractTypeList =  new ArrayList<>(Arrays.asList(ContractType.values()));
+
+    for(ContractType type:ContractTypeList)   {
+      if(type.name().equalsIgnoreCase("UNRECOGNIZED")){
+        continue;
+      }
+      int contractType = type.getNumber();
+      boolean b = (operations.byteAt(contractType / 8) & (1 << (contractType % 8))) != 0;
+      if(b){
+        list.add(type.name());
+      }
+    }
+
+    return PermissionOperationsNameList.newBuilder().addAllContractList(list)
+        .build();
+  }
+
   public PermissionOperationsBytes encodePermissionOperations(
       PermissionOperationsNameList nameList) {
 
@@ -542,6 +579,9 @@ public class Wallet {
 
       ContractType contractType = null;
       for(ContractType type:ContractTypeList)   {
+        if(type.name().equalsIgnoreCase("UNRECOGNIZED")){
+          continue;
+        }
         if (type.toString().equalsIgnoreCase(s)) {
           contractType = type;
           break;
