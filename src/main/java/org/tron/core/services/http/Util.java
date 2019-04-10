@@ -119,10 +119,6 @@ public class Util {
     return printTransactionToJSON(transaction).toJSONString();
   }
 
-  public static String printPermissionOperationsBytes(ByteString bytes) {
-
-    return printTransactionToJSON(transaction).toJSONString();
-  }
 
   public static String printTransactionExtention(TransactionExtention transactionExtention) {
     String string = JsonFormat.printToString(transactionExtention);

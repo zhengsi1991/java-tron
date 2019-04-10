@@ -35,7 +35,7 @@ public class EncodePermissionOperationsServlet extends HttpServlet {
       JsonFormat.merge(contract, build);
       PermissionOperationsBytes reply = wallet.encodePermissionOperations(build.build());
       if (reply != null) {
-        response.getWriter().println(Util.printPermissionOperationsBytes(reply.getOperations()));
+        response.getWriter().println(reply.getOperations());
       } else {
         response.getWriter().println("{}");
       }

@@ -532,15 +532,29 @@ public class Wallet {
   }
 
 
-
-  public PermissionOperationsBytes encodePermissionOperations(PermissionOperationsNameList nameList)  {
+  public PermissionOperationsBytes encodePermissionOperations(
+      PermissionOperationsNameList nameList) {
 
     List<Integer> list = Lists.newArrayList();
-    nameList.getContractListList().asByteStringList().forEach(s ->{
-      ContractType contractType = ContractType.valueOf(s.toString());
-      if(contractType.getNumber() == -1){
-        throw new RuntimeException("parser contract error,["+s.toString()+"]");
+    nameList.getContractListList().forEach(s -> {
+
+      List<ContractType> ContractTypeList =  new ArrayList<>(Arrays.asList(ContractType.values()));
+
+      ContractType contractType = null;
+      for(ContractType type:ContractTypeList)   {
+        if (type.toString().equalsIgnoreCase(s)) {
+          contractType = type;
+          break;
+        }
       }
+      if (null == contractType ) {
+        throw new RuntimeException("parser contract error,[" + s + "]");
+      }
+
+      if (list.contains(contractType.getNumber())) {
+        throw new RuntimeException("Repetition contract:" + s);
+      }
+
       list.add(contractType.getNumber());
     });
 
@@ -548,13 +562,14 @@ public class Wallet {
     list.forEach(e -> {
       operations[e / 8] |= (1 << e % 8);
     });
-    return PermissionOperationsBytes.newBuilder().setOperations(ByteString.copyFrom(operations)).build();
+    return PermissionOperationsBytes.newBuilder().setOperations(ByteArray.toHexString(operations))
+        .build();
   }
 
 
-  public TransactionCapsule setTransactionPermission(TransactionPermission permission)  {
+  public TransactionCapsule setTransactionPermission(TransactionPermission permission) {
     TransactionCapsule trx = new TransactionCapsule(permission.getTransaction());
-    trx.setTransactionPermission(permission.getPermissionId() );
+    trx.setTransactionPermission(permission.getPermissionId());
     return trx;
   }
 
