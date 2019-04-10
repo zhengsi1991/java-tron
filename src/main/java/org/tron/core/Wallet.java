@@ -25,6 +25,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
@@ -128,6 +129,8 @@ import org.tron.protos.Protocol.DelegatedResourceAccountIndex;
 import org.tron.protos.Protocol.Exchange;
 import org.tron.protos.Protocol.Permission;
 import org.tron.protos.Protocol.Permission.PermissionType;
+import org.tron.protos.Protocol.PermissionOperationsBytes;
+import org.tron.protos.Protocol.PermissionOperationsNameList;
 import org.tron.protos.Protocol.Proposal;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.SmartContract.ABI;
@@ -527,6 +530,27 @@ public class Wallet {
     trx.addSign(privateKey, dbManager.getAccountStore());
     return trx;
   }
+
+
+
+  public PermissionOperationsBytes encodePermissionOperations(PermissionOperationsNameList nameList)  {
+
+    List<Integer> list = Lists.newArrayList();
+    nameList.getContractListList().asByteStringList().forEach(s ->{
+      ContractType contractType = ContractType.valueOf(s.toString());
+      if(contractType.getNumber() == -1){
+        throw new RuntimeException("parser contract error,["+s.toString()+"]");
+      }
+      list.add(contractType.getNumber());
+    });
+
+    byte[] operations = new byte[32];
+    list.forEach(e -> {
+      operations[e / 8] |= (1 << e % 8);
+    });
+    return PermissionOperationsBytes.newBuilder().setOperations(ByteString.copyFrom(operations)).build();
+  }
+
 
   public TransactionCapsule setTransactionPermission(TransactionPermission permission)  {
     TransactionCapsule trx = new TransactionCapsule(permission.getTransaction());

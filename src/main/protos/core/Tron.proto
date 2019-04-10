@@ -185,6 +185,16 @@ message Permission {
   repeated Key keys = 7;
 }
 
+
+message PermissionOperationsBytes {
+  bytes operations = 1;
+}
+
+message PermissionOperationsNameList {
+  repeated string contractList = 1;
+}
+
+
 // Witness
 message Witness {
   bytes address = 1;

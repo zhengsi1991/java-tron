@@ -613,6 +613,17 @@ service Wallet {
 
   }
 
+
+
+
+  rpc EncodePermissionOperations (PermissionOperationsNameList) returns (PermissionOperationsBytes) {
+
+  }
+
+  rpc DecodePermissionOperations (PermissionOperationsBytes) returns (PermissionOperationsNameList) {
+
+  }
+
   rpc AddSign (TransactionSign) returns (TransactionExtention) {
 
   }

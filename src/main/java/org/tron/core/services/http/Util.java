@@ -3,6 +3,7 @@ package org.tron.core.services.http;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,7 @@ import org.tron.protos.Contract.WithdrawBalanceContract;
 import org.tron.protos.Contract.WitnessCreateContract;
 import org.tron.protos.Contract.WitnessUpdateContract;
 import org.tron.protos.Protocol.Block;
+import org.tron.protos.Protocol.PermissionOperationsBytes;
 import org.tron.protos.Protocol.SmartContract;
 import org.tron.protos.Protocol.Transaction;
 
@@ -114,6 +116,11 @@ public class Util {
   }
 
   public static String printTransaction(Transaction transaction) {
+    return printTransactionToJSON(transaction).toJSONString();
+  }
+
+  public static String printPermissionOperationsBytes(ByteString bytes) {
+
     return printTransactionToJSON(transaction).toJSONString();
   }
 
