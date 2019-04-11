@@ -163,6 +163,10 @@ public class Manager {
   @Getter
   private StorageRowStore storageRowStore;
 
+  @Autowired
+  @Getter
+  private WitnessVoteStore witnessVoteStore;
+
   // for network
   @Autowired
   private PeersStore peersStore;
@@ -1604,6 +1608,7 @@ public class Manager {
   private void processMaintenance(BlockCapsule block) {
     proposalController.processProposals();
     witnessController.updateWitness();
+    witnessController.updateWitnessVote();
     this.dynamicPropertiesStore.updateNextMaintenanceTime(block.getTimeStamp());
     forkController.reset();
   }

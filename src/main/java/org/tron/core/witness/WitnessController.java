@@ -2,9 +2,13 @@ package org.tron.core.witness;
 
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +20,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
+import org.tron.common.entity.WitnessVote;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.StringUtil;
 import org.tron.common.utils.Time;
@@ -29,6 +34,7 @@ import org.tron.core.db.AccountStore;
 import org.tron.core.db.Manager;
 import org.tron.core.db.VotesStore;
 import org.tron.core.db.WitnessStore;
+import org.tron.core.db.WitnessVoteStore;
 import org.tron.core.exception.HeaderNotFound;
 
 @Slf4j(topic = "witness")
@@ -379,6 +385,31 @@ public class WitnessController {
           "updateWitness,before:{} ", StringUtil.getAddressStringList(currentWits)
               + ",\nafter:{} " + StringUtil.getAddressStringList(newWits));
     }
+  }
+
+  public void updateWitnessVote() {
+    long t0 = System.currentTimeMillis();
+    AccountStore accountStore = manager.getAccountStore();
+    WitnessVoteStore witnessVoteStore = manager.getWitnessVoteStore();
+    try {
+      //iterate accountStore to count witness vote in this maintenance period.
+      HashMap<String, WitnessVote> roundWitness = accountStore.countWitnessCount(
+          manager.getBlockByNum(manager.getDynamicPropertiesStore().getLatestBlockHeaderNumber()));
+
+      // write to db
+      for (Map.Entry<String, WitnessVote> entry : roundWitness.entrySet()) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);) {
+          oos.writeObject(entry.getValue());
+          witnessVoteStore.put(entry.getKey().getBytes(), bos.toByteArray());
+        } catch (IOException e) {
+
+        }
+      }
+    } catch (Exception e) {
+
+    }
+    logger.info("cost:" + String.valueOf(System.currentTimeMillis() - t0));
   }
 
   public void tryRemoveThePowerOfTheGr() {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.common.application.Service;
 import org.tron.core.config.args.Args;
+import org.tron.core.services.WitnessVoteService;
 
 @Component
 @Slf4j(topic = "API")
@@ -157,6 +158,8 @@ public class FullNodeHttpApiService implements Service {
   private GetDelegatedResourceAccountIndexServlet getDelegatedResourceAccountIndexServlet;
   @Autowired
   private GetDelegatedResourceServlet getDelegatedResourceServlet;
+  @Autowired
+  private GetWitnessVoteServlet getWitnessVoteServlet;
 
   @Override
   public void init() {
@@ -255,6 +258,7 @@ public class FullNodeHttpApiService implements Service {
       context.addServlet(new ServletHolder(updateSettingServlet), "/updatesetting");
       context.addServlet(new ServletHolder(updateEnergyLimitServlet), "/updateenergylimit");
       context.addServlet(new ServletHolder(getDelegatedResourceServlet), "/getdelegatedresource");
+      context.addServlet(new ServletHolder(getWitnessVoteServlet), "/getwitnessvote");
       context.addServlet(
           new ServletHolder(getDelegatedResourceAccountIndexServlet),
           "/getdelegatedresourceaccountindex");
