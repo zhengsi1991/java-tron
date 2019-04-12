@@ -401,7 +401,7 @@ public class WitnessController {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);) {
           oos.writeObject(entry.getValue());
-
+          System.out.println(entry.getKey());
           witnessVoteStore.put(entry.getKey().getBytes(), bos.toByteArray());
         } catch (IOException e) {
 

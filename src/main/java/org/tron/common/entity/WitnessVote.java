@@ -39,14 +39,11 @@ public class WitnessVote implements Serializable {
   }
 
   public String toJSONString() {
-    JSONArray jsonArray = new JSONArray();
-    JSONObject jsonObject;
+    JSONObject jsonObject = new JSONObject();
 
     for (Map.Entry<String, Long> entry : this.map.entrySet()) {
-      jsonObject = new JSONObject();
       jsonObject.put(entry.getKey(), entry.getValue());
-      jsonArray.add(jsonObject);
     }
-    return jsonArray.toJSONString();
+    return jsonObject.toJSONString();
   }
 }
