@@ -394,13 +394,14 @@ public class WitnessController {
     try {
       //iterate accountStore to count witness vote in this maintenance period.
       HashMap<String, WitnessVote> roundWitness = accountStore.countWitnessCount(
-          manager.getBlockByNum(manager.getDynamicPropertiesStore().getLatestBlockHeaderNumber()));
+          manager.getDynamicPropertiesStore().getLatestBlockHeaderTimestamp() / 1000);
 
       // write to db
       for (Map.Entry<String, WitnessVote> entry : roundWitness.entrySet()) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);) {
           oos.writeObject(entry.getValue());
+
           witnessVoteStore.put(entry.getKey().getBytes(), bos.toByteArray());
         } catch (IOException e) {
 

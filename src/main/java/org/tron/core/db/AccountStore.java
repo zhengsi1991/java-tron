@@ -69,8 +69,7 @@ public class AccountStore extends TronStoreWithRevoking<AccountCapsule> {
     }
   }
 
-  public HashMap<String, WitnessVote> countWitnessCount(BlockCapsule block) {
-    long round = block.getNum();
+  public HashMap<String, WitnessVote> countWitnessCount(long timestamp) {
     HashMap<String, WitnessVote> roundWitness = new HashMap<>();
 
     Iterator<Map.Entry<byte[], AccountCapsule>> iterator = this.iterator();
@@ -82,7 +81,7 @@ public class AccountStore extends TronStoreWithRevoking<AccountCapsule> {
       if (voteList.size() > 0) {
         for (Protocol.Vote vote : voteList) {
           String witnessAddress = ByteArray.toHexString(vote.getVoteAddress().toByteArray());
-          String key = String.valueOf(round) + "_" + witnessAddress;
+          String key = String.valueOf(timestamp) + "_" + witnessAddress;
 
           if (roundWitness.containsKey(key)) {
             WitnessVote voterCount = roundWitness.get(key);
