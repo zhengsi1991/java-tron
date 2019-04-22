@@ -16,10 +16,12 @@ public class GetBlockByNumOnSolidityServlet extends GetBlockByNumServlet {
   private WalletOnSolidity walletOnSolidity;
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    logger.info("GetBlockByNumOnSolidityServlet get begin {}", request);
     walletOnSolidity.futureGet(() -> super.doGet(request, response));
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    logger.info("GetBlockByNumOnSolidityServlet post begin {}", request);
     walletOnSolidity.futureGet(() -> super.doPost(request, response));
   }
 }

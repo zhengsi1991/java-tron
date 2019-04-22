@@ -22,6 +22,7 @@ public class GetTransactionByIdServlet extends HttpServlet {
   private Wallet wallet;
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    logger.info("GetTransactionByIdServlet begin {}", request);
     try {
       String input = request.getParameter("value");
       Transaction reply = wallet
@@ -39,9 +40,11 @@ public class GetTransactionByIdServlet extends HttpServlet {
         logger.debug("IOException: {}", ioe.getMessage());
       }
     }
+    logger.info("GetTransactionByIdServlet end");
   }
 
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    logger.info("GetTransactionByIdServlet doPost begin {}", request);
     try {
       String input = request.getReader().lines()
           .collect(Collectors.joining(System.lineSeparator()));
@@ -62,5 +65,7 @@ public class GetTransactionByIdServlet extends HttpServlet {
         logger.debug("IOException: {}", ioe.getMessage());
       }
     }
+
+    logger.info("GetTransactionByIdServlet doPost end");
   }
 }

@@ -19,11 +19,13 @@ public class GetTransactionInfoByIdOnSolidityServlet
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    logger.info("GetTransactionInfoByIdOnSolidityServlet get begin {}", request);
     walletOnSolidity.futureGet(() -> super.doGet(request, response));
   }
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    logger.info("GetTransactionInfoByIdOnSolidityServlet post begin {}", request);
     walletOnSolidity.futureGet(() -> super.doPost(request, response));
   }
 }
